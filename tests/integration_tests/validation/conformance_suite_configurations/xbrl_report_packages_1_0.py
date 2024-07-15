@@ -2,6 +2,9 @@ from pathlib import PurePath, Path
 from tests.integration_tests.validation.conformance_suite_config import ConformanceSuiteConfig, ConformanceSuiteAssetConfig
 
 config = ConformanceSuiteConfig(
+    args=[
+        "--reportPackage"
+    ],
     assets=[
         ConformanceSuiteAssetConfig.conformance_suite(
             Path("report-package-conformance.zip"),
