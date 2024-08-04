@@ -19,21 +19,6 @@ config = ConformanceSuiteConfig(
         # Refers to nonexistent taxonomy which triggers IOError and oime:invalidTaxonomy.
         "V-701-zip-with-no-taxonomy",
 
-        # 0xx - basic zip structure and package identification tests
-        "V-000-invalid-zip",  # rpe:invalidArchiveFormat tpe:invalidArchiveFormat,0,A report package MUST conform to the .ZIP File Format Specification
-        # "V-001-valid-taxonomy-package",  # ,0,"Minimal valid taxonomy package (not a report package). If the package has a file extension of .zip and neither [META-INF/reportPackage.json nor reports] exists, the file is treated as a taxonomy package, and further constraints and processing defined by this specification are not applied."
-        # "V-002-invalid-taxonomy-package-metadata",  # tpe:invalidMetaDataFile,0,If a report package contains the path META-INF/taxonomyPackage.xml within the STLD then it MUST be a valid taxonomy package.
-        "V-003-multiple-top-level-directories",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,A report package conforming to this specification MUST contain a single top-level directory
-        "V-004-empty-zip",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,A report package conforming to this specification MUST contain a single top-level directory
-        "V-005-leading-slash-in-zip-entry",  # rpe:invalidArchiveFormat tpe:invalidArchiveFormat,0,Leading slash is illegal according to the ZIP specficiation
-        "V-006-dot-slash-in-zip-entry",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,Forbidden dot segment
-        "V-007-dot-dot-slash-in-zip-entry",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,Forbidden dot dot segment
-        "V-008-double-slash-in-zip-entry",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,Forbidden empty segment
-        "V-009-backslash-in-zip-entry",  # rpe:invalidArchiveFormat tpe:invalidArchiveFormat,0,Backslash is illegal according to the zip specification
-        "V-010-duplicate-paths-in-zip-entry",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,Two entries with the same path
-        "V-011-duplicate-paths-in-zip-entry-dir-under-file",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,reportPackage.json as a directory as well as a file
-        "V-012-encrypted-zip",  # rpe:invalidArchiveFormat tpe:invalidArchiveFormat,0,A report package MUST NOT make use of the encryption features of the .ZIP File Format
-
         # 1xx - structural JSON constraints for reportPackage.json
         "V-100-invalid-documentType",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
         "V-101-missing-documentType",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
