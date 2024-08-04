@@ -24,18 +24,6 @@ config = ConformanceSuiteConfig(
         "V-301-xbri-with-single-ixds": frozenset({"ix11.14.1.2:missingResources", "lxml.SCHEMAV_ELEMENT_CONTENT"}),
     }.items()},
     expected_failure_ids=frozenset(f"report-package-conformance/index.csv:{s}" for s in [
-        # 1xx - structural JSON constraints for reportPackage.json
-        "V-100-invalid-documentType",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-101-missing-documentType",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-102-invalid-documentInfo",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-103-missing-documentInfo",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-104-invalid-reportPackage-json",  # rpe:invalidJSON,0,"JSON files defined by this specification MUST be valid JSON, per RFC 8259"
-        "V-105-invalid-reportPackage-json-duplicate-keys",  # rpe:invalidJSON,0,JSON documents defined by this specification MUST have unique keys
-        "V-106-utf16-reportPackage-json",  # rpe:invalidJSON,0,JSON documents MUST use the UTF-8 character encoding
-        "V-107-utf7-reportPackage-json",  # rpe:invalidJSON,0,JSON documents MUST use the UTF-8 character encoding
-        "V-108-utf32-reportPackage-json",  # rpe:invalidJSON,0,JSON documents MUST use the UTF-8 character encoding
-        # "V-109-utf8-reportPackage-json",  # ,1,"MAY include a Unicode Byte Order Mark, although this is neither required nor recommended"
-
         # 2xx - co-constraints on documentType and package file extension
         "V-200-unsupportedReportPackageVersion",  # rpe:unsupportedReportPackageVersion,0,There will never be a version of the spec with this documentType
         "V-201-missing-report-package-json",  # rpe:documentTypeFileExtensionMismatch,0,"rpe:documentTypeFileExtensionMismatch is ... raised if ... The .xbr ... file extension is used, and reportPackage.json is absent"
