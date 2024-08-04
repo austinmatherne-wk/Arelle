@@ -22,6 +22,7 @@ from arelle.ModelValue import (qname, QName)
 from arelle.PluginManager import pluginClassMethods
 from arelle.packages.report import ReportPackageConst
 from arelle.packages.report.DetectReportPackage import isReportPackageExtension
+from arelle.packages.report.Validate import validateReportPackage
 from arelle.rendering import RenderingEvaluator
 from arelle.XmlUtil import collapseWhitespace, xmlstring
 
@@ -340,6 +341,7 @@ class Validate:
                 if newSourceFileSource:
                     sourceFileSource.close()
                 _errors = [] # accumulate pre-loading errors, such as during taxonomy package loading
+                validateReportPackage(self.modelXbrl.modelManager.cntlr, filesource, self.modelXbrl.modelManager.validateAllFilesAsReportPackages, _errors)
                 if filesource and not filesource.selection and filesource.isArchive:
                     try:
                         if filesource.isTaxonomyPackage or expectTaxonomyPackage:

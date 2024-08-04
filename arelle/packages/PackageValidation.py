@@ -5,6 +5,7 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 import os.path
+from collections import Counter
 from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
 
@@ -128,6 +129,96 @@ def validateMetadataDirectory(
             msg=_("%(packageType)s package top-level directory does not contain a subdirectory META-INF"),
             args={
                 "packageType": packageType.name,
+                "file": os.path.basename(str(filesource.url)),
+            },
+        )
+    return None
+
+def validateEntries(
+    packageType: PackageType,
+    filesource: FileSource,
+) -> Validation | None:
+    packageEntries = filesource.dir or []
+    for entry in packageEntries:
+        if entry.startswith("/"):
+            return Validation.error(
+                f"{packageType.errorPrefix}:invalidArchiveFormat",
+                _("%(packageType)s Package entry must not begin with a forward slash: %(entry)s"),
+                args={
+                    "packageType": packageType.name,
+                    "entry": entry
+                },
+            )
+        entryParts = entry.split("/")
+        if "." in entryParts:
+            return Validation.error(
+                f"{packageType.errorPrefix}:invalidDirectoryStructure",
+                _("%(packageType)s Package entries may not contain '.' in paths: %(entry)s"),
+                args={
+                    "packageType": packageType.name,
+                    "entry": entry
+                },
+            )
+        if ".." in entryParts:
+            return Validation.error(
+                f"{packageType.errorPrefix}:invalidDirectoryStructure",
+                _("%(packageType)s Package entries may not contain '..' in paths: %(entry)s"),
+                args={
+                    "packageType": packageType.name,
+                    "entry": entry
+                },
+            )
+        if "//" in entry:
+            return Validation.error(
+                f"{packageType.errorPrefix}:invalidDirectoryStructure",
+                _("%(packageType)s Package entries may not contain empty directories in path: %(entry)s"),
+                args={
+                    "packageType": packageType.name,
+                    "entry": entry
+                },
+            )
+    return None
+
+def validateDuplicateEntries(
+    packageType: PackageType,
+    filesource: FileSource,
+) -> Validation | None:
+    dirCounter = Counter(filesource.dir or [])
+    duplicates = [entry for entry, count in dirCounter.items() if count > 1]
+    if duplicates:
+        return Validation.error(
+            f"{packageType.errorPrefix}:invalidDirectoryStructure",
+            _("%(packageType)s Package contains duplicate entries: %(duplicates)s"),
+            args={
+                "packageType": packageType.name,
+                "duplicates": ", ".join(sorted(duplicates)),
+            },
+        )
+    return None
+
+
+def validateConflictingEntries(
+    packageType: PackageType,
+    filesource: FileSource,
+) -> Validation | None:
+    files = set()
+    directories = set()
+    for entry in filesource.dir or []:
+        isFile = not entry.endswith("/")
+        path = PurePosixPath(entry)
+        if isFile:
+            files.add(path)
+            path = path.parent
+        directories.add(path)
+        directories.update(path.parents)
+    if clashes := files.intersection(directories):
+        clashStrings = [str(clash) for clash in clashes]
+        return Validation.error(
+            f"{packageType.errorPrefix}:invalidDirectoryStructure",
+            _("%(packageType)s Package contains file paths that conflict with directories: %(conflicts)s"),
+            args={
+                "packageType": packageType.name,
+                "conflicts": ", ".join(sorted(clashStrings)),
                 "file": os.path.basename(str(filesource.url)),
             },
         )
