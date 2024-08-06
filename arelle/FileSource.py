@@ -20,6 +20,8 @@ from lxml import etree
 
 import arelle.PluginManager
 from arelle import PackageManager, XmlUtil
+from arelle.packages.report.DetectReportPackage import isReportPackageExtension
+from arelle.packages.report.ReportPackage import ReportPackage
 from arelle.typing import TypeGetText
 from arelle.UrlUtil import isHttpUrl
 
@@ -148,6 +150,7 @@ class FileSource:
     url: str | list[str] | None
     basefile: str | list[str] | None
     xfdDocument: etree._ElementTree | None
+    reportPackage: ReportPackage | None
 
     def __init__(self, url: str, cntlr: Cntlr | None = None, checkIfXmlIsEis: bool = False) -> None:
         self.url = str(url)  # allow either string or FileNamedStringIO
@@ -157,7 +160,7 @@ class FileSource:
         self.isTarGz = self.type == ".tar.gz"
         if not self.isTarGz:
             self.type = self.type[3:]
-        self.isZip = self.type == ".zip"
+        self.isZip = self.type == ".zip" or isReportPackageExtension(self.url)
         self.isZipBackslashed = False # windows style backslashed paths
         self.isEis = self.type == ".eis"
         self.isXfd = (self.type == ".xfd" or self.type == ".frm")
@@ -169,6 +172,7 @@ class FileSource:
         self.filesDir = None
         self.referencedFileSources = {}  # archive file name, fileSource object
         self.taxonomyPackage = None # taxonomy package
+        self.reportPackage = None
         self.mappedPaths = None  # remappings of path segments may be loaded by taxonomyPackage manifest
         self.isValid = True # filesource is assumed to be valid until a call to open fails.
 
@@ -213,6 +217,7 @@ class FileSource:
                     fileStream = openFileStream(self.cntlr, self.basefile, 'rb')
                     self.fs = zipfile.ZipFile(fileStream, mode="r")
                     self.isOpen = True
+                    self.reportPackage = ReportPackage.fromFileSource(self)
                 except (EnvironmentError, zipfile.BadZipFile) as err:
                     self.isValid = False
                     self.logError(err)

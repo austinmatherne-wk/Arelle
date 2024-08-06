@@ -49,6 +49,7 @@ def _getReportsDirEntries(filesource: FileSource, stld: str | None) -> list[str]
     entries = filesource.dir or []
     topReportEntries = []
     subDirReportEntries = []
+    reportsDirectoryExists = False
     for entry in entries:
         path = PurePosixPath(entry)
         if path.suffix not in Const.REPORT_FILE_EXTENSIONS:
@@ -57,27 +58,26 @@ def _getReportsDirEntries(filesource: FileSource, stld: str | None) -> list[str]
             continue
         if not (path.parts[0] == stld and path.parts[1] == Const.REPORTS_DIRECTORY):
             continue
+        reportsDirectoryExists = True
         if len(path.parts) == 3:
             topReportEntries.append(entry)
         else:
             subDirReportEntries.append(entry)
     reportEntries = topReportEntries or subDirReportEntries
-    return sorted(reportEntries) if reportEntries else None
+    if len(reportEntries) > 0:
+        return sorted(reportEntries)
+    return [] if reportsDirectoryExists else None
 
 
 class ReportPackage:
     def __init__(
         self,
-        filesource: FileSource,
         reportPackageZip: zipfile.ZipFile | None = None,
         stld: str | None = None,
         reportType: Const.ReportType | None = None,
         reportPackageJson: dict[str, Any] | None = None,
         reports: list[str] | None = None,
     ) -> None:
-        if not isinstance(filesource.basefile, str):
-            raise ValueError(f"Report Package base file must be a string: {filesource.basefile}")
-        self._filesource = filesource
         self._reportPackageZip = reportPackageZip
         self._stld = stld
         self._reportType = reportType
@@ -101,7 +101,6 @@ class ReportPackage:
         if reportPackageJson is None and reports is None:
             return None
         return ReportPackage(
-            filesource=filesource,
             reportPackageZip=filesource.fs,
             stld=stld,
             reportType=reportType,

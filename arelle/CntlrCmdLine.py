@@ -15,6 +15,7 @@ from arelle import (Cntlr, FileSource, ModelDocument, XmlUtil, XbrlConst, Versio
                     ViewFileFormulae, ViewFileRelationshipSet, ViewFileTests, ViewFileRssFeed,
                     ViewFileRoleTypes)
 from arelle.oim.xml.Save import saveOimReportToXmlInstance
+from arelle.packages.report import ReportPackageConst
 from arelle.rendering import RenderingEvaluator
 from arelle.RuntimeOptions import RuntimeOptions, RuntimeOptionsException
 from arelle.BetaFeatures import BETA_FEATURES_AND_DESCRIPTIONS
@@ -561,11 +562,26 @@ def filesourceEntrypointFiles(filesource, entrypointFiles=[], inlineOnly=False):
         # attempt to find inline XBRL files before instance files, .xhtml before probing others (ESMA)
         urlsByType = {}
         if not entrypointFiles:
-            for _archiveFile in (filesource.dir or ()): # .dir might be none if IOerror
-                filesource.select(_archiveFile)
-                identifiedType = ModelDocument.Type.identify(filesource, filesource.url)
-                if identifiedType in (ModelDocument.Type.INSTANCE, ModelDocument.Type.INLINEXBRL, ModelDocument.Type.HTML):
-                    urlsByType.setdefault(identifiedType, []).append(filesource.url)
+            if filesource.reportPackage is not None:
+                xmlReportPackageExtensions = [
+                    *ReportPackageConst.INLINE_REPORT_FILE_EXTENSIONS,
+                    ReportPackageConst.XBRL_2_1_REPORT_FILE_EXTENSION,
+                ]
+                for report in filesource.reportPackage.reports or []:
+                    reportExt = os.path.splitext(report)[1]
+                    if reportExt in xmlReportPackageExtensions:
+                        filesource.select(report)
+                        identifiedType = ModelDocument.Type.identify(filesource, filesource.url)
+                        urlsByType.setdefault(identifiedType, []).append(filesource.url)
+                    elif reportExt == ReportPackageConst.JSON_REPORT_FILE_EXTENSION:
+                        filesource.select(report)
+                        urlsByType.setdefault(ModelDocument.Type.INSTANCE, []).append(filesource.url)
+            else:
+                for _archiveFile in (filesource.dir or ()): # .dir might be none if IOerror
+                    filesource.select(_archiveFile)
+                    identifiedType = ModelDocument.Type.identify(filesource, filesource.url)
+                    if identifiedType in (ModelDocument.Type.INSTANCE, ModelDocument.Type.INLINEXBRL, ModelDocument.Type.HTML):
+                        urlsByType.setdefault(identifiedType, []).append(filesource.url)
         # use inline instances, if any, else non-inline instances
         for identifiedType in ((ModelDocument.Type.INLINEXBRL,) if inlineOnly else (ModelDocument.Type.INLINEXBRL, ModelDocument.Type.INSTANCE)):
             for url in urlsByType.get(identifiedType, []):

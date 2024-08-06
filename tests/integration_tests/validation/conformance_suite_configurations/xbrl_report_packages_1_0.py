@@ -1,5 +1,9 @@
-from pathlib import PurePath, Path
-from tests.integration_tests.validation.conformance_suite_config import ConformanceSuiteConfig, ConformanceSuiteAssetConfig
+from pathlib import Path, PurePath
+
+from tests.integration_tests.validation.conformance_suite_config import (
+    ConformanceSuiteAssetConfig,
+    ConformanceSuiteConfig,
+)
 
 config = ConformanceSuiteConfig(
     args=[
@@ -32,6 +36,7 @@ config = ConformanceSuiteConfig(
         "V-106-utf16-reportPackage-json",
         "V-107-utf7-reportPackage-json",
         "V-108-utf32-reportPackage-json",
+        "V-109-utf8-reportPackage-json",
         "V-200-unsupportedReportPackageVersion",
         "V-201-missing-report-package-json",
         "V-202-missing-report-package-json",
@@ -83,6 +88,7 @@ config = ConformanceSuiteConfig(
         "V-615-xbr-with-html-report",
         "V-616-xbr-with-htm-report",
         "V-617-xbr-with-multiple-reports-in-a-subdirectory",
+        "V-700-zip-with-multiple-reports",
         "V-701-zip-with-no-taxonomy",
         "V-800-zip-without-reports-directory",
         "V-801-zip-with-only-txt-in-reports-directory",
