@@ -25,26 +25,6 @@ config = ConformanceSuiteConfig(
         "V-509-xbr-with-json-in-dot-xhtml-directory": frozenset({"IOerror", "oime:invalidTaxonomy"}),
         "V-701-zip-with-no-taxonomy": frozenset({"IOerror", "oime:invalidTaxonomy"}),
     }.items()},
-    expected_failure_ids=frozenset(f"report-package-conformance/index.csv:{s}" for s in [
-        # 6xx - invalid.xbr packages
-        "V-600-xbr-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
-        "V-601-xbr-with-only-txt-in-reports-directory",  # rpe:missingReport,0,.xbr file without recognised files in the reports directory
-        "V-603-xbr-with-invalid-jrr",  # rpe:invalidJSON,0,.xbr file with a single invalid JSON-rooted report
-        "V-604-xbr-with-invalid-jrr-duplicate-keys",  # rpe:invalidJSON,0,.xbr file with a single invalid JSON-rooted report (duplicate keys)
-        "V-605-xbr-with-invalid-jrr-utf32",  # rpe:invalidJSON,0,JSON documents MUST use the UTF-8 character encoding
-        "V-606-xbr-with-invalid-jrr-utf16",  # rpe:invalidJSON,0,JSON documents MUST use the UTF-8 character encoding
-        "V-607-xbr-with-invalid-jrr-utf7",  # rpe:invalidJSON,0,JSON documents MUST use the UTF-8 character encoding
-        "V-608-xbr-with-invalid-jrr-missing-documentInfo",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-609-xbr-with-invalid-jrr-missing-documentType",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-610-xbr-with-invalid-jrr-non-string-documentType",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-611-xbr-with-invalid-jrr-non-object-documentInfo",  # rpe:invalidJSONStructure,0,The JSON Pointer /documentInfo/documentType MUST resolve to a string (rpe:invalidJSONStructure).
-        "V-612-xbr-with-multiple-reports",  # rpe:multipleReports,0,.xbr file with multiple reports
-        "V-613-xbr-with-json-and-xbrl-too-deep",  # rpe:missingReport,0,.xbr file with .json and .xbrl buried too deep to be recognised
-        "V-614-xbr-with-xhtml-report",  # rpe:incorrectReportType,0,If the report package is a non-Inline XBRL report package then the contained report MUST be either an XBRL v2.1 report or an JSON-rooted report
-        "V-615-xbr-with-html-report",  # rpe:incorrectReportType,0,If the report package is a non-Inline XBRL report package then the contained report MUST be either an XBRL v2.1 report or an JSON-rooted report
-        "V-616-xbr-with-htm-report",  # rpe:incorrectReportType,0,If the report package is a non-Inline XBRL report package then the contained report MUST be either an XBRL v2.1 report or an JSON-rooted report
-        "V-617-xbr-with-multiple-reports-in-a-subdirectory",  # rpe:multipleReportsInSubdirectory,0,.xbr file with multiple reports in a subdirectory
-    ]),
     info_url="https://specifications.xbrl.org/work-product-index-taxonomy-packages-report-packages-1.0.html",
     membership_url="https://www.xbrl.org/join",
     name=PurePath(__file__).stem,
