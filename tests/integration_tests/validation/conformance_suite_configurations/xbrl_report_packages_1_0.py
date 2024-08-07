@@ -69,16 +69,6 @@ config = ConformanceSuiteConfig(
         "V-405-xbri-with-xbrl-report",  # rpe:incorrectReportType,0,If the report package is an Inline XBRL report package then the contained report MUST be an Inline XBRL Document Set 
         "V-406-xbri-with-multiple-reports-in-a-subdirectory",  # rpe:multipleReportsInSubdirectory,0,.xbri file with multiple reports in a subdirectory
 
-        # 5xx - valid.xbr packages
-        "V-502-xbr-with-single-json",  # ,1,.xbr file with a single xBRL-JSON report
-        "V-503-xbr-with-single-csv",  # ,1,.xbr file with a single xBRL-CSV metadata file
-        "V-504-xbr-with-single-xbrl",  # ,1,.xbr file with a single xBRL-XML document (.xbrl)
-        "V-505-xbr-with-single-xbrl-in-subdir",  # ,1,.xbr file with a single xBRL-XML document (.xbrl) in a subdirectory
-        "V-506-xbr-with-single-json-and-extra-files",  # ,1,".xbr file with a single xBRL-JSON report and files with non-recognised extensions (.txt, .xml)"
-        "V-507-xbr-with-single-json-with-bom",  # ,1,.xbr file with a single xBRL-JSON report with a byte order mark 
-        "V-508-xbr-with-no-taxonomy",  # ,1,.xbr package without a taxonomy
-        "V-509-xbr-with-json-in-dot-xhtml-directory",  # ,1,.json in reports subdirectory with recognised extension (tricky.xhtml)
-
         # 6xx - invalid.xbr packages
         "V-600-xbr-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
         "V-601-xbr-with-only-txt-in-reports-directory",  # rpe:missingReport,0,.xbr file without recognised files in the reports directory
