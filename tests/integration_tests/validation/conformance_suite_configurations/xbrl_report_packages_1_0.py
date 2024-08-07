@@ -19,20 +19,6 @@ config = ConformanceSuiteConfig(
         # Refers to nonexistent taxonomy which triggers IOError and oime:invalidTaxonomy.
         "V-701-zip-with-no-taxonomy",
 
-        # 2xx - co-constraints on documentType and package file extension
-        "V-200-unsupportedReportPackageVersion",  # rpe:unsupportedReportPackageVersion,0,There will never be a version of the spec with this documentType
-        "V-201-missing-report-package-json",  # rpe:documentTypeFileExtensionMismatch,0,"rpe:documentTypeFileExtensionMismatch is ... raised if ... The .xbr ... file extension is used, and reportPackage.json is absent"
-        "V-202-missing-report-package-json",  # rpe:documentTypeFileExtensionMismatch,0,"rpe:documentTypeFileExtensionMismatch is ... raised if ... The .xbri ... file extension is used, and reportPackage.json is absent"
-        "V-203-xbri-documentType",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-204-xbr-documentType",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-205-unconstrained-documentType",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-206-xbri-documentType",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-207-xbri-without-reportPackage-json",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-208-xbri-without-reportPackage-json-and-reports",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-209-xbr-without-reportPackage-json",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-210-xbr-without-reportPackage-json-and-reports",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
-        "V-211-unsupported-file-extension",  # rpe:unsupportedFileExtension,0,Current report package with unsupported file extension (.xbrx)
-
         # 4xx - invalid.xbri packages
         "V-400-xbri-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
         "V-401-xbri-with-only-txt-in-reports-directory",  # rpe:missingReport,0,.xbri file without recognised files in the reports directory
