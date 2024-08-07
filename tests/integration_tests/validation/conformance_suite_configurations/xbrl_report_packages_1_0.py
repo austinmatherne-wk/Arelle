@@ -16,6 +16,9 @@ config = ConformanceSuiteConfig(
         ),
     ],
     expected_failure_ids=frozenset(f"report-package-conformance/index.csv:{s}" for s in [
+        # Refers to nonexistent taxonomy which triggers IOError and oime:invalidTaxonomy.
+        "V-701-zip-with-no-taxonomy",
+
         # 0xx - basic zip structure and package identification tests
         "V-000-invalid-zip",  # rpe:invalidArchiveFormat tpe:invalidArchiveFormat,0,A report package MUST conform to the .ZIP File Format Specification
         # "V-001-valid-taxonomy-package",  # ,0,"Minimal valid taxonomy package (not a report package). If the package has a file extension of .zip and neither [META-INF/reportPackage.json nor reports] exists, the file is treated as a taxonomy package, and further constraints and processing defined by this specification are not applied."
@@ -103,10 +106,6 @@ config = ConformanceSuiteConfig(
         "V-615-xbr-with-html-report",  # rpe:incorrectReportType,0,If the report package is a non-Inline XBRL report package then the contained report MUST be either an XBRL v2.1 report or an JSON-rooted report
         "V-616-xbr-with-htm-report",  # rpe:incorrectReportType,0,If the report package is a non-Inline XBRL report package then the contained report MUST be either an XBRL v2.1 report or an JSON-rooted report
         "V-617-xbr-with-multiple-reports-in-a-subdirectory",  # rpe:multipleReportsInSubdirectory,0,.xbr file with multiple reports in a subdirectory
-
-        # 7xx - valid.zip packages
-        "V-700-zip-with-multiple-reports",  # ,4,.zip package with multiple reports
-        "V-701-zip-with-no-taxonomy",  # ,1,.zip package without a taxonomy
 
         # 8xx - invalid.zip packages
         "V-800-zip-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
