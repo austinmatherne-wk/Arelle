@@ -19,15 +19,6 @@ config = ConformanceSuiteConfig(
         # Refers to nonexistent taxonomy which triggers IOError and oime:invalidTaxonomy.
         "V-701-zip-with-no-taxonomy",
 
-        # 4xx - invalid.xbri packages
-        "V-400-xbri-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
-        "V-401-xbri-with-only-txt-in-reports-directory",  # rpe:missingReport,0,.xbri file without recognised files in the reports directory
-        "V-402-xbri-with-xhtml-too-deep",  # rpe:missingReport,0,.xbri file with .xhtml buried too deep to be recognised
-        "V-403-xbri-with-multiple-reports",  # rpe:multipleReports,0,If the report package is an Inline XBRL report package ... then there MUST NOT be more than one report in the report package
-        "V-404-xbri-with-json-report",  # rpe:incorrectReportType,0,If the report package is an Inline XBRL report package then the contained report MUST be an Inline XBRL Document Set 
-        "V-405-xbri-with-xbrl-report",  # rpe:incorrectReportType,0,If the report package is an Inline XBRL report package then the contained report MUST be an Inline XBRL Document Set 
-        "V-406-xbri-with-multiple-reports-in-a-subdirectory",  # rpe:multipleReportsInSubdirectory,0,.xbri file with multiple reports in a subdirectory
-
         # 6xx - invalid.xbr packages
         "V-600-xbr-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
         "V-601-xbr-with-only-txt-in-reports-directory",  # rpe:missingReport,0,.xbr file without recognised files in the reports directory
