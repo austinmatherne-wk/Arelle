@@ -51,13 +51,6 @@ config = ConformanceSuiteConfig(
         "V-615-xbr-with-html-report",  # rpe:incorrectReportType,0,If the report package is a non-Inline XBRL report package then the contained report MUST be either an XBRL v2.1 report or an JSON-rooted report
         "V-616-xbr-with-htm-report",  # rpe:incorrectReportType,0,If the report package is a non-Inline XBRL report package then the contained report MUST be either an XBRL v2.1 report or an JSON-rooted report
         "V-617-xbr-with-multiple-reports-in-a-subdirectory",  # rpe:multipleReportsInSubdirectory,0,.xbr file with multiple reports in a subdirectory
-
-        # 8xx - invalid.zip packages
-        "V-800-zip-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
-        "V-801-zip-with-only-txt-in-reports-directory",  # rpe:missingReport,0,.zip file without recognised files in the reports directory
-        "V-802-zip-with-reports-too-deep",  # rpe:missingReport,0,".zip file with .json, .xbrl and .xhtml buried too deep to be recognised"
-        "V-803-zip-with-multiple-reports-in-a-subdirectory",  # rpe:multipleReportsInSubdirectory,0,.zip file with multiple reports in a subdirectory
-        "V-804-zip-with-multiple-reports-in-a-subdirectory-uppercase",  # rpe:multipleReportsInSubdirectory,0,.ZIP file (uppercase) with multiple reports in a subdirectory
     ]),
     info_url="https://specifications.xbrl.org/work-product-index-taxonomy-packages-report-packages-1.0.html",
     membership_url="https://www.xbrl.org/join",
