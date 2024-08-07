@@ -60,15 +60,6 @@ config = ConformanceSuiteConfig(
         "V-210-xbr-without-reportPackage-json-and-reports",  # rpe:documentTypeFileExtensionMismatch,0,rpe:documentTypeFileExtensionMismatch is ... raised if ... One of the three document type URIs specified in Section 3.4 is used with the incorrect file extension
         "V-211-unsupported-file-extension",  # rpe:unsupportedFileExtension,0,Current report package with unsupported file extension (.xbrx)
 
-        # 3xx - valid.xbri packages
-        "V-300-xbri-with-single-xhtml",  # ,1,Simple .xbri file with a single .xhtml document
-        "V-301-xbri-with-single-ixds",  # ,1,.xbri file with multiple .xhtml documents in a single IXDS
-        "V-302-xbri-with-single-html",  # ,1,Simple .xbri file with a single .html document
-        "V-303-xbri-with-single-htm",  # ,1,Simple .xbri file with a single .htm document
-        "V-304-xbri-with-no-taxonomy",  # ,1,.xbri package without a taxonomy
-        "V-305-xbri-with-xhtml-in-dot-json-directory",  # ,1,.xhtml in reports subdirectory with recognised extension (tricky.json)
-        "V-306-xbri-with-xhtml-in-dot-xbrl-directory",  # ,1,.xhtml in reports subdirectory with recognised extension (tricky.xbrl)
-
         # 4xx - invalid.xbri packages
         "V-400-xbri-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
         "V-401-xbri-with-only-txt-in-reports-directory",  # rpe:missingReport,0,.xbri file without recognised files in the reports directory
