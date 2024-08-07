@@ -60,23 +60,6 @@ config = ConformanceSuiteConfig(
         "V-802-zip-with-reports-too-deep",  # rpe:missingReport,0,".zip file with .json, .xbrl and .xhtml buried too deep to be recognised"
         "V-803-zip-with-multiple-reports-in-a-subdirectory",  # rpe:multipleReportsInSubdirectory,0,.zip file with multiple reports in a subdirectory
         "V-804-zip-with-multiple-reports-in-a-subdirectory-uppercase",  # rpe:multipleReportsInSubdirectory,0,.ZIP file (uppercase) with multiple reports in a subdirectory
-
-        # 9xx - future report packages
-        "V-900-future-zip",  # rpe:unsupportedReportPackageVersion,0,A future report package with a .zip extension
-        "V-901-future-xbri",  # rpe:unsupportedReportPackageVersion,0,A future report package with a .xbri extension
-        "V-902-future-xbr",  # rpe:unsupportedReportPackageVersion,0,A future report package with a .xbr extension
-        "V-903-future-xbrx",  # rpe:unsupportedFileExtension,0,A future report package with an as-yet-undefined extension (.xbrx)
-        "V-904-future-package-with-invalid-reportPackage-json",  # rpe:invalidJSON,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-905-future-package-with-invalid-reportPackage-json-duplicate-keys",  # rpe:invalidJSON,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-906-future-package-with-invalid-reportPackage-json-utf32",  # rpe:invalidJSON,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-907-future-package-with-invalid-reportPackage-json-utf16",  # rpe:invalidJSON,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-908-future-package-with-invalid-reportPackage-json-utf7",  # rpe:invalidJSON,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-909-future-package-with-invalid-reportPackage-json-missing-documentInfo",  # rpe:invalidJSONStructure,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-910-future-package-with-invalid-reportPackage-json-missing-documentType",  # rpe:invalidJSONStructure,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-911-future-package-with-invalid-reportPackage-json-non-string-documentType",  # rpe:invalidJSONStructure,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-912-future-package-with-invalid-reportPackage-json-non-object-documentInfo",  # rpe:invalidJSONStructure,0,Future report package with invalid JSON in META-INF/reportPackage.json
-        "V-913-future-package-with-bom-in-reportPackage-json",  # rpe:unsupportedReportPackageVersion,0,Future report package with Byte Order Mark in META-INF/reportPackage.json
-        "V-914-current-and-future-package",  # rpe:unsupportedReportPackageVersion,0,META-INF as STLD means this gets interpreted as a future report package
     ]),
     info_url="https://specifications.xbrl.org/work-product-index-taxonomy-packages-report-packages-1.0.html",
     membership_url="https://www.xbrl.org/join",
