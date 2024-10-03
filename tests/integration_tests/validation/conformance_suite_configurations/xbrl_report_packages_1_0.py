@@ -18,8 +18,8 @@ config = ConformanceSuiteConfig(
     expected_failure_ids=frozenset(f"report-package-conformance/index.csv:{s}" for s in [
         # 0xx - basic zip structure and package identification tests
         "V-000-invalid-zip",  # rpe:invalidArchiveFormat tpe:invalidArchiveFormat,0,A report package MUST conform to the .ZIP File Format Specification
-        # "V-001-valid-taxonomy-package",  # ,0,"Minimal valid taxonomy package (not a report package). If the package has a file extension of .zip and neither [META-INF/reportPackage.json nor reports] exists, the file is treated as a taxonomy package, and further constraints and processing defined by this specification are not applied."
-        # "V-002-invalid-taxonomy-package-metadata",  # tpe:invalidMetaDataFile,0,If a report package contains the path META-INF/taxonomyPackage.xml within the STLD then it MUST be a valid taxonomy package.
+        "V-001-valid-taxonomy-package",  # ,0,"Minimal valid taxonomy package (not a report package). If the package has a file extension of .zip and neither [META-INF/reportPackage.json nor reports] exists, the file is treated as a taxonomy package, and further constraints and processing defined by this specification are not applied."
+        "V-002-invalid-taxonomy-package-metadata",  # tpe:invalidMetaDataFile,0,If a report package contains the path META-INF/taxonomyPackage.xml within the STLD then it MUST be a valid taxonomy package.
         "V-003-multiple-top-level-directories",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,A report package conforming to this specification MUST contain a single top-level directory
         "V-004-empty-zip",  # rpe:invalidDirectoryStructure tpe:invalidDirectoryStructure,0,A report package conforming to this specification MUST contain a single top-level directory
         "V-005-leading-slash-in-zip-entry",  # rpe:invalidArchiveFormat tpe:invalidArchiveFormat,0,Leading slash is illegal according to the ZIP specficiation
@@ -59,12 +59,12 @@ config = ConformanceSuiteConfig(
 
         # 3xx - valid.xbri packages
         # "V-300-xbri-with-single-xhtml",  # ,1,Simple .xbri file with a single .xhtml document
-        # "V-301-xbri-with-single-ixds",  # ,1,.xbri file with multiple .xhtml documents in a single IXDS
-        # "V-302-xbri-with-single-html",  # ,1,Simple .xbri file with a single .html document
-        # "V-303-xbri-with-single-htm",  # ,1,Simple .xbri file with a single .htm document
+        "V-301-xbri-with-single-ixds",  # ,1,.xbri file with multiple .xhtml documents in a single IXDS
+        "V-302-xbri-with-single-html",  # ,1,Simple .xbri file with a single .html document
+        "V-303-xbri-with-single-htm",  # ,1,Simple .xbri file with a single .htm document
         # "V-304-xbri-with-no-taxonomy",  # ,1,.xbri package without a taxonomy
-        # "V-305-xbri-with-xhtml-in-dot-json-directory",  # ,1,.xhtml in reports subdirectory with recognised extension (tricky.json)
-        # "V-306-xbri-with-xhtml-in-dot-xbrl-directory",  # ,1,.xhtml in reports subdirectory with recognised extension (tricky.xbrl)
+        "V-305-xbri-with-xhtml-in-dot-json-directory",  # ,1,.xhtml in reports subdirectory with recognised extension (tricky.json)
+        "V-306-xbri-with-xhtml-in-dot-xbrl-directory",  # ,1,.xhtml in reports subdirectory with recognised extension (tricky.xbrl)
 
         # 4xx - invalid.xbri packages
         "V-400-xbri-without-reports-directory",  # rpe:missingReportsDirectory,0,A report package MUST contain a directory called reports as a child of the STLD
