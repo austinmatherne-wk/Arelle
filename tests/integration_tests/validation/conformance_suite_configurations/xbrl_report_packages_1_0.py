@@ -1,11 +1,13 @@
 from pathlib import Path, PurePath
 
+from arelle.plugin import inlineXbrlDocumentSet
 from tests.integration_tests.validation.conformance_suite_config import (
     ConformanceSuiteAssetConfig,
     ConformanceSuiteConfig,
 )
 
 config = ConformanceSuiteConfig(
+    # plugins=frozenset(["inlineXbrlDocumentSet"]),
     args=[
         "--reportPackage"
     ],
@@ -18,6 +20,8 @@ config = ConformanceSuiteConfig(
     expected_additional_testcase_errors={f"report-package-conformance/index.csv:{s}": val for s, val in {
         # Report package references a taxonomy which does not exist.
         "V-701-zip-with-no-taxonomy": frozenset({"IOerror", "oime:invalidTaxonomy"}),
+        # Empty html report templates raise schema validation errors.
+        "V-301-xbri-with-single-ixds": frozenset({"ix11.14.1.2:missingResources", "lxml.SCHEMAV_ELEMENT_CONTENT"}),
     }.items()},
     expected_failure_ids=frozenset(f"report-package-conformance/index.csv:{s}" for s in [
         # 0xx - basic zip structure and package identification tests
@@ -127,4 +131,5 @@ config = ConformanceSuiteConfig(
     membership_url="https://www.xbrl.org/join",
     name=PurePath(__file__).stem,
     network_or_cache_required=False,
+    shards=2,
 )
