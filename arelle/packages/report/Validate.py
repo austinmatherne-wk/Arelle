@@ -4,12 +4,13 @@ See COPYRIGHT.md for copyright information.
 
 from __future__ import annotations
 
+import json
 import logging
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Sequence
 from pathlib import PurePosixPath
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
-from arelle.packages import PackageValidation
+from arelle.packages import PackageConst, PackageUtils, PackageValidation
 from arelle.packages.PackageType import PackageType
 from arelle.packages.report import Const
 from arelle.typing import TypeGetText
@@ -22,6 +23,8 @@ if TYPE_CHECKING:
 _: TypeGetText
 
 REPORT_PACKAGE_TYPE = PackageType("Report", "rpe")
+
+REPORT_PACKAGE_JSON_FILE = "reportPackage.json"
 
 TAXONOMY_PACKAGE_ABORTING_VALIDATIONS = (
     PackageValidation.validatePackageZipFormat,
@@ -59,6 +62,16 @@ def validateReportPackage(
             return
     if not validateReportPackageZipStructure(cntlr, filesource, errors):
         return
+    reportPackageDirectory = getReportPackageTopLevelDirectory(filesource)
+    reportPackageJsonFile = None
+    if reportPackageDirectory is not None:
+        reportPackageJsonFile = getReportPackageJsonFile(
+            filesource, reportPackageDirectory, reportPackageDirectory
+        )
+    if not validateReportPackageJsonFile(
+        cntlr, filesource, reportPackageJsonFile, errors
+    ):
+        return
     if filePath.suffix not in Const.REPORT_PACKAGE_EXTENSIONS:
         code = "rpe:unsupportedFileExtension"
         cntlr.addToLog(
@@ -75,8 +88,10 @@ def validateReportPackage(
 def validateReportPackageZipStructure(
     cntlr: Cntlr,
     filesource: FileSource,
-    errors: list[str] = [],
+    errors: list[str] | None = None,
 ) -> bool:
+    if errors is None:
+        errors = []
     zipStructureValidators = [
         PackageValidation.validatePackageZipFormat,
         PackageValidation.validatePackageNotEncrypted,
@@ -88,16 +103,56 @@ def validateReportPackageZipStructure(
         PackageValidation.validateConflictingEntries,
         PackageValidation.validateMetadataDirectory,
     ]
-    for valid in executeValidations(cntlr, filesource, zipStructureValidators, errors):
-        if not valid:
-            return False
-    return True
+    return all(valid for valid in executeValidations(cntlr, filesource, zipStructureValidators, errors))
+
+
+def validateReportPackageJsonFile(
+    cntlr: Cntlr,
+    filesource: FileSource,
+    reportPackageJsonFilePath: str | None,
+    errors: list[str] = [],
+) -> bool:
+    parsedReportPackage = None
+    if reportPackageJsonFilePath is not None:
+        filesource.select(reportPackageJsonFilePath)
+        with filesource.file(cast(str, filesource.url), binary=True)[0] as rp:
+            parsedReportPackage = json.load(rp)
+    if parsedReportPackage is not None and (val := validateDocumentTypeValueType(filesource, parsedReportPackage)):
+        codes = (val.codes,) if isinstance(val.codes, str) else val.codes
+        for code in codes:
+            cntlr.addToLog(
+                val.msg,
+                messageCode=code,
+                file=str(filesource.urlBasename),
+                level=logging.ERROR,
+            )
+            errors.append(code)
+    return False
+
+
+def getReportPackageTopLevelDirectory(filesource: FileSource) -> str | None:
+    topLevelDirs = PackageUtils.getPackageTopLevelDirectories(filesource)
+    potentialTopLevelDir = {
+        topLevelDir
+        for topLevelDir in topLevelDirs
+        if _isReportPackageTopLevelDirectory(topLevelDir, filesource.dir or [])
+    }
+    if len(potentialTopLevelDir) == 1:
+        return next(iter(potentialTopLevelDir))
+    return None
+
+
+def getReportPackageJsonFile(filesource: FileSource, tld: str, reportPackageJsonFile: str) -> str | None:
+    expectedPackageJsonFilePath = f"{tld}/{PackageConst.META_INF_DIRECTORY}/{REPORT_PACKAGE_JSON_FILE}"
+    if expectedPackageJsonFilePath in (filesource.dir or []):
+        return expectedPackageJsonFilePath
+    return None
 
 
 def executeValidations(
     cntlr: Cntlr,
     filesource: FileSource,
-    validators: list[Callable[[PackageType, FileSource], Validation | None]],
+    validators: Sequence[Callable[[PackageType, FileSource], Validation | None]],
     errors: list[str],
 ) -> Generator[bool, None, None]:
     for validator in validators:
@@ -139,3 +194,17 @@ def _isZipFileReportPackage(filesource: FileSource) -> bool:
         return False
     reportPackagePaths = (Const.REPORT_PACKAGE_FILE, Const.REPORTS_DIRECTORY)
     return any(path in filesource.dir for path in reportPackagePaths)
+
+
+def validateDocumentTypeValueType(filesource: FileSource, reportPackageJsonFile: dict[str, Any]) -> Validation | None:
+    documentType = reportPackageJsonFile.get("documentInfo", {}).get("documentType")
+    if not isinstance(documentType, str):
+        return Validation.error(
+            "rpe:invalidJSONStructure",
+            _("Report Package document type wasn't parsed as a string: %(documentType)s"),
+            args={
+                "documentType": documentType,
+                "file": filesource.urlBasename,
+            },
+        )
+    return None
