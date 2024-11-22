@@ -687,6 +687,11 @@ def commandLineOptionExtender(parser, *args, **kwargs):
                       choices=[a.value for a in ValidateDuplicateFacts.DeduplicationType],
                       dest="deduplicateIxbrlFacts",
                       help=SUPPRESS_HELP)
+    parser.add_option("--inlineTarget",
+                      action="store",
+                      dest="inlineTarget",
+                      help=_("Specify an inline target to load. By default, all targets are loaded. Use '{}' to select the default target.").format(DEFAULT_TARGET),
+                      type="string")
 
 def commandLineFilingStart(cntlr, options, filesource, entrypointFiles, *args, **kwargs):
     global skipExpectedInstanceComparison
