@@ -696,6 +696,20 @@ def commandLineOptionExtender(parser, *args, **kwargs):
 def commandLineFilingStart(cntlr, options, filesource, entrypointFiles, *args, **kwargs):
     global skipExpectedInstanceComparison
     skipExpectedInstanceComparison = getattr(options, "skipExpectedInstanceComparison", False)
+    inlineTarget = getattr(options, "inlineTarget", None)
+    if inlineTarget:
+        if isinstance(entrypointFiles, dict):
+            entrypointFiles = [entrypointFiles]
+        if isinstance(entrypointFiles, list):
+            for i, entry in enumerate(entrypointFiles):
+                entryTarget = entry.get("ixdsTarget")
+                if entryTarget and entryTarget != inlineTarget:
+                    raise RuntimeError(_("Conflicting ixds targets specified: inlineTarget '{}', ixdsTarget '{}'").format(inlineTarget, entryTarget))
+                ixds = entry.get("ixds")
+                if ixds is None:
+                    entry = {"ixds": [entry]}
+                    entrypointFiles[i] = entry
+                entry["ixdsTarget"] = inlineTarget
     if isinstance(entrypointFiles, list):
         # check for any inlineDocumentSet in list
         for entrypointFile in entrypointFiles:
