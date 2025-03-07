@@ -262,7 +262,7 @@ def checkDTS(val: ValidateXbrl, modelDocument: ModelDocument.ModelDocument, chec
     val.extendedElementName = None
     isFilingDocument = False
 
-    if _shouldValidateDocumentContents(val, modelDocument):
+    if modelDocument.xmlDocument is not None:
         isFilingDocument = True
         val.valUsedPrefixes = set()
         val.schemaRoleTypes = {}
@@ -1385,54 +1385,3 @@ def checkIxContinuationChain(val, elt, chain=None):
                 if contAt is not None:
                     chain.append(elt)
                 checkIxContinuationChain(val, contAt, chain)
-
-
-def _shouldValidateDocumentContents(val: ValidateXbrl, modelDocument: ModelDocument.ModelDocument) -> bool:
-    if modelDocument.xmlDocument is None:
-        # Skip further validation of documents that failed to load (other errors are raised).
-        # Note, currently all Arelle models are XML documents (OIM formats are converted to XML prior to loading).
-        return False
-
-    if modelDocument.uri.startswith(val.modelXbrl.uriDir):
-        return True
-
-    if val.modelXbrl.fileSource.isOpen and modelDocument.filepath.startswith(val.modelXbrl.fileSource.baseurl):
-        return True
-
-    if modelDocument.targetNamespace in val.disclosureSystem.standardTaxonomiesDict:
-        return False
-
-    return True
-
-    # Refortmatted
-    # return (
-    #     (
-    #         modelDocument.uri.startswith(val.modelXbrl.uriDir)
-    #         or (
-    #             val.modelXbrl.fileSource.isOpen
-    #             and modelDocument.filepath.startswith(val.modelXbrl.fileSource.baseurl)
-    #         )
-    #     )
-    #     and modelDocument.targetNamespace not in val.disclosureSystem.baseTaxonomyNamespaces
-    #     and modelDocument.xmlDocument
-    # )
-
-    # Optimized 1
-    # if modelDocument.xmlDocument is None:
-    #     return False
-
-    # if modelDocument.targetNamespace in val.disclosureSystem.standardTaxonomiesDict:
-    #     # Performance optimization: Skip validation for taxonomy documents in the DTS that are declared as known
-    #     # namespaces by a jurisdiction validation plugin. This does not prevent instance documents and extension
-    #     # taxonomies from being validated against these documents (e.g., validate a filer's US GAAP report and extension
-    #     # taxonomy, but not the GAAP taxonomy itself). This also only applies if the user is validating with a
-    #     # disclosure system for the jurisdiction selected.
-
-    #     # However, validate the base taxonomy if the user opened it directly.
-    #     if modelDocument.uri.startswith(val.modelXbrl.uriDir):
-    #         return True
-    #     if fileSourceBaseurl := getattr(val.modelXbrl.fileSource, "baseurl"):
-    #         return modelDocument.filepath.startswith(fileSourceBaseurl)
-    #     return False
-
-    # return True
