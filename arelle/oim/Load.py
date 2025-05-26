@@ -2848,15 +2848,21 @@ def _getParamRefName(paramRef):
     periodSpecifierRemoved = prefixStripped.partition("@")[0]
     return periodSpecifierRemoved
 
-def isOimLoadable(normalizedUri, filepath):
+def isOimLoadable(
+        normalizedUri: str,
+        filepath: str,
+        docTypes: set[str] | None = None,
+    ) -> bool:
     _ext = os.path.splitext(filepath)[1]
     if _ext in (".csv", ".json", ".xlsx", ".xls"):
         return True
-    elif UrlUtil.isHttpUrl(normalizedUri) and '?' in _ext: # query parameters and not .json, may be JSON anyway
-        with io.open(filepath, 'rt', encoding='utf-8') as f:
+    if UrlUtil.isHttpUrl(normalizedUri) and '?' in _ext:
+        # query parameters and not .json, may be JSON anyway
+        with open(filepath, encoding='utf-8') as f:
             _fileStart = f.read(4096)
-        if _fileStart and re.match(r"\s*\{\s*\"documentType\":\s*\"http:\\+/\\+/www.xbrl.org\\+/WGWD\\+/YYYY-MM-DD\\+/xbrl-json\"", _fileStart):
-            return True
+        if docTypes is None:
+            docTypes = set((*jsonDocumentTypes, *csvDocumentTypes))
+        return any(re.match(fr'[\s\n]*{{[\s\n]*"documentInfo"[\s\n]*:[\s\n]*{{[\s\n]*"documentType"[\s\n]*:[\s\n]*"{re.escape(docType)}"', _fileStart) for docType in docTypes)
     return False
 
 def oimLoader(modelXbrl, mappedUri, filepath):
