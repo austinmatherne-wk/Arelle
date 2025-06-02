@@ -12,6 +12,7 @@ from arelle.utils.PluginHooks import PluginHooks
 from arelle.Version import authorLabel, copyrightLabel
 
 from .const import TAXONOMY_MODEL_DOCUMENT_TYPE
+from .parser import TaxonomyModelParser
 
 
 class TaxonomyModelLoader(PluginHooks):
@@ -38,7 +39,8 @@ class TaxonomyModelLoader(PluginHooks):
         *args: Any,
         **kwargs: Any,
     ) -> ModelDocument | LoadingException | None:
-        return None
+        parser = TaxonomyModelParser()
+        return parser.parse(filepath)
 
 
 __pluginInfo__ = {
