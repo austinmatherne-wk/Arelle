@@ -7,6 +7,7 @@ do not convert 3 to 2
 from __future__ import annotations
 
 import fractions
+import json
 import os
 import subprocess
 import sys
@@ -15,6 +16,9 @@ from collections.abc import Iterable, Iterator, Mapping, MappingView, MutableSet
 from decimal import Decimal
 from types import MappingProxyType
 from typing import Any, Generic, TypeVar
+
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import core_schema
 
 from arelle.typing import OptionalString
 
@@ -297,6 +301,29 @@ class FrozenOrderedSet(Set[T]):
             self._hash = hash(self._items)
         return self._hash
 
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: type[Any], handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        return core_schema.no_info_after_validator_function(
+            cls._validate,
+            core_schema.str_schema(),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                cls._serialize,
+                info_arg=False,
+                return_schema=core_schema.str_schema(),
+            ),
+        )
+
+    @staticmethod
+    def _validate(value: str) -> FrozenOrderedSet[T]:
+        return FrozenOrderedSet(json.loads(value))
+
+    @staticmethod
+    def _serialize(value: FrozenOrderedSet[T]) -> str:
+        return str(list(value._items))
+
 KT = TypeVar('KT')
 VT = TypeVar('VT')
 
@@ -331,7 +358,6 @@ class FrozenDict(Generic[KT, VT], Mapping[KT, VT]):
         if self._hash is None:
             self._hash = hash(tuple(sorted(self._dict.items())))
         return self._hash
-
 
 def Fraction(numerator,denominator=None):
     if denominator is None:

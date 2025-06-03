@@ -6,6 +6,9 @@ import datetime, isodate
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast, overload, Optional, Union
 from fractions import Fraction
+
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import core_schema
 from arelle.UrlUtil import isValidUriReference
 
 import arelle.ModelObject
@@ -249,6 +252,30 @@ class QName:
         # QName object bool is false if there is no local name (even if there is a namespace URI).
         return bool(self.localName)
 
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: type[Any], handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        assert source is QName
+        return core_schema.no_info_after_validator_function(
+            cls._validate,
+            core_schema.str_schema(),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                cls._serialize,
+                info_arg=False,
+                return_schema=core_schema.str_schema(),
+            ),
+        )
+
+    @staticmethod
+    def _validate(value: str) -> QName:
+        prefix, sep, localName = value.partition(':')
+        return QName(prefix, None, localName)
+
+    @staticmethod
+    def _serialize(value: QName) -> str:
+        return str(value)
+
 def anyURI(value: str,
            castException: Exception | None = None,
 ) -> AnyURI | None:
@@ -259,6 +286,29 @@ def anyURI(value: str,
 class AnyURI(str):
     def __new__(cls, value: str) -> AnyURI:
         return str.__new__(cls, value)
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source: type[Any], handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        assert source is AnyURI
+        return core_schema.no_info_after_validator_function(
+            cls._validate,
+            core_schema.str_schema(),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                cls._serialize,
+                info_arg=False,
+                return_schema=core_schema.str_schema(),
+            ),
+        )
+
+    @staticmethod
+    def _validate(value: str) -> AnyURI:
+        return AnyURI(value)
+
+    @staticmethod
+    def _serialize(value: AnyURI) -> str:
+        return value
 
 datetimePattern = re.compile(r"\s*([0-9]{4})-([0-9]{2})-([0-9]{2})[T ]([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})?\s*|"
                              r"\s*([0-9]{4})-([0-9]{2})-([0-9]{2})(Z|[+-][0-9]{2}:[0-9]{2})?\s*")
