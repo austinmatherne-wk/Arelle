@@ -13,6 +13,7 @@ bottle==0.13.3
 Cheroot==10.0.1
 python-dateutil==2.9.0.post0
 pycountry==24.6.1
+pydantic==2.11.5
 # plugins
 # EDGAR plugins
 NumPy==2.0.2 ; python_version <= "3.9"
