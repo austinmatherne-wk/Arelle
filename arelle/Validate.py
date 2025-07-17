@@ -798,14 +798,7 @@ class Validate:
                 for _exp in _expectedList:
                     _expMatched = False
                     if isinstance(_exp,QName) and isinstance(testErr,str):
-                        errPrefix, sep, errLocalName = testErr.rpartition(":")
-                        if ((not sep and errLocalName in commaSpaceSplitPattern.split(_exp.localName.strip())) or # ESEF has comma separated list of localnames of errors
-                            (_exp == qname(XbrlConst.errMsgPrefixNS.get(errPrefix) or
-                                           (errPrefix == _exp.prefix and _exp.namespaceURI),
-                                           errLocalName)) or
-                            # XDT xml schema tests expected results
-                            (_exp.namespaceURI == XbrlConst.xdtSchemaErrorNS and errPrefix == "xmlSchema")):
-                            _expMatched = True
+                        _expMatched = errorStringMatchesExpected(testErr, _exp)
                     elif type(testErr) is type(_exp):
                         if isinstance(testErr,dict):
                             if len(testErr) == len(_exp) and all(
@@ -870,6 +863,20 @@ class Validate:
             for error in _errors:
                 if isinstance(error,dict):
                     modelTestcaseVariation.actual.append(error)
+
+def errorStringMatchesExpected(err: str, exp: QName) -> bool:
+    errPrefix, sep, errLocalName = err.rpartition(":")
+    if not sep and errLocalName in commaSpaceSplitPattern.split(exp.localName.strip()):
+        # ESEF has comma separated list of error local names
+        return True
+    testErrNs = XbrlConst.errMsgPrefixNS.get(errPrefix)
+    if testErrNs is None and exp.prefix == errPrefix:
+        testErrNs = exp.namespaceURI
+    errQName = qname(errLocalName) if testErrNs is None else qname(testErrNs, errLocalName)
+    if exp == errQName:
+        return True
+    # XDT xml schema tests expected results
+    return exp.namespaceURI == XbrlConst.xdtSchemaErrorNS and errPrefix == "xmlSchema"
 
 import logging
 class ValidationLogListener(logging.Handler):
