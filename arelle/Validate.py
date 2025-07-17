@@ -870,8 +870,10 @@ def errorStringMatchesExpected(err: str, exp: QName) -> bool:
         # ESEF has comma separated list of error local names
         return True
     testErrNs = XbrlConst.errMsgPrefixNS.get(errPrefix)
-    if testErrNs is None and exp.prefix == errPrefix:
-        testErrNs = exp.namespaceURI
+    if testErrNs is None:
+        noPrefixes = exp.prefix is None and errPrefix == ""
+        if exp.prefix == errPrefix or noPrefixes:
+            testErrNs = exp.namespaceURI
     errQName = qname(errLocalName) if testErrNs is None else qname(testErrNs, errLocalName)
     if exp == errQName:
         return True
