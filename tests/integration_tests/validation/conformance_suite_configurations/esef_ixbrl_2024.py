@@ -11,6 +11,7 @@ config = ConformanceSuiteConfig(
     args=[
         '--disclosureSystem', 'esef-2024',
         '--baseTaxonomyValidation', 'none',
+        '--formula', 'none'
     ],
     assets=[
         ConformanceSuiteAssetConfig.conformance_suite(
@@ -28,11 +29,204 @@ config = ConformanceSuiteConfig(
         'G2-4-1_1/index.xml:TC2_valid': {
             'differentExtensionDataType': 1,
         },
+        'G3-1-1_1/index.xml:TC3_invalid': {
+            'UsableConceptsNotIncludedInPresentationLink': 1,
+            'missingPrimaryFinancialStatement': 1,
+        },
+        'G3-1-2/index.xml:TC4_invalid': {
+            'domainMemberWrongDataType': 1,
+        },
+        'G3-1-5/index.xml:TC3_invalid': {
+            'extensionTaxonomyDocumentNameDoesNotFollowNamingConvention': 4,
+        },
+        'G3-1-5/index.xml:TC8_invalid': {
+            'extensionTaxonomyDocumentNameDoesNotFollowNamingConvention': 3,
+        },
+        'RTS_Annex_III_Par_1/index.xml:TC2_invalid': {
+            'ix11.10.1.2:unitReference': 1,
+            'lxml.SCHEMAV_CVC_COMPLEX_TYPE_4': 1,
+            'lxml.SCHEMAV_CVC_PATTERN_VALID': 1,
+            'xmlSchema:valueError': 1,
+        },
+        'RTS_Annex_IV_Par_11_G3-2-2/index.xml:TC3_invalid': {
+            'differentExtensionDataType': 1,
+        },
+        'RTS_Annex_IV_Par_8_G3-4-5/index.xml:TC2_invalid': {
+            'invalidInlineXBRL': 1,
+            'xbrl.5.2.3.1:referenceLinkLocTarget': 1,
+        },
+        'RTS_Art_6_a/index.xml:TC2_invalid': {
+            'missingOrInvalidTaxonomyPackage': 1,
+        },
+        'G2-1-2/index.xml:TC2_invalid': {
+            
+        },
+        'G2-1-2/index.xml:TC3_invalid': {
+            
+        },
+        'G2-1-2/index.xml:TC4_invalid': {
+            
+        },
+        'G2-1-3_1/index.xml:TC2_invalid': {
+            
+        },
+        'G2-2-1/index.xml:TC2_invalid': {
+            
+        },
+        'G2-2-2/index.xml:TC2_invalid': {
+            
+        },
+        'G2-2-3/index.xml:TC3_invalid': {
+            
+        },
+        'G2-2-7_1/index.xml:TC3_invalid': {
+            
+        },
+        'G2-2-7_1/index.xml:TC4_invalid': {
+            
+        },
+        'G2-2-7_2/index.xml:TC3_invalid': {
+            
+        },
+        'G2-2-7_2/index.xml:TC4_invalid': {
+            
+        },
+        'G2-4-1_1/index.xml:TC3_invalid': {
+            
+        },
+        'G2-4-1_1/index.xml:TC4_invalid': {
+            
+        },
+        'G2-4-1_2/index.xml:TC2_invalid': {
+            
+        },
+        'G2-4-1_3/index.xml:TC2_invalid': {
+            
+        },
+        'G2-5-1_2/index.xml:TC3_invalid': {
+            
+        },
+        'G2-5-1_3/index.xml:TC2_invalid': {
+            
+        },
+        'G2-5-4_2/index.xml:TC2_invalid': {
+            
+        },
+        'G2-7-1_1/index.xml:TC2_invalid': {
+            
+        },
+        'G2-7-1_2/index.xml:TC2_invalid': {
+            
+        },
+        'G3-1-1_1/index.xml:TC4_invalid': {
+            
+        },
+        'G3-1-1_1/index.xml:TC5_invalid': {
+            
+        },
+        'G3-1-1_1/index.xml:TC6_invalid': {
+            
+        },
+        'G3-1-1_2/index.xml:TC2_invalid': {
+            
+        },
+        'G3-1-2/index.xml:TC3_invalid': {
+            
+        },
+        'G3-1-2/index.xml:TC5_invalid': {
+            
+        },
+        'G3-1-2/index.xml:TC6_invalid': {
+            
+        },
+        'G3-1-2/index.xml:TC7_invalid': {
+            
+        },
+        'G3-1-2/index.xml:TC8_invalid': {
+            
+        },
+        'G3-1-5/index.xml:TC4_invalid': {
+            
+        },
+        'G3-1-5/index.xml:TC5_invalid': {
+            
+        },
+        'G3-1-5/index.xml:TC6_invalid': {
+            
+        },
+        'G3-2-2/index.xml:TC2_invalid': {
+            
+        },
+        'G3-2-3/index.xml:TC2_invalid': {
+            
+        },
+        'G3-4-1/index.xml:TC2_invalid': {
+            
+        },
+        'G3-4-2_4/index.xml:TC3_invalid': {
+            
+        },
+        'G3-4-3_1/index.xml:TC2_invalid': {
+            
+        },
+        'G3-4-3_1/index.xml:TC3_invalid': {
+            
+        },
+        'G3-4-3_2/index.xml:TC2_invalid': {
+            
+        },
+        'RTS_Annex_III_Par_1/index.xml:TC3_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_11_G3-2-2/index.xml:TC2_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_12_G2-2-4/index.xml:TC6_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_12_G2-2-4/index.xml:TC7_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_14_G2-5-1/index.xml:TC2_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_1_G2-1-4/index.xml:TC2_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_2_G2-1-1/index.xml:TC2_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_2_G2-1-1/index.xml:TC3_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_4_G1-1-1_G3-4-5/index.xml:TC4_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_4_G1-1-1_G3-4-5/index.xml:TC5_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_9_Par_10_G1-4-1_G1-4-2_G3-3-1_G3-3-2/index.xml:TC4_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_9_Par_10_G1-4-1_G1-4-2_G3-3-1_G3-3-2/index.xml:TC5_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_9_Par_10_G1-4-1_G1-4-2_G3-3-1_G3-3-2/index.xml:TC6_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_9_Par_10_G1-4-1_G1-4-2_G3-3-1_G3-3-2/index.xml:TC7_invalid': {
+            
+        },
+        'RTS_Annex_IV_Par_9_Par_10_G1-4-1_G1-4-2_G3-3-1_G3-3-2/index.xml:TC8_invalid': {
+            
+        },
+        'RTS_Art_6_a/index.xml:TC3_invalid': {
+            
+        },
     }.items()},
     info_url='https://www.esma.europa.eu/document/esef-conformance-suite-2024',
     name=PurePath(__file__).stem,
     network_or_cache_required=False,
     plugins=frozenset({'validate/ESEF'}),
     shards=8,
-    test_case_result_options='match-any',
 )
