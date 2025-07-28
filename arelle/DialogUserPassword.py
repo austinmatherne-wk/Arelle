@@ -8,6 +8,7 @@ except ImportError:
     from ttk import Frame, Button, Label, Entry
 from arelle.CntlrWinTooltip import ToolTip
 from arelle.UiUtil import checkbox, gridCombobox
+from arelle.WebCache import ProxyTuple
 import sys
 import regex as re
 
@@ -22,15 +23,22 @@ def askUserPassword(parent, host, realm, untilDoneEvent, result):
         result.append( None )
     untilDoneEvent.set()
 
-def askProxy(parent, priorProxySettings):
-    if isinstance(priorProxySettings,(tuple,list)) and len(priorProxySettings) == 5:
-        useOsProxy, urlAddr, urlPort, user, password = priorProxySettings
-    else:
+def askProxy(parent, priorProxySettings: ProxyTuple | None) -> ProxyTuple | None:
+    if priorProxySettings is None:
         useOsProxy = True
-        urlAddr = urlPort = user = password = None
+        urlAddr = None
+        urlPort = None
+        user = None
+        password = None
+    else:
+        useOsProxy = priorProxySettings.useOsProxy
+        urlAddr = priorProxySettings.urlAddr
+        urlPort = priorProxySettings.urlPort
+        user = priorProxySettings.user
+        password = priorProxySettings.password
     dialog = DialogUserPassword(parent, _("Proxy Server"), urlAddr=urlAddr, urlPort=urlPort, useOsProxy=useOsProxy, user=user, password=password, showHost=False, showUrl=True, showUser=True, showRealm=False)
     if dialog.accepted:
-        return (dialog.useOsProxyCb.value, dialog.urlAddr, dialog.urlPort, dialog.user, dialog.password)
+        return ProxyTuple(dialog.useOsProxyCb.value, dialog.urlAddr, dialog.urlPort, dialog.user, dialog.password)
     return None
 
 def askSmtp(parent, priorSmtpSettings):

@@ -7,14 +7,16 @@ e.g., User-Agent: Sample Company Name AdminContact@<sample company domain>.com
 '''
 from __future__ import annotations
 import contextlib
+import http
+from turtle import ht
 
 
 from filelock import FileLock, Timeout
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NamedTuple
 import os, posixpath, sys, time, calendar, io, json, logging, shutil, zlib
 import regex as re
-from urllib.parse import quote, unquote
+from urllib.parse import quote, unquote, urlparse
 from urllib.error import URLError, HTTPError, ContentTooShortError
 from http.client import IncompleteRead
 from urllib import request as proxyhandlers
@@ -63,36 +65,56 @@ XBRL_ORG_CACHE_REDIRECTS = {
     for prefix in _XBRL_ORG_URL_PREFIXES
 }
 
-def proxyDirFmt(httpProxyTuple):
-    if isinstance(httpProxyTuple,(tuple,list)) and len(httpProxyTuple) == 5:
-        useOsProxy, urlAddr, urlPort, user, password = httpProxyTuple
-        if useOsProxy:
-            return None
-        elif urlAddr:
-            if user and password:
-                userPart = "{0}:{1}@".format(user, password)
-            else:
-                userPart = ""
-            if urlPort:
-                portPart = ":{0}".format(urlPort)
-            else:
-                portPart = ""
-            return {"http": "http://{0}{1}{2}".format(userPart, urlAddr, portPart) }
-            #return {"http": "{0}{1}{2}".format(userPart, urlAddr, portPart) }
-        else:
-            return {}  # block use of any proxy
-    else:
-        return None # use system proxy
+class ProxyTuple(NamedTuple):
+    useOsProxy: bool
+    urlAddr: str | None = None
+    urlPort: str | None = None
+    user: str | None = None
+    password: str | None = None
 
-def proxyTuple(url): # system, none, or http:[user[:passowrd]@]host[:port]
+def _buildProxyUrl(proxyTuple: ProxyTuple) -> str:
+    proxyUrl = ""
+    if proxyTuple.user and proxyTuple.password:
+        proxyUrl += f"{proxyTuple.user}:{proxyTuple.password}@"
+    if proxyTuple.urlAddr:
+        proxyUrl += proxyTuple.urlAddr
+    if proxyTuple.urlPort:
+        proxyUrl += f":{proxyTuple.urlPort}"
+    return proxyUrl
+
+def _proxyHandlerBuilder(proxyTuple: ProxyTuple | None) -> proxyhandlers.BaseHandler | None:
+    if proxyTuple is None or proxyTuple.useOsProxy:
+        # Use system proxy settings.
+        proxies = proxyhandlers.getproxies()
+    elif proxyTuple.urlAddr is None:
+        # No address provided, don't use system or manual proxy settings.
+        proxies = {}
+    else:
+        proxyUrl = _buildProxyUrl(proxyTuple)
+        proxies = {
+            "http": f"http://{proxyUrl}",
+            "https": f"https://{proxyUrl}",
+        }
+    return proxyhandlers.ProxyHandler(proxies)
+
+def proxyTuple(url: str) -> ProxyTuple:
     if url == "none":
-        return (False, "", "", "", "")
+        return ProxyTuple(useOsProxy=False)
     elif url == "system":
-        return (True, "", "", "", "")
-    userpwd, sep, hostport = url.rpartition("://")[2].rpartition("@")
-    urlAddr, sep, urlPort = hostport.partition(":")
-    user, sep, password = userpwd.partition(":")
-    return (False, urlAddr, urlPort, user, password)
+        return ProxyTuple(useOsProxy=True)
+    schemeDelimiter = "://"
+    authDelimiter = "@"
+    if schemeDelimiter not in url and authDelimiter in url:
+        # Default to http scheme so urlparse can parse username and password.
+        url = "http://" + url
+    parsedUrl = urlparse(url)
+    return ProxyTuple(
+        useOsProxy=False,
+        urlAddr=parsedUrl.hostname,
+        urlPort=str(parsedUrl.port) if parsedUrl.port else None,
+        user=parsedUrl.username,
+        password=parsedUrl.password
+    )
 
 def lastModifiedTime(headers):
     if headers:
@@ -111,7 +133,7 @@ class WebCache:
 
     def __init__(
         self, cntlr: Cntlr,
-        httpProxyTuple: tuple[bool, str, str, str, str] | None
+        httpProxyTuple: ProxyTuple | None
     ) -> None:
 
         self.cntlr = cntlr
@@ -126,8 +148,6 @@ class WebCache:
         self.resetProxies(httpProxyTuple)
 
         self.opener.addheaders = [('User-agent', self.httpUserAgent)]
-
-        #self.opener = WebCacheUrlOpener(cntlr, proxyDirFmt(httpProxyTuple)) # self.proxies)
 
         if cntlr.isGAE:
             self.cacheDir = SERVER_WEB_CACHE # GAE type servers
@@ -239,15 +259,13 @@ class WebCache:
     def redirectFallback(self, matchPattern: re.Pattern, replaceFormat: str):
         self._redirectFallbackMap[matchPattern] = replaceFormat
 
-    def resetProxies(self, httpProxyTuple):
+    def resetProxies(self, httpProxyTuple: ProxyTuple | None) -> None:
         # for ntlm user and password are required
         self.hasNTLM = False
         self._httpProxyTuple = httpProxyTuple # save for resetting in noCertificateCheck setter
-        if isinstance(httpProxyTuple,(tuple,list)) and len(httpProxyTuple) == 5:
-            useOsProxy, _urlAddr, _urlPort, user, password = httpProxyTuple
-            _proxyDirFmt = proxyDirFmt(httpProxyTuple)
+        if httpProxyTuple and httpProxyTuple.user and httpProxyTuple.password:
             # only try ntlm if user and password are provided because passman is needed
-            if user and not useOsProxy:
+            if httpProxyTuple.user and not httpProxyTuple.useOsProxy:
                 for pluginXbrlMethod in pluginClassMethods("Proxy.HTTPAuthenticate"):
                     pluginXbrlMethod(self.cntlr)
                 for pluginXbrlMethod in pluginClassMethods("Proxy.HTTPNtlmAuthHandler"):
@@ -262,14 +280,15 @@ class WebCache:
                         pass
             if self.hasNTLM:
                 pwrdmgr = proxyhandlers.HTTPPasswordMgrWithDefaultRealm()
-                pwrdmgr.add_password(None, _proxyDirFmt["http"], user, password)
+                proxyUrl = _buildProxyUrl(httpProxyTuple)
+                pwrdmgr.add_password(None, proxyUrl, httpProxyTuple.user, httpProxyTuple.password)
                 self.proxy_handler = proxyhandlers.ProxyHandler({})
                 self.proxy_auth_handler = proxyhandlers.ProxyBasicAuthHandler(pwrdmgr)
                 self.http_auth_handler = proxyhandlers.HTTPBasicAuthHandler(pwrdmgr)
                 self.ntlm_auth_handler = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler(pwrdmgr)
                 proxyHandlers = [self.proxy_handler, self.ntlm_auth_handler, self.proxy_auth_handler, self.http_auth_handler]
         if not self.hasNTLM:
-            self.proxy_handler = proxyhandlers.ProxyHandler(proxyDirFmt(httpProxyTuple))
+            self.proxy_handler = _proxyHandlerBuilder(httpProxyTuple)
             self.proxy_auth_handler = proxyhandlers.ProxyBasicAuthHandler()
             self.http_auth_handler = proxyhandlers.HTTPBasicAuthHandler()
             proxyHandlers = [self.proxy_handler, self.proxy_auth_handler, self.http_auth_handler]
@@ -288,9 +307,6 @@ class WebCache:
             ('User-Agent', self.httpUserAgent),
             ('Accept-Encoding', 'gzip, deflate')
             ]
-
-        #self.opener.close()
-        #self.opener = WebCacheUrlOpener(self.cntlr, proxyDirFmt(httpProxyTuple))
 
     def normalizeFilepath(self, filepath: str, url: str, cacheDir: str = None) -> str:
         """
