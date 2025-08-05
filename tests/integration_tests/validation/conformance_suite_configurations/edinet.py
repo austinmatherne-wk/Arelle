@@ -15,7 +15,7 @@ config = ConformanceSuiteConfig(
         ),
     ],
     cache_version_id='cs2wODrDheJqDIm1kEU4Qwk8jwd7DfQu',
-    expected_additional_testcase_errors={f"*{s}": val for s, val in {
+    expected_testcase_errors={f"*{s}": val for s, val in {
         # Duplicate errors: Running EDINET validations in a testcase context
         # prevents us from detecting when two models are being validated
         # from the same variation, so `shouldValidateUpload` always returns `True`.

@@ -29,7 +29,7 @@ config = ConformanceSuiteConfig(
     ],
     cache_version_id='fQUkcdNcy7HZxP3bfwn1v3DnJkc4aKKp',
     # Expected additional errors until EFM conformance suite is updated to reflect 25.2.1.1 release.
-    expected_additional_testcase_errors={f'conf/filing-fee-exhibit/{t}': errs for t, errs in {
+    expected_testcase_errors={f'conf/filing-fee-exhibit/{t}': errs for t, errs in {
         '000-debt/00-other/00-debt/00-debt-testcase.xml:0001gd': {
             'EFM.FT.1.2.14.naFlagExpected': 1,
         },

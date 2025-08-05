@@ -15,7 +15,7 @@ config = ConformanceSuiteConfig(
             entry_point=Path("report-package-conformance/index.csv"),
         ),
     ],
-    expected_additional_testcase_errors={f"report-package-conformance/index.csv:{s}": val for s, val in {
+    expected_testcase_errors={f"report-package-conformance/index.csv:{s}": val for s, val in {
         # "Empty" iXBRL docs are missing schema required elements.
         "V-301-xbri-with-single-ixds": {
             # There are two documents in the package, empty1.xhtml and empty2.xhtml,
