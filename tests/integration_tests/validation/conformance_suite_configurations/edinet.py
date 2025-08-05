@@ -15,7 +15,7 @@ config = ConformanceSuiteConfig(
         ),
     ],
     cache_version_id='cs2wODrDheJqDIm1kEU4Qwk8jwd7DfQu',
-    expected_additional_testcase_errors={f"*{s}": val for s, val in {
+    expected_testcase_errors={f"*{s}": val for s, val in {
         # EDINET.EC8027W: Some of our "valid" documents define presentation and/or definition
         # links with multiple root elements. Keeping these out of the conformance suite
         # until we are more confident in our interpretation of the EDINET rule.

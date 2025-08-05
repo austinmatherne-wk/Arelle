@@ -18,7 +18,7 @@ config = ConformanceSuiteConfig(
         ),
         *NL_PACKAGES['NL-INLINE-2024'],
     ],
-    expected_additional_testcase_errors={f"conformance-suite-2024-sbr-domein-handelsregister/tests/{s}": val for s, val in {
+    expected_testcase_errors={f"conformance-suite-2024-sbr-domein-handelsregister/tests/{s}": val for s, val in {
         'G3-1-3_1/index.xml:TC2_invalid': {
             'scenarioNotUsedInExtensionTaxonomy': 1,  # Also fails 4.2.1.1
         },
@@ -186,5 +186,4 @@ config = ConformanceSuiteConfig(
     name=PurePath(__file__).stem,
     plugins=frozenset({'validate/NL'}),
     shards=8,
-    test_case_result_options='match-all',
 )
