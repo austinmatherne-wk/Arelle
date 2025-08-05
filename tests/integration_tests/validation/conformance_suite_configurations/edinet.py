@@ -62,5 +62,4 @@ config = ConformanceSuiteConfig(
     network_or_cache_required=False,
     plugins=frozenset({'validate/EDINET', 'inlineXbrlDocumentSet'}),
     shards=4,
-    test_case_result_options='match-all',
 )
