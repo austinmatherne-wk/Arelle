@@ -248,7 +248,7 @@ def _get_elems_by_local_name(tree: etree._ElementTree, local_name: str) -> list[
 
 def get_conformance_suite_arguments(config: ConformanceSuiteConfig, filename: str,
         additional_plugins: frozenset[str], build_cache: bool, offline: bool, log_to_file: bool,
-        expected_additional_testcase_errors: dict[str, dict[str, int]],
+        expected_testcase_errors: dict[str, dict[str, int]],
         expected_failure_ids: frozenset[str], shard: int | None,
         testcase_filters: list[str]) -> tuple[list[Any], dict[str, Any]]:
     use_shards = shard is not None
@@ -280,10 +280,11 @@ def get_conformance_suite_arguments(config: ConformanceSuiteConfig, filename: st
         args.extend(['--internetConnectivity', 'offline'])
     for pattern in testcase_filters:
         args.extend(['--testcaseFilter', pattern])
-    for testcase_id, errorCounts in expected_additional_testcase_errors.items():
+    for testcase_id, errorCounts in expected_testcase_errors.items():
         errors = []
         for error, count in errorCounts.items():
-            errors.extend([error] * count)
+            errorVal = error if count > 0 else f'-{error}'
+            errors.extend([errorVal] * abs(count))
         args.extend(['--testcaseExpectedErrors', f'{testcase_id}|{",".join(errors)}'])
     kws = dict(
         expected_failure_ids=expected_failure_ids,
@@ -336,7 +337,7 @@ def get_conformance_suite_test_results_with_shards(
             pattern
             for pattern in {
                 _id.rsplit(':', 1)[0]
-                for _id in config.expected_additional_testcase_errors.keys()
+                for _id in config.expected_testcase_errors
             }
             if not any(fnmatch.fnmatch(test_path, pattern) for test_path in all_test_paths)
         }
@@ -360,7 +361,7 @@ def get_conformance_suite_test_results_with_shards(
         args = get_conformance_suite_arguments(
             config=config, filename=filename, additional_plugins=additional_plugins,
             build_cache=build_cache, offline=offline, log_to_file=log_to_file, shard=shard_id,
-            expected_additional_testcase_errors=config.expected_additional_testcase_errors,
+            expected_testcase_errors=config.expected_testcase_errors,
             expected_failure_ids=frozenset(expected_failure_ids), testcase_filters=testcase_filters,
         )
         tasks.append(args)
@@ -397,7 +398,7 @@ def get_conformance_suite_test_results_without_shards(
     args, kws = get_conformance_suite_arguments(
         config=config, filename=filename, additional_plugins=additional_plugins,
         build_cache=build_cache, offline=offline, log_to_file=log_to_file, shard=None,
-        expected_additional_testcase_errors=config.expected_additional_testcase_errors,
+        expected_testcase_errors=config.expected_testcase_errors,
         expected_failure_ids=expected_failure_ids, testcase_filters=testcase_filters or [],
     )
     url_context_manager: AbstractContextManager[Any]

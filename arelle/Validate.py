@@ -760,9 +760,20 @@ class Validate:
             if isinstance(expected, str):
                 assert expected in {"valid", "invalid"}, f"unhandled expected value string '{expected}'"
                 expected = []
-            expected.extend(userExpectedErrors)
-            if expectedCount is not None:
-                expectedCount += len(userExpectedErrors)
+            for userExpectedError in userExpectedErrors:
+                if userExpectedError.startswith("-"):
+                    val = userExpectedError[1:]
+                    prefix, localName = val.split(":")
+                    itemToRemove = next((exp for exp in expected if exp.prefix == prefix and exp.localName == localName), None)
+                    if itemToRemove is None:
+                        raise RuntimeError(f"expected error '{val}' not found in expected errors for variation {modelTestcaseVariation.id}")
+                    expected.remove(itemToRemove)
+                    if expectedCount is not None:
+                        expectedCount -= 1
+                else:
+                    expected.append(userExpectedError)
+                    if expectedCount is not None:
+                        expectedCount += 1
         if matchAllExpected:
             if isinstance(expected, list):
                 if not expectedCount:

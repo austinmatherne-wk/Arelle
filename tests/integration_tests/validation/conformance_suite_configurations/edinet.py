@@ -15,7 +15,7 @@ config = ConformanceSuiteConfig(
         ),
     ],
     cache_version_id='cs2wODrDheJqDIm1kEU4Qwk8jwd7DfQu',
-    expected_additional_testcase_errors={f"*{s}": val for s, val in {
+    expected_testcase_errors={f"*{s}": val for s, val in {
         # EDINET.EC5700W.GFM.1.1.3: valid05.zip (and testcases built from it) references
         # non-existent and non-standard "http://www.xbrl.org/2003/xbrl-instance-2003-09-30.xsd".
         # EDINET.EC8027W: Some of our "valid" documents define presentation and/or definition
