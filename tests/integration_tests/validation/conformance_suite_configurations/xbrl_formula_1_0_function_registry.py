@@ -17,6 +17,8 @@ config = ConformanceSuiteConfig(
             entry_point=Path('formula/function-registry/registry-index.xml'),
         ),
     ],
+    expected_testcase_errors={
+    },
     info_url='https://specifications.xbrl.org/release-history-formula-1.0-formula-conf.html',
     name=PurePath(__file__).stem,
     plugins=frozenset({'formulaXPathChecker', 'functionsMath'}),
@@ -24,5 +26,4 @@ config = ConformanceSuiteConfig(
     required_locale_by_ids={f'formula/function-registry/{t}': p for t, p in [
         ('xbrl/90701 xfi.format-number/90701 xfi.format-number testcase.xml:V-05', re.compile(r"^(en|English).*$")),
     ]},
-    test_case_result_options='match-any',
 )

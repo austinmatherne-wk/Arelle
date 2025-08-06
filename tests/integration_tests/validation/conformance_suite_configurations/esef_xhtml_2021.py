@@ -14,8 +14,18 @@ config = ConformanceSuiteConfig(
             source=AssetSource.S3_PUBLIC,
         ),
     ],
+    expected_testcase_errors={f'esef_conformance_suite_2021/esef_conformance_suite_2021/tests/pure_xhtml/{s}': val for s, val in {
+        'G4-1-3_3/index.xml:TC3_invalid': {
+            'ESEF.4.1.3.MIMETypeNotSpecified': 1,
+            'MIMETypeNotSpecified': -1,
+            'exception:TypeError': 1
+        },
+        'G4-1-3_4/index.xml:TC2_invalid': {
+            'ESEF.4.1.3.imageFormatNotSupported': 2,
+            'imageFormatNotSupported': -1
+        }
+    }.items()},
     info_url='https://www.esma.europa.eu/document/conformance-suite-2021',
     name=PurePath(__file__).stem,
     plugins=frozenset({'validate/ESEF'}),
-    test_case_result_options='match-any',
 )

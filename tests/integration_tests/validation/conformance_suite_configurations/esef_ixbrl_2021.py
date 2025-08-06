@@ -20,9 +20,10 @@ config = ConformanceSuiteConfig(
     ] + [
         package for year in [2017, 2019, 2020, 2021] for package in ESEF_PACKAGES[year]
     ],
+    expected_testcase_errors={
+    },
     info_url='https://www.esma.europa.eu/document/conformance-suite-2021',
     name=PurePath(__file__).stem,
     plugins=frozenset({'validate/ESEF'}),
     shards=8,
-    test_case_result_options='match-any',
 )
