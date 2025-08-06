@@ -14,8 +14,9 @@ config = ConformanceSuiteConfig(
             source=AssetSource.S3_PUBLIC,
         ),
     ],
+    expected_testcase_errors={
+    },
     info_url='https://www.esma.europa.eu/document/esef-conformance-suite-2023',
     name=PurePath(__file__).stem,
     plugins=frozenset({'validate/ESEF'}),
-    test_case_result_options='match-any',
 )

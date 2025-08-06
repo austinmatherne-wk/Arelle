@@ -138,11 +138,46 @@ def get_test_data(
                                 expected_results["WARNING"][str(warning)] += 1
                     # Arelle adds message code frequencies to the end, but conformance suites usually don't.
                     # Skip assertion results dictionaries.
-                    actual = [re.sub(r' \(\d+\)$', '', code) for code in mv.actual if not isinstance(code, dict)]
+                    actual = defaultdict(int)
+                    for code in mv.actual:
+                        if isinstance(code, dict):
+                            continue
+                        if isinstance(code, str):
+                            # If the code is a string, it may have a frequency at the end.
+                            if codeGroups := re.match(r'(.*)\((\d+)\)$', code):
+                                actual[codeGroups.group(1).strip()] += int(codeGroups.group(2))
+                            else:
+                                actual[code.strip()] += 1
+                    actual = {k: v for k, v in actual.items()}
+                    expected = defaultdict(int)
+                    if isinstance(expected_results, dict):
+                        for codes in expected_results.values():
+                            for code, count in codes.items():
+                                expected[code.strip()] += count
+                    else:
+                        expected[expected_results] += 1
+                    expected = {k: v for k, v in expected.items()}
+                    actualCounter = Counter(actual)
+                    expectedCounter = Counter(expected)
+                    missing = expectedCounter - actualCounter
+                    extra = actualCounter - expectedCounter
+                    if mv.status == 'fail' and (missing or extra):
+                        filepath = "/Users/austinmatherne/Downloads/results.json"
+                        test_results = defaultdict(int)
+                        for key, value in missing.items():
+                            test_results[key] -= value
+                        for key, value in extra.items():
+                            test_results[key] += value
+                        with open(filepath, encoding="utf-8") as f:
+                            d = json.load(f)
+                        test_results = dict(test_results)
+                        d.setdefault(args[1], {})[test_id] = test_results
+                        with open(filepath, "w", encoding="utf-8") as f:
+                            json.dump(d, f, indent=4, sort_keys=True)
                     param = pytest.param(
                         {
                             'status': mv.status,
-                            'expected': json.dumps(expected_results),
+                            'expected': expected,
                             'actual': actual,
                             'duration': mv.duration,
                         },
