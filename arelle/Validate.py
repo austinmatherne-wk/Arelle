@@ -3,31 +3,43 @@ See COPYRIGHT.md for copyright information.
 '''
 import bisect
 import fnmatch
-import os, sys, traceback, logging
+import logging
+import os
 import time
-from urllib.parse import unquote
 import zipfile
+from collections import OrderedDict, defaultdict
+from urllib.parse import unquote
 
 import regex as re
-from collections import defaultdict, OrderedDict
-from arelle import (FileSource, ModelXbrl, ModelDocument, ModelVersReport, XbrlConst,
-               ValidateXbrl, ValidateVersReport,
-               ValidateInfoset, ViewFileRenderedLayout, UrlUtil)
-from arelle.PythonUtil import isLegacyAbs
+
+from arelle import (
+    FileSource,
+    ModelVersReport,
+    ModelXbrl,
+    UrlUtil,
+    ValidateInfoset,
+    ValidateVersReport,
+    ValidateXbrl,
+    ViewFileRenderedLayout,
+    XbrlConst,
+)
 from arelle.formula import ValidateFormula
-from arelle.ModelDocument import Type, ModelDocumentReference, load as modelDocumentLoad
+from arelle.ModelDocument import ModelDocumentReference, Type
+from arelle.ModelDocument import load as modelDocumentLoad
 from arelle.ModelDtsObject import ModelResource
 from arelle.ModelInstanceObject import ModelFact
 from arelle.ModelObject import ModelObject
 from arelle.ModelRelationshipSet import ModelRelationshipSet
-from arelle.ModelTestcaseObject import testcaseVariationsByTarget, ModelTestcaseVariation
-from arelle.ModelValue import (qname, QName)
-from arelle.PluginManager import pluginClassMethods
+from arelle.ModelTestcaseObject import ModelTestcaseVariation, testcaseVariationsByTarget
+from arelle.ModelValue import QName, qname
 from arelle.packages.report.DetectReportPackage import isReportPackageExtension
 from arelle.packages.report.ReportPackageValidator import ReportPackageValidator
+from arelle.PluginManager import pluginClassMethods
+from arelle.PythonUtil import isLegacyAbs
 from arelle.rendering import RenderingEvaluator
 from arelle.utils.EntryPointDetection import filesourceEntrypointFiles
-from arelle.XmlUtil import collapseWhitespace, xmlstring
+from arelle.XmlUtil import collapseWhitespace
+
 
 def validate(modelXbrl):
     validate = Validate(modelXbrl)
@@ -111,7 +123,6 @@ class Validate:
                     _("Testcase validation exception: %(error)s, testcase: %(testcase)s"),
                     modelXbrl=self.modelXbrl,
                     testcase=self.modelXbrl.modelDocument.basename, error=err,
-                    #traceback=traceback.format_tb(sys.exc_info()[2]),
                     exc_info=True)
         elif self.modelXbrl.modelDocument.type == Type.VERSIONINGREPORT:
             try:
@@ -121,7 +132,6 @@ class Validate:
                     _("Versioning report exception: %(error)s, testcase: %(reportFile)s"),
                     modelXbrl=self.modelXbrl,
                     reportFile=self.modelXbrl.modelDocument.basename, error=err,
-                    #traceback=traceback.format_tb(sys.exc_info()[2]),
                     exc_info=True)
         elif self.modelXbrl.modelDocument.type == Type.RSSFEED:
             self.validateRssFeed()
@@ -138,7 +148,6 @@ class Validate:
                     _("Instance validation exception: %(error)s, instance: %(instance)s"),
                     modelXbrl=self.modelXbrl,
                     instance=self.modelXbrl.modelDocument.basename, error=err,
-                    # traceback=traceback.format_tb(sys.exc_info()[2]),
                     exc_info=(type(err) is not AssertionError))
         self.close()
 
@@ -863,7 +872,6 @@ class Validate:
                 if isinstance(error,dict):
                     modelTestcaseVariation.actual.append(error)
 
-import logging
 class ValidationLogListener(logging.Handler):
     def __init__(self, logView):
         self.logView = logView
