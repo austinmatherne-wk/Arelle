@@ -15,10 +15,11 @@ config = ConformanceSuiteConfig(
         ),
         *NL_PACKAGES['NT19'],
     ],
+    expected_testcase_errors={
+    },
     info_url='https://www.sbr-nl.nl/sites/default/files/bestanden/taxonomie/20240301%20SBR%20Filing%20Rules%20NT19.pdf',
     name=PurePath(__file__).stem,
     network_or_cache_required=False,
     plugins=frozenset({'validate/NL'}),
     shards=4,
-    test_case_result_options='match-any',
 )

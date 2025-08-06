@@ -781,7 +781,7 @@ class Validate:
         elif isinstance(expected, (QName, str, dict, list)) or expectedWarnings:
             status = "fail"
             _passCount = 0
-            if isinstance(expected, list):
+            if isinstance(expected, (list, dict)):
                 _expectedList = expected.copy()
             elif not expected:
                 _expectedList = []

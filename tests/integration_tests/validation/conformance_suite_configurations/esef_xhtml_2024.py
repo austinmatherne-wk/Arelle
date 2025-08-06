@@ -19,9 +19,10 @@ config = ConformanceSuiteConfig(
             source=AssetSource.S3_PUBLIC,
         ),
     ],
+    expected_testcase_errors={
+    },
     info_url='https://www.esma.europa.eu/document/esef-conformance-suite-2024',
     name=PurePath(__file__).stem,
     network_or_cache_required=False,
     plugins=frozenset({'validate/ESEF'}),
-    test_case_result_options='match-any',
 )
