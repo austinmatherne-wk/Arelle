@@ -2,6 +2,7 @@
 See COPYRIGHT.md for copyright information.
 '''
 import bisect
+import contextlib
 import fnmatch
 import logging
 import os
@@ -51,9 +52,10 @@ class ValidationException(Exception):
         self.severity = severity
         self.code = code
     def __repr__(self):
-        return "{0}({1})={2}".format(self.code,self.severity,self.message)
+        return f"{self.code}({self.severity})={self.message}"
 
 commaSpaceSplitPattern = re.compile(r",\s*")
+
 
 class Validate:
     """Validation operations are separated from the objects that are validated, because the operations are
@@ -80,10 +82,7 @@ class Validate:
         if not patterns:
             return True
         variationIdPath = f'{unquote(modelTestcaseVariation.base)}:{modelTestcaseVariation.id}'
-        for pattern in patterns:
-            if fnmatch.fnmatch(variationIdPath, pattern):
-                return True
-        return False
+        return any(fnmatch.fnmatch(variationIdPath, pattern) for pattern in patterns)
 
     def close(self):
         self.instValidator.close(reusable=False)
@@ -321,8 +320,7 @@ class Validate:
             # dtsName is for formula instances, but is from/to dts if versioning
             dtsName, readMeFirstUri = readMeFirstUri
         elif resultIsVersioningReport:
-            if inputDTSes: dtsName = "to"
-            else: dtsName = "from"
+            dtsName = "to" if inputDTSes else "from"
         else:
             dtsName = None
         if resultIsVersioningReport and dtsName: # build multi-schemaRef containing document
@@ -536,10 +534,10 @@ class Validate:
                 parameters[XbrlConst.qnStandardInputInstance] = (None, inputDTS) # allow error detection in validateFormula
             for _inputDTS in inputDTS:
                 for docUrl, doc in _inputDTS.urlDocs.items():
-                    if docUrl.startswith(variationBase) and not doc.type == Type.INLINEXBRLDOCUMENTSET:
-                        if getattr(doc,"loadedFromXbrlFormula", False): # may have been sourced from xf file
-                            if docUrl.replace("-formula.xml", ".xf") in expectedDataFiles:
-                                docUrl = docUrl.replace("-formula.xml", ".xf")
+                    if docUrl.startswith(variationBase) and doc.type != Type.INLINEXBRLDOCUMENTSET:
+                        if getattr(doc,"loadedFromXbrlFormula", False) and docUrl.replace("-formula.xml", ".xf") in expectedDataFiles:
+                            # may have been sourced from xf file
+                            docUrl = docUrl.replace("-formula.xml", ".xf")
                         foundDataFiles.add(docUrl)
 
         foundDataFilesInTaxonomyPackages = set()
@@ -643,7 +641,7 @@ class Validate:
                                         useFileSource=self.useFileSource,
                                         errorCaptureLevel=errorCaptureLevel)
             if expectedInstance.modelDocument is None:
-                self.modelXbrl.error("{}:expectedResultNotLoaded".format(errMsgPrefix),
+                self.modelXbrl.error(f"{errMsgPrefix}:expectedResultNotLoaded",
                     _("Testcase \"%(name)s\" %(id)s expected result instance not loaded: %(file)s"),
                     modelXbrl=testcase, id=modelTestcaseVariation.id, name=modelTestcaseVariation.name,
                     file=os.path.basename(modelTestcaseVariation.resultXbrlInstanceUri),
@@ -653,7 +651,7 @@ class Validate:
                 for pluginXbrlMethod in pluginClassMethods("TestcaseVariation.ExpectedInstance.Loaded"):
                     pluginXbrlMethod(expectedInstance, formulaOutputInstance)
                 if len(expectedInstance.facts) != len(formulaOutputInstance.facts):
-                    formulaOutputInstance.error("{}:resultFactCounts".format(errMsgPrefix),
+                    formulaOutputInstance.error(f"{errMsgPrefix}:resultFactCounts",
                         _("Formula output %(countFacts)s facts, expected %(expectedFacts)s facts"),
                         modelXbrl=modelXbrl, countFacts=len(formulaOutputInstance.facts),
                         expectedFacts=len(expectedInstance.facts),
@@ -671,32 +669,27 @@ class Validate:
                                 modelObject = footnoteRel.toModelObject
                                 if isinstance(modelObject, ModelResource):
                                     xml = collapseWhitespace(modelObject.viewText().strip())
-                                    footnotes["Footnote {}".format(i+1)] = xml #re.sub(r'\s+', ' ', collapseWhitespace(modelObject.stringValue))
+                                    footnotes[f"Footnote {i+1}"] = xml #re.sub(r'\s+', ' ', collapseWhitespace(modelObject.stringValue))
                                 elif isinstance(modelObject, ModelFact):
-                                    footnotes["Footnoted fact {}".format(i+1)] = \
-                                        "{} context: {} value: {}".format(
-                                        modelObject.qname,
-                                        modelObject.contextID,
-                                        collapseWhitespace(modelObject.value))
+                                    footnotesVal = f"{modelObject.qname} context: {modelObject.contextID} value: {collapseWhitespace(modelObject.value)}"
+                                    footnotes[f"Footnoted fact {i+1}"] = footnotesVal
                         return footnotes
                     for expectedInstanceFact in expectedInstance.facts:
                         unmatchedFactsStack = []
                         formulaOutputFact = formulaOutputInstance.matchFact(expectedInstanceFact, unmatchedFactsStack, deemP0inf=True, matchId=_matchExpectedResultIDs, matchLang=False)
                         #formulaOutputFact = formulaOutputInstance.matchFact(expectedInstanceFact, unmatchedFactsStack, deemP0inf=True, matchId=True, matchLang=True)
                         if formulaOutputFact is None:
-                            if unmatchedFactsStack: # get missing nested tuple fact, if possible
-                                missingFact = unmatchedFactsStack[-1]
-                            else:
-                                missingFact = expectedInstanceFact
+                            # get missing nested tuple fact, if possible
+                            missingFact = unmatchedFactsStack[-1] if unmatchedFactsStack else expectedInstanceFact
                             # is it possible to show value mismatches?
                             expectedFacts = formulaOutputInstance.factsByQname.get(missingFact.qname)
                             if expectedFacts and len(expectedFacts) == 1:
-                                formulaOutputInstance.error("{}:expectedFactMissing".format(errMsgPrefix),
+                                formulaOutputInstance.error(f"{errMsgPrefix}:expectedFactMissing",
                                     _("Output missing expected fact %(fact)s, extracted value \"%(value1)s\", expected value  \"%(value2)s\""),
                                     modelXbrl=missingFact, fact=missingFact.qname, value1=missingFact.xValue, value2=next(iter(expectedFacts)).xValue,
                                     messageCodes=("formula:expectedFactMissing","ix:expectedFactMissing"))
                             else:
-                                formulaOutputInstance.error("{}:expectedFactMissing".format(errMsgPrefix),
+                                formulaOutputInstance.error(f"{errMsgPrefix}:expectedFactMissing",
                                     _("Output missing expected fact %(fact)s"),
                                     modelXbrl=missingFact, fact=missingFact.qname,
                                     messageCodes=("formula:expectedFactMissing","ix:expectedFactMissing"))
@@ -705,7 +698,7 @@ class Validate:
                             formulaOutputFactFootnotes = factFootnotes(formulaOutputFact, formulaOutputFootnotesRelSet)
                             if (len(expectedInstanceFactFootnotes) != len(formulaOutputFactFootnotes) or
                                 set(expectedInstanceFactFootnotes.values()) != set(formulaOutputFactFootnotes.values())):
-                                formulaOutputInstance.error("{}:expectedFactFootnoteDifference".format(errMsgPrefix),
+                                formulaOutputInstance.error(f"{errMsgPrefix}:expectedFactFootnoteDifference",
                                     _("Output expected fact %(fact)s expected footnotes %(footnotes1)s produced footnotes %(footnotes2)s"),
                                     modelXbrl=(formulaOutputFact,expectedInstanceFact), fact=expectedInstanceFact.qname, footnotes1=sorted(expectedInstanceFactFootnotes.items()), footnotes2=sorted(formulaOutputFactFootnotes.items()),
                                     messageCodes=("formula:expectedFactFootnoteDifference","ix:expectedFactFootnoteDifference"))
@@ -839,10 +832,11 @@ class Validate:
             #if expected == "EFM.6.03.02" or expected == "EFM.6.03.08": # 6.03.02 is not testable
             #    status = "pass"
             # check if expected is a whitespace separated list of error tokens
-            if status == "fail" and isinstance(expected,str) and ' ' in expected:
-                if all(any(testErr == e for testErr in _errors)
-                       for e in expected.split()):
-                        status = "pass"
+            if status == "fail" and isinstance(expected, str) and ' ' in expected:
+                expectedErrors = set(expected.split())
+                actualErrors = set(_errors)
+                if expectedErrors.issubset(actualErrors):
+                    status = "pass"
             if not _errors and status == "fail":
                 if modelTestcaseVariation.assertions:
                     priorAsserResults = modelTestcaseVariation.assertions
@@ -872,16 +866,17 @@ class Validate:
                 if isinstance(error,dict):
                     modelTestcaseVariation.actual.append(error)
 
+
 class ValidationLogListener(logging.Handler):
     def __init__(self, logView):
         self.logView = logView
         self.level = logging.DEBUG
+
     def flush(self):
         ''' Nothing to flush '''
+
     def emit(self, logRecord):
         # add to logView
         msg = self.format(logRecord)
-        try:
+        with contextlib.suppress(Exception):
             self.logView.append(msg)
-        except:
-            pass
