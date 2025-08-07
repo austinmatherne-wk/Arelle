@@ -763,6 +763,46 @@ class Validate:
                 expectedCount = len(expectedWarnings)
         return expectedCount
 
+    def _matchExpectedErrors(self, errors, expectedList, matchAllExpected):
+        passCount = 0
+        for testErr in errors:
+            if isinstance(testErr, str) and testErr.startswith(("ESEF.", "NL.NL-KVK")):
+                testErr = testErr.rpartition(".")[2]
+            for exp in expectedList:
+                expMatched = False
+                if isinstance(exp, QName) and isinstance(testErr, str):
+                    errPrefix, sep, errLocalName = testErr.rpartition(":")
+                    if ((not sep and errLocalName in commaSpaceSplitPattern.split(exp.localName.strip())) or
+                        (exp == qname(XbrlConst.errMsgPrefixNS.get(errPrefix) or
+                                      (errPrefix == exp.prefix and exp.namespaceURI),
+                                      errLocalName)) or
+                        (exp.namespaceURI == XbrlConst.xdtSchemaErrorNS and errPrefix == "xmlSchema")):
+                        expMatched = True
+                elif type(testErr) is type(exp):
+                    if isinstance(testErr, dict):
+                        if len(testErr) == len(exp) and all(
+                            k in testErr and counts == testErr[k][:len(counts)]
+                            for k, counts in exp.items()):
+                            expMatched = True
+                    elif (testErr == exp or
+                          (isinstance(exp, str) and (
+                           (exp == "html:syntaxError" and testErr.startswith("lxml.SCHEMA")) or
+                           (exp == "EFM.6.03.04" and testErr.startswith("xmlSchema:")) or
+                           (exp == "EFM.6.03.05" and (testErr.startswith("xmlSchema:") or testErr == "EFM.5.02.01.01")) or
+                           (exp == "EFM.6.04.03" and (testErr.startswith("xmlSchema:") or testErr.startswith("utr:") or testErr.startswith("xbrl.") or testErr.startswith("xlink:"))) or
+                           (exp == "EFM.6.05.35" and testErr.startswith("utre:")) or
+                           (exp.startswith("EFM.") and testErr.startswith(exp)) or
+                           (exp.startswith("EXG.") and testErr.startswith(exp)) or
+                           (exp == "vere:invalidDTSIdentifier" and testErr.startswith("xbrl"))
+                           ))):
+                        expMatched = True
+                if expMatched:
+                    passCount += 1
+                    if matchAllExpected:
+                        expectedList.remove(exp)
+                    break
+        return passCount
+
     def determineTestStatus(self, modelTestcaseVariation, errors, validateModelCount=None):
         testcaseResultOptions = self.modelXbrl.modelManager.formulaOptions.testcaseResultOptions
         testcaseExpectedErrors = self.modelXbrl.modelManager.formulaOptions.testcaseExpectedErrors or {}
@@ -798,43 +838,7 @@ class Validate:
                 _expectedList.extend(expectedWarnings)
             if not isinstance(expected, list):
                 expected = [expected]
-            for testErr in _errors:
-                if isinstance(testErr, str) and testErr.startswith(("ESEF.", "NL.NL-KVK")): # compared as list of strings to QName localname
-                    testErr = testErr.rpartition(".")[2]
-                for _exp in _expectedList:
-                    _expMatched = False
-                    if isinstance(_exp,QName) and isinstance(testErr,str):
-                        errPrefix, sep, errLocalName = testErr.rpartition(":")
-                        if ((not sep and errLocalName in commaSpaceSplitPattern.split(_exp.localName.strip())) or # ESEF has comma separated list of localnames of errors
-                            (_exp == qname(XbrlConst.errMsgPrefixNS.get(errPrefix) or
-                                           (errPrefix == _exp.prefix and _exp.namespaceURI),
-                                           errLocalName)) or
-                            # XDT xml schema tests expected results
-                            (_exp.namespaceURI == XbrlConst.xdtSchemaErrorNS and errPrefix == "xmlSchema")):
-                            _expMatched = True
-                    elif type(testErr) is type(_exp):
-                        if isinstance(testErr,dict):
-                            if len(testErr) == len(_exp) and all(
-                                k in testErr and counts == testErr[k][:len(counts)]
-                                for k, counts in _exp.items()):
-                                _expMatched = True
-                        elif (testErr == _exp or
-                            (isinstance(_exp, str) and (
-                             (_exp == "html:syntaxError" and testErr.startswith("lxml.SCHEMA")) or
-                             (_exp == "EFM.6.03.04" and testErr.startswith("xmlSchema:")) or
-                             (_exp == "EFM.6.03.05" and (testErr.startswith("xmlSchema:") or testErr == "EFM.5.02.01.01")) or
-                             (_exp == "EFM.6.04.03" and (testErr.startswith("xmlSchema:") or testErr.startswith("utr:") or testErr.startswith("xbrl.") or testErr.startswith("xlink:"))) or
-                             (_exp == "EFM.6.05.35" and testErr.startswith("utre:")) or
-                             (_exp.startswith("EFM.") and testErr.startswith(_exp)) or
-                             (_exp.startswith("EXG.") and testErr.startswith(_exp)) or
-                             (_exp == "vere:invalidDTSIdentifier" and testErr.startswith("xbrl"))
-                             ))):
-                            _expMatched = True
-                    if _expMatched:
-                        _passCount += 1
-                        if matchAllExpected:
-                            _expectedList.remove(_exp)
-                        break
+            _passCount = self._matchExpectedErrors(_errors, _expectedList, matchAllExpected)
             if _passCount > 0:
                 if expectedCount is not None and (expectedCount != _passCount or
                                                   (matchAllExpected and expectedCount != numErrors)):
