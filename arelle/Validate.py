@@ -803,6 +803,43 @@ class Validate:
                     break
         return passCount
 
+    def _determineStatus(self, expected, numErrors, expectedCount, passCount, matchAllExpected, modelTestcaseVariation, expectedWarnings, errors):
+        if expected == "valid":
+            status = "pass" if numErrors == 0 else "fail"
+        elif expected == "invalid":
+            status = "fail" if numErrors == 0 else "pass"
+        elif expected in (None, []) and numErrors == 0 and not expectedWarnings:
+            status = "pass"
+        elif (isinstance(expected, (QName, dict, list)) or
+              (isinstance(expected, str) and expected not in ("valid", "invalid")) or
+              expectedWarnings):
+            status = "fail"
+            if passCount > 0:
+                if expectedCount is not None and (expectedCount != passCount or
+                                                  (matchAllExpected and expectedCount != numErrors)):
+                    status = "fail"
+                else:
+                    status = "pass"
+            if status == "fail" and isinstance(expected, str) and ' ' in expected:
+                expectedErrors = set(expected.split())
+                actualErrors = set(errors)
+                if expectedErrors.issubset(actualErrors):
+                    status = "pass"
+            if not errors and status == "fail":
+                if modelTestcaseVariation.assertions:
+                    priorAsserResults = modelTestcaseVariation.assertions
+                    expectedItem = expected[0] if isinstance(expected, list) else expected
+                    if len(priorAsserResults) == len(expectedItem) and all(
+                            k in priorAsserResults and counts == priorAsserResults[k][:len(counts)]
+                            for k, counts in expectedItem.items()):
+                        status = "pass"
+                elif (isinstance(expected, dict) and
+                      all(countSatisfied == 0 and countNotSatisfied == 0 for countSatisfied, countNotSatisfied in expected.values())):
+                    status = "pass"
+        else:
+            status = "fail"
+        return status
+
     def determineTestStatus(self, modelTestcaseVariation, errors, validateModelCount=None):
         testcaseResultOptions = self.modelXbrl.modelManager.formulaOptions.testcaseResultOptions
         testcaseExpectedErrors = self.modelXbrl.modelManager.formulaOptions.testcaseExpectedErrors or {}
@@ -819,15 +856,9 @@ class Validate:
         expectedCount = modelTestcaseVariation.expectedCount
         expected, expectedCount = self._processUserExpectedErrors(modelTestcaseVariation, testcaseExpectedErrors, expected, expectedCount)
         expectedCount = self._normalizeExpectedCount(expected, expectedCount, matchAllExpected, expectedWarnings)
-        if expected == "valid":
-            status = "pass" if numErrors == 0 else "fail"
-        elif expected == "invalid":
-            status = "fail" if numErrors == 0 else "pass"
-        elif expected in (None, []) and numErrors == 0 and not expectedWarnings:
-            status = "pass"
-        elif isinstance(expected, (QName, str, dict, list)) or expectedWarnings:
-            status = "fail"
-            _passCount = 0
+        originalExpected = expected
+        _passCount = 0
+        if isinstance(expected, (QName, str, dict, list)) or expectedWarnings:
             if isinstance(expected, list):
                 _expectedList = expected.copy()
             elif not expected:
@@ -839,34 +870,8 @@ class Validate:
             if not isinstance(expected, list):
                 expected = [expected]
             _passCount = self._matchExpectedErrors(_errors, _expectedList, matchAllExpected)
-            if _passCount > 0:
-                if expectedCount is not None and (expectedCount != _passCount or
-                                                  (matchAllExpected and expectedCount != numErrors)):
-                    status = "fail"
-                else:
-                    status = "pass"
-            #if expected == "EFM.6.03.02" or expected == "EFM.6.03.08": # 6.03.02 is not testable
-            #    status = "pass"
-            # check if expected is a whitespace separated list of error tokens
-            if status == "fail" and isinstance(expected, str) and ' ' in expected:
-                expectedErrors = set(expected.split())
-                actualErrors = set(_errors)
-                if expectedErrors.issubset(actualErrors):
-                    status = "pass"
-            if not _errors and status == "fail":
-                if modelTestcaseVariation.assertions:
-                    priorAsserResults = modelTestcaseVariation.assertions
-                    _expected = expected[0] if isinstance(expected, list) else expected
-                    if len(priorAsserResults) == len(_expected) and all(
-                            k in priorAsserResults and counts == priorAsserResults[k][:len(counts)]
-                            for k, counts in _expected.items()):
-                        status = "pass" # passing was previously successful and no further errors
-                elif (isinstance(expected,dict) and # no assertions fired, are all the expected zero counts?
-                      all(countSatisfied == 0 and countNotSatisfied == 0 for countSatisfied, countNotSatisfied in expected.values())):
-                    status = "pass" # passes due to no counts expected
-
-        else:
-            status = "fail"
+        status = self._determineStatus(originalExpected, numErrors, expectedCount, _passCount,
+                                       matchAllExpected, modelTestcaseVariation, expectedWarnings, _errors)
         modelTestcaseVariation.status = status
         _actual = {} # code and quantity
         if numErrors > 0 or hasAssertionResult: # either coded errors or assertions (in errors list)
