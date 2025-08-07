@@ -719,6 +719,13 @@ class Validate:
     def noErrorCodes(self, modelTestcaseVariationActual):
         return not any(not isinstance(actual,dict) for actual in modelTestcaseVariationActual)
 
+    def _filterBlockedErrors(self, errors, blockedMessageCodes):
+        if blockedMessageCodes:
+            blockPattern = re.compile(blockedMessageCodes)
+            return [e for e in errors if isinstance(e, str) and not blockPattern.match(e)]
+        else:
+            return errors
+
     def determineTestStatus(self, modelTestcaseVariation, errors, validateModelCount=None):
         testcaseResultOptions = self.modelXbrl.modelManager.formulaOptions.testcaseResultOptions
         testcaseExpectedErrors = self.modelXbrl.modelManager.formulaOptions.testcaseExpectedErrors or {}
@@ -728,11 +735,7 @@ class Validate:
         if expectedReportCount is not None and validateModelCount is not None and expectedReportCount != validateModelCount:
             errors.append("conf:testcaseExpectedReportCountError")
         _blockedMessageCodes = modelTestcaseVariation.blockedMessageCodes # restricts codes examined when provided
-        if _blockedMessageCodes:
-            _blockPattern = re.compile(_blockedMessageCodes)
-            _errors = [e for e in errors if isinstance(e,str) and not _blockPattern.match(e)]
-        else:
-            _errors = errors
+        _errors = self._filterBlockedErrors(errors, _blockedMessageCodes)
         numErrors = sum(isinstance(e,(QName,str)) for e in _errors) # does not include asserton dict results
         hasAssertionResult = any(isinstance(e,dict) for e in _errors)
         expected = modelTestcaseVariation.expected
