@@ -749,6 +749,20 @@ class Validate:
                 expectedCount += len(userExpectedErrors)
         return expected, expectedCount
 
+    def _normalizeExpectedCount(self, expected, expectedCount, matchAllExpected, expectedWarnings):
+        if matchAllExpected:
+            if isinstance(expected, list):
+                if not expectedCount:
+                    expectedCount = len(expected)
+            elif expectedCount is None:
+                expectedCount = 0
+        if expectedWarnings:
+            if expectedCount is not None:
+                expectedCount += len(expectedWarnings)
+            else:
+                expectedCount = len(expectedWarnings)
+        return expectedCount
+
     def determineTestStatus(self, modelTestcaseVariation, errors, validateModelCount=None):
         testcaseResultOptions = self.modelXbrl.modelManager.formulaOptions.testcaseResultOptions
         testcaseExpectedErrors = self.modelXbrl.modelManager.formulaOptions.testcaseExpectedErrors or {}
@@ -764,12 +778,7 @@ class Validate:
         expected = modelTestcaseVariation.expected
         expectedCount = modelTestcaseVariation.expectedCount
         expected, expectedCount = self._processUserExpectedErrors(modelTestcaseVariation, testcaseExpectedErrors, expected, expectedCount)
-        if matchAllExpected:
-            if isinstance(expected, list):
-                if not expectedCount:
-                    expectedCount = len(expected)
-            elif expectedCount is None:
-                expectedCount = 0
+        expectedCount = self._normalizeExpectedCount(expected, expectedCount, matchAllExpected, expectedWarnings)
         if expected == "valid":
             status = "pass" if numErrors == 0 else "fail"
         elif expected == "invalid":
@@ -787,10 +796,6 @@ class Validate:
                 _expectedList = [expected]
             if expectedWarnings:
                 _expectedList.extend(expectedWarnings)
-                if expectedCount is not None:
-                    expectedCount += len(expectedWarnings)
-                else:
-                    expectedCount = len(expectedWarnings)
             if not isinstance(expected, list):
                 expected = [expected]
             for testErr in _errors:
