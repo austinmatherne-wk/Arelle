@@ -726,20 +726,7 @@ class Validate:
         else:
             return errors
 
-    def determineTestStatus(self, modelTestcaseVariation, errors, validateModelCount=None):
-        testcaseResultOptions = self.modelXbrl.modelManager.formulaOptions.testcaseResultOptions
-        testcaseExpectedErrors = self.modelXbrl.modelManager.formulaOptions.testcaseExpectedErrors or {}
-        matchAllExpected = testcaseResultOptions == "match-all" or modelTestcaseVariation.match == 'all'
-        expectedReportCount = modelTestcaseVariation.expectedReportCount
-        expectedWarnings = modelTestcaseVariation.expectedWarnings if self.modelXbrl.modelManager.formulaOptions.testcaseResultsCaptureWarnings else []
-        if expectedReportCount is not None and validateModelCount is not None and expectedReportCount != validateModelCount:
-            errors.append("conf:testcaseExpectedReportCountError")
-        _blockedMessageCodes = modelTestcaseVariation.blockedMessageCodes # restricts codes examined when provided
-        _errors = self._filterBlockedErrors(errors, _blockedMessageCodes)
-        numErrors = sum(isinstance(e,(QName,str)) for e in _errors) # does not include asserton dict results
-        hasAssertionResult = any(isinstance(e,dict) for e in _errors)
-        expected = modelTestcaseVariation.expected
-        expectedCount = modelTestcaseVariation.expectedCount
+    def _processUserExpectedErrors(self, modelTestcaseVariation, testcaseExpectedErrors, expected, expectedCount):
         indexPath = modelTestcaseVariation.document.filepath
         if self.useFileSource is not None and self.useFileSource.isZip:
             baseZipFile = self.useFileSource.basefile
@@ -760,6 +747,23 @@ class Validate:
             expected.extend(userExpectedErrors)
             if expectedCount is not None:
                 expectedCount += len(userExpectedErrors)
+        return expected, expectedCount
+
+    def determineTestStatus(self, modelTestcaseVariation, errors, validateModelCount=None):
+        testcaseResultOptions = self.modelXbrl.modelManager.formulaOptions.testcaseResultOptions
+        testcaseExpectedErrors = self.modelXbrl.modelManager.formulaOptions.testcaseExpectedErrors or {}
+        matchAllExpected = testcaseResultOptions == "match-all" or modelTestcaseVariation.match == 'all'
+        expectedReportCount = modelTestcaseVariation.expectedReportCount
+        expectedWarnings = modelTestcaseVariation.expectedWarnings if self.modelXbrl.modelManager.formulaOptions.testcaseResultsCaptureWarnings else []
+        if expectedReportCount is not None and validateModelCount is not None and expectedReportCount != validateModelCount:
+            errors.append("conf:testcaseExpectedReportCountError")
+        _blockedMessageCodes = modelTestcaseVariation.blockedMessageCodes # restricts codes examined when provided
+        _errors = self._filterBlockedErrors(errors, _blockedMessageCodes)
+        numErrors = sum(isinstance(e,(QName,str)) for e in _errors) # does not include asserton dict results
+        hasAssertionResult = any(isinstance(e,dict) for e in _errors)
+        expected = modelTestcaseVariation.expected
+        expectedCount = modelTestcaseVariation.expectedCount
+        expected, expectedCount = self._processUserExpectedErrors(modelTestcaseVariation, testcaseExpectedErrors, expected, expectedCount)
         if matchAllExpected:
             if isinstance(expected, list):
                 if not expectedCount:
