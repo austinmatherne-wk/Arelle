@@ -161,7 +161,8 @@ def rule_EC8054W(
     EDINET.EC8054W: For any context with ID containing "NonConsolidatedMember",
     the scenario element within must be set to "NonConsolidatedMember".
     """
-    for context in val.modelXbrl.contexts.values():
+    allContexts = list(val.modelXbrl.contexts.values()) + list(val.modelXbrl.ixdsUnmappedContexts.values())
+    for context in allContexts:
         if pluginData.nonConsolidatedMemberQn.localName not in context.id:
             continue
         member = context.dimMemberQname(

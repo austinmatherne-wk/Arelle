@@ -870,7 +870,7 @@ class ModelXbrl:
             return fbdq[memQname]
 
     @property
-    def contextsInUse(self) -> Any:
+    def contextsInUse(self) -> tuple[ModelContext, ...]:
         try:
             if self._contextsInUseMarked:
                 return (cntx for cntx in self.contexts.values() if getattr(cntx, "_inUse", False))
@@ -881,6 +881,19 @@ class ModelXbrl:
                     cntx._inUse = True
             self._contextsInUseMarked: bool = True
             return self.contextsInUse
+
+    @property
+    def unitsInUse(self) -> tuple[ModelUnit, ...]:
+        try:
+            if self._unitsInUseMarked:
+                return (unit for unit in self.units.values() if getattr(unit, "_inUse", False))
+        except AttributeError:
+            for fact in self.factsInInstance:
+                unit = fact.unit
+                if unit is not None:
+                    unit._inUse = True
+            self._unitsInUseMarked: bool = True
+            return self.unitsInUse
 
     @property
     def dimensionsInUse(self) -> set[Any]:

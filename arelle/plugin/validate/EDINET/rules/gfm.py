@@ -3,6 +3,7 @@ See COPYRIGHT.md for copyright information.
 """
 from __future__ import annotations
 
+from operator import attrgetter
 import os
 from collections import defaultdict
 from datetime import timedelta
@@ -257,13 +258,16 @@ def rule_gfm_1_2_8(
     EDINET.EC5700W: [GFM 1.2.8] Every xbrli:context element must appear in at least one
     contextRef attribute in the same instance.
     """
-    unused_contexts = list(set(val.modelXbrl.contexts.values()) - set(val.modelXbrl.contextsInUse))
-    unused_contexts.sort(key=lambda x: x.id)
-    for context in unused_contexts:
+    if hasattr(val.modelXbrl, "ixdsTarget"):
+        unusedContexts = val.modelXbrl.ixdsUnmappedContexts.values()
+    else:
+        unusedContexts = set(val.modelXbrl.contexts.values()) - set(val.modelXbrl.contextsInUse)
+    unusedContexts = sorted(unusedContexts, key=attrgetter('id'))
+    for context in unusedContexts:
         yield Validation.warning(
             codes='EDINET.EC5700W.GFM.1.2.8',
             msg=_('If you are not using a context, delete it if it is not needed.'),
-            modelObject = context
+            modelObject=context
         )
 
 
@@ -558,12 +562,16 @@ def rule_gfm_1_2_27(
     EDINET.EC5700W: [GFM 1.2.27] An instance must not contain unused units.
     """
     # TODO: Consolidate validations involving unused units
-    unusedUnits = set(val.modelXbrl.units.values()) - {fact.unit for fact in val.modelXbrl.facts if fact.unit is not None}
+    if hasattr(val.modelXbrl, "ixdsTarget"):
+        unusedUnits = val.modelXbrl.ixdsUnmappedUnits.values()
+    else:
+        unusedUnits = set(val.modelXbrl.units.values()) - set(val.modelXbrl.unitsInUse)
+    unusedUnits = sorted(unusedUnits, key=attrgetter('id'))
     if len(unusedUnits) > 0:
         yield Validation.warning(
             codes='EDINET.EC5700W.GFM.1.2.27',
             msg=_("Delete unused units from the instance."),
-            modelObject=list(unusedUnits)
+            modelObject=unusedUnits
         )
 
 
