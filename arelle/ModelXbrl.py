@@ -335,8 +335,10 @@ class ModelXbrl:
         self.facts: list[ModelFact] = []
         self.factsInInstance: set[ModelFact] = set()
         self.undefinedFacts: list[ModelFact] = []  # elements presumed to be facts but not defined
-        self.contexts: dict[str, ModelDocumentClass.xmlRootElement] = {}
+        self.contexts: dict[str, ModelObject] = {}
+        self.ixdsUnmappedContexts: dict[str, ModelObject] = {}
         self.units: dict[str, ModelUnit] = {}
+        self.ixdsUnmappedUnits: dict[str, ModelObject] = {}
         self.modelObjects: list[ModelObject] = []
         self.qnameParameters: dict[QName, Any] = {}
         self.modelVariableSets: set[ModelVariableSet] = set()
