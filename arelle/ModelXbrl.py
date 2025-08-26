@@ -429,8 +429,12 @@ class ModelXbrl:
         contextsByDocument.default_factory = None
         return contextsByDocument
 
-    def entityIdentifiersInDocument(self) -> set[tuple[str, str]]:
-        return {context.entityIdentifier for context in self.contexts.values()}
+    def contextsByEntityIdentifiers(self) -> dict[tuple[str, str], list[ModelContext]]:
+        contextsByEntityIdentifiers = defaultdict(list)
+        for context in self.contexts.values():
+            contextsByEntityIdentifiers[context.entityIdentifier].append(context)
+        contextsByEntityIdentifiers.default_factory = None
+        return contextsByEntityIdentifiers
 
     def relationshipSet(self, arcrole: tuple[str, ...] | str, linkrole: tuple[str, ...] | str | None = None, linkqname: QName | None = None, arcqname: QName | None = None, includeProhibits: bool = False) -> ModelRelationshipSetClass:
         """Returns a relationship set matching specified parameters (only arcrole is required).

@@ -154,13 +154,12 @@ def rule_gfm_1_2_3(
     """
     EDINET.EC5700W: [GFM 1.2.3] All xbrli:identifier elements in an instance must have identical content.
     """
-    entityIdentifierValues = val.modelXbrl.entityIdentifiersInDocument()
-    if len(entityIdentifierValues) >1:
+    contextsByEntityIdentifiers = val.modelXbrl.contextsByEntityIdentifiers()
+    if len(contextsByEntityIdentifiers) > 1:
         yield Validation.warning(
             codes='EDINET.EC5700W.GFM.1.2.3',
-            msg=_('All identifier elements must be identical.'),
-                modelObject = val.modelXbrl
-            )
+            msg=_('All identifier elements must be identical.')
+        )
 
 
 @validation(

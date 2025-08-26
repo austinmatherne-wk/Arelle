@@ -80,16 +80,15 @@ def rule_nl_kvk_3_1_1_1(
     NL-KVK.3.1.1.1: xbrli:identifier content to match KVK number format that must consist of 8 consecutive digits;
     first two digits must not be '00'.
     """
-    entityIdentifierValues = val.modelXbrl.entityIdentifiersInDocument()
-    for entityId in entityIdentifierValues:
+    contextsByEntityIdentifiers = val.modelXbrl.contextsByEntityIdentifiers()
+    for entityId, contexts in contextsByEntityIdentifiers.items():
         if not XBRLI_IDENTIFIER_PATTERN.match(entityId[1]):
             yield Validation.error(
                 codes='NL.NL-KVK-RTS_Annex_IV_Par_2_G3-1-1_1.invalidIdentifierFormat',
                 msg=_('xbrli:identifier content to match KVK number format that must consist of 8 consecutive digits. '
                       'Additionally the first two digits must not be "00".'),
-                modelObject = val.modelXbrl
+                modelObject=contexts
             )
-            return
 
 
 @validation(
@@ -105,16 +104,15 @@ def rule_nl_kvk_3_1_1_2(
     """
     NL-KVK.3.1.1.2: Scheme attribute of xbrli:identifier must be http://www.kvk.nl/kvk-id.
     """
-    entityIdentifierValues = val.modelXbrl.entityIdentifiersInDocument()
-    for entityId in entityIdentifierValues:
+    contextsByEntityIdentifiers = val.modelXbrl.contextsByEntityIdentifiers()
+    for entityId, contexts in contextsByEntityIdentifiers.items():
         if XBRLI_IDENTIFIER_SCHEMA != entityId[0]:
             yield Validation.error(
                 codes='NL.NL-KVK-RTS_Annex_IV_Par_2_G3-1-1_2.invalidIdentifier',
                 msg=_('The scheme attribute of the xbrli:identifier does not match the required content. '
                       'This should be "http://www.kvk.nl/kvk-id".'),
-                modelObject = val.modelXbrl
+                modelObject=contexts
             )
-            return
 
 
 @validation(
@@ -218,12 +216,11 @@ def rule_nl_kvk_3_1_4_1 (
     """
      NL-KVK.3.1.4.1: All entity identifiers and schemes must have identical content.
     """
-    entityIdentifierValues = val.modelXbrl.entityIdentifiersInDocument()
-    if len(entityIdentifierValues) >1:
+    entityIdentifiers = val.modelXbrl.contextsByEntityIdentifiers().keys()
+    if len(entityIdentifiers) > 1:
         yield Validation.error(
             codes='NL.NL-KVK-RTS_Annex_IV_Par_1_G3-1-4_1.multipleIdentifiers',
-            msg=_('All entity identifiers and schemes must have identical content.'),
-            modelObject = entityIdentifierValues
+            msg=_('All entity identifiers and schemes must have identical content.').format(),
         )
 
 
@@ -1002,7 +999,7 @@ def rule_nl_kvk_4_1_1_1(
                   'Review to ensure that the schema file, presentation, calculation, '
                   'and definition linkbases are included and not empty. '
                   'A label linkbase is also required if extension elements are present.'),
-            modelObject=val.modelXbrl, missingFiles=", ".join(missingFiles)
+            missingFiles=", ".join(missingFiles)
         )
 
 
@@ -1790,7 +1787,7 @@ def rule_nl_kvk_6_1_1_1(
         yield Validation.error(
             codes='NL.NL-KVK.6.1.1.1.reportPackageMaximumSizeExceeded',
             msg=_('The size of the report package must not exceed %(maxSize)s MBs, size is %(size)s MBs.'),
-            modelObject=val.modelXbrl, maxSize=MAX_REPORT_PACKAGE_SIZE_MBS, size=int(size/1000000)
+            maxSize=MAX_REPORT_PACKAGE_SIZE_MBS, size=int(size/1000000)
         )
 
 
