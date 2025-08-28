@@ -472,12 +472,22 @@ def moduleModuleInfo(
                     mergedImportURLs.append(moduleImport + ".py")
             imports = []
             for _url in mergedImportURLs:
+                _importURL = _url
                 if isAbsolute(_url) or isLegacyAbs(_url):
-                    _importURL = _url # URL is absolute http or local file system
-                else: # check if exists relative to this module's directory
-                    _importURL = os.path.join(os.path.dirname(moduleURL), os.path.normpath(_url))
-                    if not os.path.exists(_importURL): # not relative to this plugin, assume standard plugin base
-                        _importURL = _url # moduleModuleInfo adjusts relative URL to plugin base
+                    continue
+                # check if module exists relative to the importing module
+                # Split paths into components, handling both forward and backward slashes
+                modulePathParts = os.path.normpath(moduleFilename).replace('\\', '/').split('/')
+                urlParts = os.path.normpath(_url).replace('\\', '/').split('/')
+                # Find where _url starts matching in moduleURL path
+                for i, pathPart in enumerate(modulePathParts):
+                    if pathPart == urlParts[0]:
+                        # Found a potential branching point, construct a new path
+                        basePath = os.sep.join(modulePathParts[:i])
+                        candidateImportURL = os.path.join(basePath, os.sep.join(urlParts))
+                        if os.path.exists(candidateImportURL):
+                            _importURL = candidateImportURL
+                            break
                 _importModuleInfo = moduleModuleInfo(moduleURL=_importURL, reload=reload, parentImportsSubtree=_moduleImportsSubtree)
                 if _importModuleInfo:
                     _importModuleInfo["isImported"] = True
