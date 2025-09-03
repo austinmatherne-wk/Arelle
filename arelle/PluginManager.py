@@ -298,6 +298,20 @@ def getModuleFilename(moduleURL: str, reload: bool, normalize: bool, base: str |
         if moduleFilename:
             # `moduleFilename` normalized to an existing script
             return moduleFilename, None
+    if base and not (isAbsolute(moduleURL) or isLegacyAbs(moduleURL)):
+        normalizedModuleURL = moduleURL.replace('\\', '/').replace('/', os.sep)
+        try:
+            # Walk through all subdirectories of base looking for the moduleURL pattern
+            for root, _dirs, _files in os.walk(base, followlinks=True):
+                # Check if the current directory path ends with our target moduleURL
+                relativeRoot = os.path.relpath(root, base)
+                if relativeRoot.endswith(normalizedModuleURL):
+                    normalizedPath = normalizeModuleFilename(root)
+                    if normalizedPath:
+                        return normalizedPath, None
+        except (OSError, ValueError):
+            # Skip if there are filesystem errors
+            pass
     # `moduleFilename` did not map to a local filepath or did not normalize to a script
     # Try using `moduleURL` to search for pip-installed entry point
     entryPointRef = EntryPointRef.get(moduleURL)
