@@ -105,7 +105,7 @@ objtype = {
         'NOTATION': str,
       }
 
-def isXsType(localName):
+def isXsType(localName: str) -> bool:
     if localName[-1] in ('?', '+', '*'):
         return localName[:-1] in xsFunctions
     return localName in xsFunctions

@@ -217,6 +217,29 @@ def parseArgs(args):
                       help=_("Compare instance facts against the instance loaded from the given URI."))
     parser.add_option("--compareFormulaOutput", "--compareformulaoutput", dest="compareFormulaOutput",
                       help=_("Compare formula output facts against the instance loaded from the given URI."))
+    parser.add_option("--tc-only", "--tconly",
+                      action="store_true",
+                      dest="tableConstraintsOnly",
+                      help=_("Only validate Table Constraints, don't load report (streaming validation only). "
+                             "Requires an xBRL-CSV file with Table Constraints metadata. "
+                             "Useful for large CSV reports to save memory and time. "
+                             "Cannot be used with --tc-lint."))
+    parser.add_option("--tc-force-load", "--tcforceload",
+                      action="store_true",
+                      dest="tableConstraintsForceLoad",
+                      help=_("Load report even if Table Constraints validation fails. "
+                             "By default, reports with TC validation errors are not loaded."))
+    parser.add_option("--tc-validate-metadata", "--tcvalidatemetadata",
+                      action="store_true",
+                      dest="tableConstraintsValidateMetadata",
+                      help=_("Also validate Table Constraints metadata structure. "
+                             "By default, only report data is validated."))
+    parser.add_option("--tc-lint", "--tclint",
+                      action="store_true",
+                      dest="tableConstraintsLint",
+                      help=_("Run Table Constraints linter to check metadata consistency with taxonomy. "
+                             "Requires report to be loaded. Produces non-normative warnings (tcl:* codes). "
+                             "Cannot be used with --tc-only."))
     parser.add_option("--reportPackage", "--reportPackage",
                       action="store_true",
                       dest="reportPackage",
@@ -734,6 +757,9 @@ class CntlrCmdLine(Cntlr.Cntlr):
         :param options: OptionParser options from parse_args of main argv arguments (when called from command line) or corresponding arguments from web service (REST) request.
         :type options: optparse.Values
         """
+        # Store runtime options on controller for access by loaders
+        self.runtimeOptions = options
+
         for b in BETA_FEATURES_AND_DESCRIPTIONS:
             self.betaFeatures[b] = getattr(options, b)
         if options.statusPipe or options.monitorParentProcess:
@@ -1195,6 +1221,36 @@ class CntlrCmdLine(Cntlr.Cntlr):
                                 traceback.format_exc()))
             if success:
                 try:
+                    # Check if TC options were specified for non-TC files
+                    if options.tableConstraintsOnly and self.modelManager.modelXbrl:
+                        modelXbrl = self.modelManager.modelXbrl
+                        # --tc-only requires Table Constraints metadata
+                        # If file was loaded and we're here, it means TC validation didn't happen
+                        # (TC validation returns LoadingException which prevents reaching here)
+                        if not (hasattr(modelXbrl, "loadedFromOIM") and modelXbrl.loadedFromOIM):
+                            # Not an OIM file at all
+                            self.addToLog(_("Error: --tc-only option requires an xBRL-CSV file with Table Constraints metadata. "
+                                          "File is not an OIM CSV file."),
+                                        messageCode="arelle:tableConstraintsRequired",
+                                        level=logging.ERROR)
+                            success = False
+                        # If it's OIM but reached here, the warning was already logged in oimLoader
+                        # and we should also fail since --tc-only was specified
+                        elif hasattr(modelXbrl, "loadedFromOIM") and modelXbrl.loadedFromOIM:
+                            self.addToLog(_("Error: --tc-only option requires Table Constraints metadata. "
+                                          "File does not contain Table Constraints."),
+                                        messageCode="arelle:tableConstraintsRequired",
+                                        level=logging.ERROR)
+                            success = False
+                    elif options.tableConstraintsForceLoad and self.modelManager.modelXbrl:
+                        # --tc-force-load is a no-op if TC validation didn't run, just warn
+                        modelXbrl = self.modelManager.modelXbrl
+                        if not (hasattr(modelXbrl, "loadedFromOIM") and modelXbrl.loadedFromOIM):
+                            self.addToLog(_("Warning: --tc-force-load option is only applicable to xBRL-CSV files with Table Constraints metadata. "
+                                          "This option will be ignored."),
+                                        messageCode="arelle:tableConstraintsNotApplicable",
+                                        level=logging.WARNING)
+
                     for modelXbrl in [self.modelManager.modelXbrl] + getattr(self.modelManager.modelXbrl, "supplementalModelXbrls", []):
                         hasFormulae = modelXbrl.hasFormulae
                         isAlreadyValidated = False

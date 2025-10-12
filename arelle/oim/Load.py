@@ -18,16 +18,24 @@ import isodate
 import regex as re
 from lxml import etree
 
-from arelle import (ModelDocument, ModelXbrl, PackageManager, UrlUtil,
-                    ValidateXbrlDimensions, XbrlConst, XmlUtil, XmlValidate)
-from arelle.ModelValue import (DATETIME, dateTime, dayTimeDuration, qname,
-                               yearMonthDuration)
+from arelle import (
+    ModelDocument,
+    ModelXbrl,
+    PackageManager,
+    UrlUtil,
+    ValidateXbrlDimensions,
+    XbrlConst,
+    XmlUtil,
+    XmlValidate,
+)
+from arelle.ModelDocument import LoadingException
+from arelle.ModelValue import DATETIME, dateTime, dayTimeDuration, qname, yearMonthDuration
+from arelle.oim.tableConstraints import hasTableConstraints, validateTableConstraints
 from arelle.PluginManager import pluginClassMethods
 from arelle.PrototypeInstanceObject import DimValuePrototype
 from arelle.PythonUtil import attrdict, isLegacyAbs, strTruncate
 from arelle.typing import TypeGetText
-from arelle.ValidateDuplicateFacts import (DuplicateTypeArg,
-                                           getDuplicateFactSetsWithType)
+from arelle.ValidateDuplicateFacts import DuplicateTypeArg, getDuplicateFactSetsWithType
 
 _: TypeGetText
 
@@ -2861,9 +2869,104 @@ def isOimLoadable(normalizedUri, filepath):
 def oimLoader(modelXbrl, mappedUri, filepath):
     cntlr = modelXbrl.modelManager.cntlr
     cntlr.showStatus(_("Loading OIM file: {0}").format(os.path.basename(filepath)))
+
+    # Check if user specified TC options via CLI or GUI config
+    # CLI runtime options take precedence over GUI config
+    tableConstraintsOnly = False
+    tableConstraintsForceLoad = False
+    tableConstraintsValidateMetadata = False
+    tableConstraintsLint = False
+
+    # Check CLI runtime options first
+    if hasattr(cntlr, "runtimeOptions"):
+        if hasattr(cntlr.runtimeOptions, "tableConstraintsOnly") and cntlr.runtimeOptions.tableConstraintsOnly:
+            tableConstraintsOnly = True
+        if hasattr(cntlr.runtimeOptions, "tableConstraintsForceLoad") and cntlr.runtimeOptions.tableConstraintsForceLoad:
+            tableConstraintsForceLoad = True
+        if hasattr(cntlr.runtimeOptions, "tableConstraintsValidateMetadata") and cntlr.runtimeOptions.tableConstraintsValidateMetadata:
+            tableConstraintsValidateMetadata = True
+        if hasattr(cntlr.runtimeOptions, "tableConstraintsLint") and cntlr.runtimeOptions.tableConstraintsLint:
+            tableConstraintsLint = True
+
+    # If not set via CLI, check GUI config (for GUI mode)
+    if not tableConstraintsOnly and hasattr(cntlr, "config"):
+        tableConstraintsOnly = cntlr.config.get("tableConstraintsValidateOnly", False)
+    if not tableConstraintsForceLoad and hasattr(cntlr, "config"):
+        tableConstraintsForceLoad = cntlr.config.get("tableConstraintsForceLoad", False)
+    if not tableConstraintsValidateMetadata and hasattr(cntlr, "config"):
+        tableConstraintsValidateMetadata = cntlr.config.get("tableConstraintsValidateMetadata", False)
+    if not tableConstraintsLint and hasattr(cntlr, "config"):
+        tableConstraintsLint = cntlr.config.get("tableConstraintsLint", False)
+
+    # Validate conflicting options
+    if tableConstraintsOnly and tableConstraintsLint:
+        modelXbrl.error("arelle:conflictingOptions",
+                       _("Cannot use --tc-only with --tc-lint. "
+                         "Linter requires taxonomy to be loaded, but --tc-only prevents loading."))
+        return LoadingException(_("Conflicting Table Constraints options specified"))
+
+    tcOptionsSpecified = tableConstraintsOnly or tableConstraintsForceLoad
+
+    # Check if this is a CSV file with Table Constraints metadata
+    # If so, perform streaming validation BEFORE full OIM loading
+    hasTc = filepath.endswith(".json") and hasTableConstraints(filepath, modelXbrl.fileSource)
+
+    if hasTc:
+        # Perform table constraints validation
+        try:
+            hasErrors = validateTableConstraints(modelXbrl, filepath, modelXbrl.fileSource, tableConstraintsValidateMetadata)
+
+            # Check if user wants validation only (no loading)
+            if tableConstraintsOnly:
+                msg = _("Table Constraints validation complete (report not loaded)")
+                modelXbrl.info("tc:validationComplete", msg)
+                return LoadingException(msg)
+
+            # If validation failed and not forcing load, prevent loading
+            if hasErrors and not tableConstraintsForceLoad:
+                return LoadingException(_("Table Constraints validation failed, report not loaded. Use --tc-force-load to load anyway."))
+        except (OSError, RuntimeError, ValueError, KeyError, TypeError) as e:
+            modelXbrl.error("tc:validationError", _("Table Constraints validation error: %(error)s"), error=str(e))
+            # Continue with normal OIM loading even if TC validation fails
+    elif tcOptionsSpecified:
+        # User specified TC options but file doesn't have TC metadata
+        if tableConstraintsOnly:
+            # --tc-only requires TC metadata - this is an error
+            msg = _("--tc-only option requires Table Constraints metadata. File %(file)s does not contain Table Constraints.")
+            modelXbrl.error("arelle:tableConstraintsRequired", msg,
+                          modelObject=modelXbrl, file=os.path.basename(filepath))
+            return LoadingException(msg % {"file": os.path.basename(filepath)})
+        else:
+            # --tc-force-load without TC metadata is just a warning (option ignored)
+            modelXbrl.warning("arelle:tableConstraintsNotApplicable",
+                             _("--tc-force-load option specified but file %(file)s "
+                               "does not contain Table Constraints metadata. Option will be ignored."),
+                             modelObject=modelXbrl, file=os.path.basename(filepath))
+
     doc = _loadFromOIM(cntlr, modelXbrl.error, modelXbrl.warning, modelXbrl, filepath, mappedUri)
     if doc is None:
         return None # not an OIM file
     modelXbrl.loadedFromOIM = True
     modelXbrl.loadedFromOimErrorCount = len(modelXbrl.errors)
+
+    # Run Table Constraints linter if requested and TC metadata present
+    # Linter requires taxonomy to be loaded, so it runs AFTER OIM loading
+    if tableConstraintsLint and hasTc:
+        try:
+            from arelle.oim.tableConstraints.validators import LinterValidator, ReportValidator
+
+            cntlr.showStatus(_("Running Table Constraints linter..."))
+
+            # Load metadata (reuse ReportValidator's loader)
+            reportValidator = ReportValidator(modelXbrl, filepath, modelXbrl.fileSource)
+            metadata = reportValidator.loadMetadata()
+
+            # Run linter validation
+            linter = LinterValidator(modelXbrl, metadata)
+            linter.validate()  # Warnings are logged automatically
+
+            cntlr.showStatus("")
+        except Exception as e:
+            modelXbrl.warning("tc:linterError", _("Table Constraints linter error: %(error)s"), error=str(e))
+
     return doc

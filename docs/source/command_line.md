@@ -53,6 +53,19 @@
 | `--utrUrl=UTRURL` _or_ <br/>`--utrurl=UTRURL`                       | Used with `--utr` flag. Override disclosure systems Unit Type Registry.<br/>`UTRURL` is the location (URL or file path).                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `--infoset`                                                         | Select validation with respect testcase infosets.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
+### Table Constraints Arguments
+
+[Table Constraints](user_guides/table_constraints.md) is an XBRL specification for validating xBRL-CSV reports. These arguments control Table Constraints validation behavior.
+
+| Flag                                                  | Description                                                                                                                                                                                                                                                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--tc-only` _or_ <br/>`--tconly`                     | Only validate Table Constraints, don't load report (streaming validation only). <br/>Requires an xBRL-CSV file with Table Constraints metadata. <br/>Useful for large CSV reports to save memory and time. <br/>Produces `tcme:*` and `tcre:*` error codes. <br/>**Cannot be used with `--tc-lint`.** |
+| `--tc-force-load` _or_ <br/>`--tcforceload`          | Load report even if Table Constraints validation fails. <br/>By default, reports with TC validation errors are not loaded. <br/>Useful for debugging validation errors.                                                                                                                          |
+| `--tc-validate-metadata` _or_ <br/>`--tcvalidatemetadata` | Also validate Table Constraints metadata structure. <br/>By default, only report data is validated. <br/>Produces `tcme:*` error codes. <br/>Recommended for metadata authors.                                                                                                                  |
+| `--tc-lint` _or_ <br/>`--tclint`                     | Run Table Constraints linter to check metadata consistency with taxonomy. <br/>Requires report to be loaded (runs after OIM loading). <br/>Produces non-normative `tcl:*` warning codes. <br/>**Cannot be used with `--tc-only`.**                                                               |
+
+**See also:** [Table Constraints User Guide](user_guides/table_constraints.md) for detailed usage examples and error code reference.
+
 ### Output Arguments
 
 These arguments can override the system language settings for the output options below.

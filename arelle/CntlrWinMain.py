@@ -247,6 +247,10 @@ class CntlrWinMain (Cntlr.Cntlr):
         for pluginMenuExtender in pluginClassMethods("CntlrWinMain.Menu.Validation"):
             pluginMenuExtender(self, validateMenu)
 
+        validateMenu.add_separator()
+        validateMenu.add_command(label=_("Table Constraints Options..."), underline=0,
+                                command=lambda: DialogTableConstraints.show(self))
+
         formulaMenu = Menu(self.menubar, tearoff=0)
         formulaMenu.add_command(label=_("Parameters..."), underline=0, command=self.formulaParametersDialog)
 
