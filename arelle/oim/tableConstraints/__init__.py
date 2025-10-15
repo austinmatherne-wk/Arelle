@@ -20,6 +20,7 @@ from typing import cast
 from arelle.FileSource import FileSource
 from arelle.ModelXbrl import ModelXbrl
 from arelle.oim.tableConstraints import Const
+from arelle.oim.tableConstraints.Metadata import loadMetadata
 from arelle.oim.tableConstraints.validators.metadata import MetadataValidator
 from arelle.oim.tableConstraints.validators.report import ReportValidator
 
@@ -52,7 +53,7 @@ def hasTableConstraints(filepath: str, fileSource: FileSource | None = None, _ch
     except (OSError, UnicodeDecodeError, AttributeError):
         return False
 
-    if f"{Const.TC_PREFIX}:" in contentPreview:
+    if f"{Const.TC_RESERVED_PREFIX}:" in contentPreview:
         return True
 
     if '"documentInfo"' not in contentPreview or "xbrl-csv" not in contentPreview:
@@ -72,7 +73,7 @@ def hasTableConstraints(filepath: str, fileSource: FileSource | None = None, _ch
 
     try:
         hasTc = any(
-            key.startswith(f"{Const.TC_PREFIX}:")
+            key.startswith(f"{Const.TC_RESERVED_PREFIX}:")
             for obj in [metadataDoc] + list(metadataDoc.get("tableTemplates", {}).values())
             for key in obj
             if isinstance(obj, dict)
@@ -99,10 +100,7 @@ def hasTableConstraints(filepath: str, fileSource: FileSource | None = None, _ch
 
 
 def validateTableConstraints(
-    modelXbrl: ModelXbrl,
-    metadataPath: str,
-    fileSource: FileSource | None = None,
-    validateMetadata: bool = False
+    modelXbrl: ModelXbrl, metadataPath: str, fileSource: FileSource | None = None, validateMetadata: bool = False
 ) -> bool:
     """
     Perform streaming validation of Table Constraints.
@@ -117,16 +115,15 @@ def validateTableConstraints(
     try:
         hasErrors = False
 
-        if validateMetadata:
-            reportValidator = ReportValidator(modelXbrl, metadataPath, fileSource)
-            metadata = reportValidator.loadMetadata()
+        metadata = loadMetadata(metadataPath, fileSource)
 
+        if validateMetadata:
             metadataValidator = MetadataValidator(modelXbrl, metadata)
             if metadataValidator.validate():
                 hasErrors = True
 
         if not hasErrors:
-            reportValidator = ReportValidator(modelXbrl, metadataPath, fileSource)
+            reportValidator = ReportValidator(modelXbrl, metadata, fileSource)
             if reportValidator.validate():
                 hasErrors = True
 

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import contextlib
 import csv
-import json
 import os
 from typing import Any
 
@@ -16,6 +15,7 @@ from arelle.FileSource import FileSource
 from arelle.ModelXbrl import ModelXbrl
 from arelle.oim.tableConstraints import Const, Types
 from arelle.oim.tableConstraints.KeyIndexer import KeyIndexerManager
+from arelle.oim.tableConstraints.Metadata import Metadata
 from arelle.oim.tableConstraints.SortValidator import SortValidatorManager
 from arelle.oim.tableConstraints.ValueValidator import ConstraintViolation, ValueValidator
 from arelle.typing import TypeGetText
@@ -30,12 +30,16 @@ class ReportValidator:
     Processes CSV files without loading into memory.
     """
 
-    def __init__(self, modelXbrl: ModelXbrl, metadataPath: str, fileSource: FileSource | None = None) -> None:
+    def __init__(
+        self,
+        modelXbrl: ModelXbrl,
+        metadata: Metadata,
+        fileSource: FileSource | None = None
+    ) -> None:
         self.modelXbrl = modelXbrl
         self.cntlr = modelXbrl.modelManager.cntlr
-        self.metadataPath = metadataPath
+        self.metadata = metadata
         self.fileSource = fileSource  # For reading files from archives
-        self.metadata: Types.Metadata | None = None
         self.errors: list[str] = []
         self.warnings: list[str] = []
         self.valueValidator = ValueValidator(modelXbrl)
@@ -43,34 +47,20 @@ class ReportValidator:
         self.sortValidatorManager = SortValidatorManager(modelXbrl, self.errors)
 
     def validate(self) -> bool:
-        """
-        Main validation entry point for report data.
-
-        Returns:
-            True if errors found.
-        """
         try:
-            # Step 1: Load metadata
-            self.updateProgress("Loading metadata...")
-            self.metadata = self.loadMetadata()
-
-            # Step 2: Stream validate each table
-            # Track table counts and row counts per template for validation
-            templateTableCounts: dict[str, list[tuple[str, int]]] = {}  # templateName -> list of (tableName, rowCount)
+            templateTableCounts: dict[str, list[tuple[str, int]]] = {}
 
             for tableName, tableConfig in self.metadata.tables.items():
-                templateName = tableConfig.get("template", tableName)  # Default to table name if not specified
+                templateName = tableConfig.get("template", tableName)
                 template = self.metadata.tableTemplates.get(templateName, {})
 
                 self.updateProgress(f"Validating table: {tableName}")
                 rowCount = self.validateTableStream(tableName, tableConfig, template)
 
-                # Track table and row count for this template
                 if templateName not in templateTableCounts:
                     templateTableCounts[templateName] = []
                 templateTableCounts[templateName].append((tableName, rowCount))
 
-            # Step 3: Validate table/row counts per template
             self.updateProgress("Validating table/row counts...")
             for templateName, tableTemplateData in self.metadata.tableTemplates.items():
                 tableConstraints = tableTemplateData.get(Const.TC_TABLE_CONSTRAINTS, {})
@@ -78,11 +68,9 @@ class ReportValidator:
                     tablesInfo = templateTableCounts.get(templateName, [])
                     self.validateTableConstraints(templateName, tablesInfo, tableConstraints)
 
-            # Step 4: Finalize key validation (cross-table)
             self.updateProgress("Finalizing key validation...")
             self.keyIndexerManager.finalizeAll()
 
-            # Step 5: Report summary
             self.reportSummary()
 
             return len(self.errors) > 0
@@ -90,52 +78,6 @@ class ReportValidator:
         except (OSError, RuntimeError, ValueError, KeyError, TypeError, csv.Error) as e:
             self.modelXbrl.error("tc:validationFailed", f"Table Constraints validation failed: {str(e)}")
             return True
-
-    def loadMetadata(self) -> Types.Metadata:
-        """Load and parse JSON metadata, handling extends."""
-        try:
-            # Use FileSource if available (for archive files), otherwise plain open
-            if self.fileSource is not None:
-                fileStream = self.fileSource.file(self.metadataPath, encoding="utf-8")[0]
-                metadata: Types.MetadataDict = json.load(fileStream)
-                fileStream.close()
-            else:
-                with open(self.metadataPath, encoding="utf-8") as f:
-                    metadata = json.load(f)
-
-            # Handle extends - merge extended files
-            extends = metadata.get("documentInfo", {}).get("extends", [])
-            if extends:
-                basedir = os.path.dirname(self.metadataPath)
-                for extendedFile in extends:
-                    extendedPath = os.path.normpath(os.path.join(basedir, extendedFile))
-                    # Check if file exists (for archives, FileSource handles this)
-                    fileExists = self.fileSource is not None or os.path.exists(extendedPath)
-                    if fileExists:
-                        if self.fileSource is not None:
-                            fileStream = self.fileSource.file(extendedPath, encoding="utf-8")[0]
-                            extendedData = json.load(fileStream)
-                            fileStream.close()
-                        else:
-                            with open(extendedPath, encoding="utf-8") as f:
-                                extendedData = json.load(f)
-                        # Merge extended data into metadata (simple shallow merge)
-                        # Extended tableTemplates are merged
-                        if "tableTemplates" in extendedData:
-                            if "tableTemplates" not in metadata:
-                                metadata["tableTemplates"] = {}
-                            metadata["tableTemplates"].update(extendedData["tableTemplates"])
-                        # Extended namespaces are merged
-                        if "documentInfo" in extendedData and "namespaces" in extendedData["documentInfo"]:
-                            if "documentInfo" not in metadata:
-                                metadata["documentInfo"] = {}
-                            if "namespaces" not in metadata["documentInfo"]:
-                                metadata["documentInfo"]["namespaces"] = {}
-                            metadata["documentInfo"]["namespaces"].update(extendedData["documentInfo"]["namespaces"])
-
-            return Types.Metadata(metadata)
-        except (OSError, json.JSONDecodeError, KeyError) as e:
-            raise RuntimeError(f"Failed to load metadata: {str(e)}") from e
 
     def validateCsvColumnOrder(
         self,
@@ -146,22 +88,11 @@ class ReportValidator:
     ) -> None:
         """
         Validate that CSV columns appear in the order specified by columnOrder constraint.
-
-        Args:
-            tableName: Name of the table being validated
-            csvColumns: List of column names from CSV header (in order they appear)
-            expectedOrder: Expected column order from tc:columnOrder
-            columnDefs: Column definitions from template
         """
-        # Filter CSV columns to only include those defined in template
-        # (columns not in template are ignored for order checking)
         templateColumns = [col for col in csvColumns if col in columnDefs]
 
-        # Filter expected order to only include columns present in CSV
-        # (columns in columnOrder but not in CSV are allowed to be absent)
         expectedColumnsInCsv = [col for col in expectedOrder if col in templateColumns]
 
-        # Check if order matches
         if templateColumns != expectedColumnsInCsv:
             self.modelXbrl.error(
                 Const.TCRE_INVALID_COLUMN_ORDER,
@@ -178,37 +109,28 @@ class ReportValidator:
     ) -> int:
         """
         Stream process one CSV table.
-
-        Returns:
-            Number of rows in the table (0 if CSV not found)
         """
         assert self.metadata is not None, "Metadata must be loaded before validating tables"
 
-        # Resolve CSV URL
         csvUrl = tableConfig.get("url")
         if not csvUrl:
             return 0
 
         csvPath = self.resolveCsvPath(csvUrl)
-        # Check if file exists
         if self.fileSource is not None:
-            # For archives, FileSource will handle existence check when opening
             pass
         elif not os.path.exists(csvPath):
             self.modelXbrl.warning("tc:missingCsv", f"CSV file not found: {csvPath}")
             return 0
 
-        # Get template name for key tracking
         templateName = tableConfig.get("template")
         if templateName is None or not isinstance(templateName, str):
             templateName = tableName  # Fallback to table name
 
-        # Get column constraints
         columns = template.get("columns", {})
         parameters = template.get(Const.TC_PARAMETERS, {})
         tableParams = tableConfig.get("parameters", {})
 
-        # Build field types map for key validation
         fieldTypes = {}
         for colName, colDef in columns.items():
             if Const.TC_CONSTRAINTS in colDef:
@@ -216,24 +138,19 @@ class ReportValidator:
                 if typeStr:
                     fieldTypes[colName] = typeStr
 
-        # Add parameter types to field types map
         for paramName, paramDef in parameters.items():
             typeStr = paramDef.get("type")
             if typeStr:
                 fieldTypes[paramName] = typeStr
 
-        # Get or create key indexer for this template
         keys = template.get(Const.TC_KEYS, {})
         keyIndexer = self.keyIndexerManager.createIndexer(templateName, keys)
         keyIndexer.setFieldTypes(fieldTypes)
 
-        # Get or create sort validator
         sortKeyName = None
         sortKeyFields = []
-        # Check if sortKey is specified at keys level
         sortKeyRef = keys.get("sortKey")
         if sortKeyRef:
-            # Find the unique key with this name
             uniqueKeysRaw = keys.get(Const.KEYS_UNIQUE, [])
             if isinstance(uniqueKeysRaw, dict):
                 uniqueKeys = [uniqueKeysRaw]
@@ -251,7 +168,6 @@ class ReportValidator:
             templateName, sortKeyName, sortKeyFields, fieldTypes, self.metadata.namespaces
         )
 
-        # Validate parameters first
         for paramName, paramConstraint in parameters.items():
             paramValue = tableParams.get(paramName)
             context = f"table:{tableName}, parameter:{paramName}"
@@ -262,17 +178,14 @@ class ReportValidator:
                 self.logViolation(violation)
 
         def _openCsv() -> Any:
-            # Use FileSource if available (for archive files), otherwise plain open
             if self.fileSource is not None:
                 return self.fileSource.file(csvPath, encoding="utf-8")[0]
             return open(csvPath, encoding="utf-8")
 
         rowNum = 0
-        # Stream CSV file
         with _openCsv() as csvFile:
             reader = csv.DictReader(csvFile)
 
-            # Validate column order if specified
             columnOrder = template.get(Const.TC_COLUMN_ORDER)
             if columnOrder and reader.fieldnames is not None:
                 self.validateCsvColumnOrder(tableName, list(reader.fieldnames), columnOrder, columns)
@@ -280,7 +193,6 @@ class ReportValidator:
             for row in reader:
                 rowNum += 1
 
-                # Validate each column value
                 for colName, colDef in columns.items():
                     if Const.TC_CONSTRAINTS in colDef:
                         cellValue = row.get(colName)
@@ -293,36 +205,22 @@ class ReportValidator:
                         for violation in violations:
                             self.logViolation(violation)
 
-                # Merge parameters into row for key and sort validation
-                # Parameters are table-level values that can be used in keys
                 rowWithParams = dict(row)
                 rowWithParams.update(tableParams)
 
-                # Add row to key indexer (errors already logged inside)
                 with contextlib.suppress(KeyError, ValueError, TypeError):
                     keyIndexer.addRow(rowWithParams, rowNum, tableName)
 
-                # Validate sort order (errors already logged inside)
                 with contextlib.suppress(KeyError, ValueError, TypeError):
                     sortValidator.checkRow(rowWithParams, rowNum, tableName)
 
-        # Validate table row counts (per-table validation)
         self.validateTableRowCount(tableName, template, rowNum)
 
-        # Return row count for template-level validation
         return rowNum
 
     def validateTableConstraints(
         self, templateName: str, tablesInfo: list[tuple[str, int]], tableConstraints: dict[str, int]
     ) -> None:
-        """
-        Validate template-level table constraints (minTables, maxTables).
-
-        Args:
-            templateName: Name of the template
-            tablesInfo: List of (tableName, rowCount) tuples for tables using this template
-            tableConstraints: Dictionary of table constraints from tc:tableConstraints
-        """
         tableCount = len(tablesInfo)
 
         # Validate minTables
@@ -368,7 +266,10 @@ class ReportValidator:
             return csvUrl
 
         # Resolve relative to metadata file
-        metadataDir = os.path.dirname(self.metadataPath)
+        if self.metadata.path is None:
+            # If no metadata path provided, return as-is
+            return csvUrl
+        metadataDir = os.path.dirname(self.metadata.path)
         return os.path.normpath(os.path.join(metadataDir, csvUrl))
 
     def logViolation(self, violation: ConstraintViolation) -> None:

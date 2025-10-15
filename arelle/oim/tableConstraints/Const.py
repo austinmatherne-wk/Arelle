@@ -4,10 +4,8 @@ See COPYRIGHT.md for copyright information.
 
 from __future__ import annotations
 
-# Reserved prefix
-TC_PREFIX = "tc"
+TC_RESERVED_PREFIX = "tc"
 
-# TC namespace patterns (accepting version template patterns)
 TC_NAMESPACE_PATTERNS = (
     "https://xbrl.org/2025/tc",
     "https://xbrl.org/${STATUS_DATE_URI}/tc",
@@ -16,7 +14,6 @@ TC_NAMESPACE_PATTERNS = (
     "https://xbrl.org/YYYY-MM-DD/tc",
 )
 
-# xBRL-CSV namespace patterns for compatibility
 CSV_NAMESPACE_PATTERNS = (
     "https://xbrl.org/2021/xbrl-csv",
     "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-csv",
@@ -24,31 +21,23 @@ CSV_NAMESPACE_PATTERNS = (
     "https://xbrl.org/((~status_date_uri~))/xbrl-csv",
 )
 
-# xBRL-CSV core dimensions (identifiers for OIM core dimensions)
 XBRL_CSV_CORE_DIMENSIONS = {"concept", "entity", "period", "unit", "language"}
 
-# Special type identifier for decimals property
 TYPE_DECIMALS = "decimals"
 
-# XML Schema optionally-timezoned types
 OPTIONALLY_TIMEZONED_TYPES = {"xs:date", "xs:time", "xs:dateTime", "xs:gYearMonth", "xs:gMonthDay", "xs:gDay"}
 
-# Valid period types
 PERIOD_TYPES = {"year", "half", "quarter", "week", "month", "day", "instant"}
 
-# Valid duration types
 DURATION_TYPES = {"yearMonth", "dayTime"}
 
-# Valid key severity values
 KEY_SEVERITY_VALUES = {"error", "warning"}
 
-# Table Constraints property names
-TC_CONSTRAINTS = f"{TC_PREFIX}:constraints"
-TC_PARAMETERS = f"{TC_PREFIX}:parameters"
-TC_KEYS = f"{TC_PREFIX}:keys"
-TC_TABLE_CONSTRAINTS = f"{TC_PREFIX}:tableConstraints"
+TC_CONSTRAINTS = f"{TC_RESERVED_PREFIX}:constraints"
+TC_PARAMETERS = f"{TC_RESERVED_PREFIX}:parameters"
+TC_KEYS = f"{TC_RESERVED_PREFIX}:keys"
+TC_TABLE_CONSTRAINTS = f"{TC_RESERVED_PREFIX}:tableConstraints"
 
-# Constraint properties
 CONSTRAINT_TYPE = "type"
 CONSTRAINT_OPTIONAL = "optional"
 CONSTRAINT_NILLABLE = "nillable"
@@ -67,7 +56,6 @@ CONSTRAINT_MAX_EXCLUSIVE = "maxExclusive"
 CONSTRAINT_TOTAL_DIGITS = "totalDigits"
 CONSTRAINT_FRACTION_DIGITS = "fractionDigits"
 
-# Valid constraint properties set (for unknown property detection)
 VALID_CONSTRAINT_PROPERTIES = {
     CONSTRAINT_TYPE,
     CONSTRAINT_OPTIONAL,
@@ -88,12 +76,10 @@ VALID_CONSTRAINT_PROPERTIES = {
     CONSTRAINT_FRACTION_DIGITS,
 }
 
-# Keys properties
 KEYS_UNIQUE = "unique"
 KEYS_REFERENCE = "reference"
 KEYS_SORT_KEY = "sortKey"
 
-# Key object properties
 KEY_NAME = "name"
 KEY_FIELDS = "fields"
 KEY_SEVERITY = "severity"
@@ -101,16 +87,13 @@ KEY_REFERENCED_KEY_NAME = "referencedKeyName"
 KEY_NEGATE = "negate"
 KEY_SKIP_NILS = "skipNils"
 
-# Table constraint properties
 TC_MIN_TABLES = "minTables"
 TC_MAX_TABLES = "maxTables"
 TC_MIN_TABLE_ROWS = "minTableRows"
 TC_MAX_TABLE_ROWS = "maxTableRows"
 
-# Column order property
-TC_COLUMN_ORDER = f"{TC_PREFIX}:columnOrder"
+TC_COLUMN_ORDER = f"{TC_RESERVED_PREFIX}:columnOrder"
 
-# Metadata error codes
 TCME_INVALID_NAMESPACE_PREFIX = "tcme:invalidNamespacePrefix"
 TCME_INVALID_JSON_STRUCTURE = "tcme:invalidJSONStructure"
 TCME_MISPLACED_OR_UNKNOWN_PROPERTY = "tcme:misplacedOrUnknownProperty"
@@ -140,7 +123,6 @@ TCME_MISSING_KEY_PROPERTY = "tcme:missingKeyProperty"
 TCME_UNKNOWN_UNIQUE_KEY = "tcme:unknownUniqueKey"
 TCME_INCONSISTENT_COLUMN_ORDER_DEFINITION = "tcme:inconsistentColumnOrderDefinition"
 
-# Report error codes
 TCRE_INVALID_VALUE = "tcre:invalidValue"
 TCRE_INVALID_BOUNDARY_VALUE = "tcre:invalidBoundaryValue"
 TCRE_MISSING_TIMEZONE = "tcre:missingTimeZone"
@@ -160,7 +142,6 @@ TCRE_MIN_TABLE_ROWS_VIOLATION = "tcre:minTableRowsViolation"
 TCRE_MAX_TABLE_ROWS_VIOLATION = "tcre:maxTableRowsViolation"
 TCRE_INVALID_COLUMN_ORDER = "tcre:invalidColumnOrder"
 
-# Special values in xBRL-CSV
 XBRL_CSV_NIL = "#nil"
 XBRL_CSV_EMPTY = "#empty"
 XBRL_CSV_NONE = "#none"
