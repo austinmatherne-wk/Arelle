@@ -4,6 +4,7 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Hashable, Iterable, Iterator
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache
@@ -11,10 +12,9 @@ from pathlib import Path
 
 from lxml.etree import DTD, XML
 from operator import attrgetter
-from typing import Callable, Hashable, Iterable, cast
+from typing import Callable, cast
 
 import os
-import regex
 
 from arelle import XbrlConst
 from arelle.LinkbaseType import LinkbaseType
@@ -33,7 +33,6 @@ from arelle.typing import TypeGetText
 from arelle.utils.PluginData import PluginData
 from .Constants import xhtmlDtdExtension, PROHIBITED_HTML_TAGS, PROHIBITED_HTML_ATTRIBUTES
 from .ControllerPluginData import ControllerPluginData
-from .CoverItemRequirements import CoverItemRequirements
 from .DeiRequirements import DeiRequirements, DEI_LOCAL_NAMES
 from .FilingFormat import FilingFormat, FILING_FORMATS
 from .FormType import FormType
@@ -666,3 +665,25 @@ class PluginValidationDataExtension(PluginData):
     def addUsedFilepath(self, modelXbrl: ModelXbrl, path: Path) -> None:
         controllerPluginData = ControllerPluginData.get(modelXbrl.modelManager.cntlr, self.name)
         controllerPluginData.addUsedFilepath(path)
+
+    def iterValidFactsForPrimaryItemsInRoles(
+        self,
+        modelXbrl: ModelXbrl,
+        roleUris: Iterable[str]
+    ) -> Iterator[ModelFact]:
+        """
+        Generator that yields facts from the specified roles.
+        Gets facts from concepts in the presentation linkbase for each role.
+        """
+        presentRoleUris = tuple(uri for uri in roleUris if uri in modelXbrl.roleTypes)
+        relSet = modelXbrl.relationshipSet(
+            tuple(LinkbaseType.PRESENTATION.getArcroles()),
+            linkrole=presentRoleUris
+        )
+
+        concepts = set(relSet.fromModelObjects().keys()) | set(relSet.toModelObjects().keys())
+
+        for concept in concepts:
+            if not isinstance(concept, ModelConcept):
+                continue
+            yield from self.iterValidFacts(modelXbrl, concept.qname)
