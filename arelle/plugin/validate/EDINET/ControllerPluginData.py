@@ -3,6 +3,7 @@ See COPYRIGHT.md for copyright information.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
 import zipfile
 from collections import defaultdict
 from dataclasses import dataclass
@@ -12,6 +13,9 @@ from typing import TYPE_CHECKING
 
 from arelle.Cntlr import Cntlr
 from arelle.FileSource import FileSource
+from arelle.LinkbaseType import LinkbaseType
+from arelle.ModelDtsObject import ModelConcept
+from arelle.ModelInstanceObject import ModelFact
 from arelle.ModelValue import QName, TypeXValue
 from arelle.ModelXbrl import ModelXbrl
 from arelle.XmlValidateConst import VALID
@@ -269,6 +273,31 @@ class ControllerPluginData(PluginData):
                 if fact.isNil or fact.xValid < VALID:
                     continue
                 self.setDeiValue(localName, fact.xValue)
+
+    def iterValidFactsForPrimaryItemsInRoles(self, roleUris: Iterable[str]) -> Iterable[ModelFact]:
+        for modelXbrl in self.loadedModelXbrls:
+            presentRoleUris = tuple(uri for uri in roleUris if uri in modelXbrl.roleTypes)
+            if not presentRoleUris:
+                continue
+            relSet = modelXbrl.relationshipSet(
+                tuple(LinkbaseType.PRESENTATION.getArcroles()),
+                linkrole=presentRoleUris
+            )
+            if len(relSet.modelRelationships) == 0:
+                continue
+            concepts = set(relSet.fromModelObjects().keys()) | set(relSet.toModelObjects().keys())
+            for concept in concepts:
+                if not isinstance(concept, ModelConcept):
+                    continue
+                if concept.qname is None:
+                    continue
+                facts = modelXbrl.factsByQname.get(concept.qname, set())
+                for fact in facts:
+                    if fact.xValid < VALID:
+                        continue
+                    if fact.isNil:
+                        continue
+                    yield fact
 
     def addUsedFilepath(self, path: Path) -> None:
         self._usedFilepaths.add(path)

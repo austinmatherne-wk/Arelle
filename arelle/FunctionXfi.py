@@ -763,7 +763,7 @@ def filter_member_DRS_selection(xc, p, args):
     if memConcept is None or not memConcept.isDomainMember or not dimConcept.isDimensionItem:
         # not an error, just don't find anything
         return ()
-    for hcELR, hcRels in priItemElrHcRels(xc, priItemConcept, linkroleURI).items():
+    for hcELR, hcRels in priItemElrHcRels(xc.modelXbrl, priItemConcept, linkroleURI).items():
         if not linkroleURI or linkroleURI == hcELR:
             for hasHcRel in hcRels:
                 hcConcept = hasHcRel.toModelObject

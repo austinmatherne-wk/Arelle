@@ -4,8 +4,9 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import regex
 import unicodedata
@@ -859,3 +860,245 @@ def rule_EC8076W(
                 codes='EDINET.EC8076W',
                 msg=_('"Issued Shares, Total Number of Shares, etc. [Text Block]" (IssuedSharesTotalNumberOfSharesEtcTextBlock) is not tagged.'),
             )
+
+
+@validation(
+    hook=ValidationHook.COMPLETE,
+    disclosureSystems=[DISCLOSURE_SYSTEM_EDINET],
+)
+def rule_EC8038W(
+        pluginData: ControllerPluginData,
+        cntlr: Cntlr,
+        fileSource: FileSource,
+        *args: Any,
+        **kwargs: Any,
+) -> Iterable[Validation]:
+    """
+    EDINET.EC8038W: The details of the major shareholders' status have not been tagged.
+    """
+    roleUris = [
+        'http://disclosure.edinet-fsa.go.jp/role/jpcrp/rol_std_MajorShareholders-01',
+        'http://disclosure.edinet-fsa.go.jp/role/jpcrp/rol_std_MajorShareholders-02',
+        'http://disclosure.edinet-fsa.go.jp/role/jpcrp/rol_MajorShareholders-01',
+        'http://disclosure.edinet-fsa.go.jp/role/jpcrp/rol_MajorShareholders-02',
+    ]
+    if not any(True for _fact in pluginData.iterValidFactsForPrimaryItemsInRoles(roleUris)):
+        yield Validation.warning(
+            codes='EDITNET.EC8038W',
+            msg=_("The details of the major shareholders' status have not been tagged. "
+                  "Please provide detailed tagging of the status of major shareholders."),
+        )
+
+
+@validation(
+    hook=ValidationHook.COMPLETE,
+    disclosureSystems=[DISCLOSURE_SYSTEM_EDINET],
+)
+def rule_EC8039W(
+        pluginData: ControllerPluginData,
+        cntlr: Cntlr,
+        fileSource: FileSource,
+        *args: Any,
+        **kwargs: Any,
+) -> Iterable[Validation]:
+    """
+    EDINET.EC8039W: The consolidated balance sheet details have not been tagged.
+    """
+    if not pluginData.isConsolidated():
+        return
+    if pluginData.getDeiValue(val.modelXbrl, 'AccountingStandardsDEI') != AccountingStandard.JAPAN_GAAP:
+        return
+    roleUris = [
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_ConsolidatedBalanceSheet',
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_std_ConsolidatedBalanceSheet',
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_SemiAnnualConsolidatedBalanceSheet',
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_std_SemiAnnualConsolidatedBalanceSheet',
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_Type1SemiAnnualConsolidatedBalanceSheet',
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_std_Type1SemiAnnualConsolidatedBalanceSheet',
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_QuarterlyConsolidatedBalanceSheet',
+        'http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_std_QuarterlyConsolidatedBalanceSheet',
+    ]
+    if not any(pluginData.iterValidFactsForPrimaryItemsInRoles(val.modelXbrl, roleUris)):
+        yield Validation.warning(
+            codes='EDITNET.EC8039W',
+            msg=_("The consolidated balance sheet details have not been tagged. "
+                  "Please provide detailed tagging of the consolidated balance sheet. "
+                  "If you do not provide a consolidated balance sheet, please confirm that the "
+                  "'Consolidated Financial Statements' field in the DEI information is correct."),
+        )
+
+
+# @validation(
+#     hook=ValidationHook.COMPLETE,
+#     disclosureSystems=[DISCLOSURE_SYSTEM_EDINET],
+# )
+# def rule_required_statements_tagging(
+#        pluginData: ControllerPluginData,
+#        cntlr: Cntlr,
+#        fileSource: FileSource,
+#        *args: Any,
+#        **kwargs: Any,
+# ) -> Iterable[Validation]:
+#     """
+#     EDINET.EC8038W-EC8050W: Validation rules for required statement tagging.
+
+#     These rules verify that required financial statements and disclosures have detailed tags
+#     based on the filing's characteristics (consolidated vs non-consolidated, accounting standard,
+#     industry code, etc.).
+#     """
+#     isConsolidated = val.modelXbrl.modelManager.cntlr.getPluginData
+#     consolidatedQn = pluginData.qname('jpdei_cor', 'WhetherConsolidatedFinancialStatementsArePreparedDEI')
+#     consolidatedFacts = list(pluginData.iterValidNonNilFacts(val.modelXbrl, consolidatedQn))
+
+#     accountingStandardFacts = list(pluginData.iterValidNonNilFacts(val.modelXbrl, pluginData.accountingStandardsDeiQn))
+#     accountingStandard = accountingStandardFacts[0].xValue if accountingStandardFacts else None
+
+#     industryCodeConsolidatedQn = pluginData.qname('jpdei_cor', 'IndustryCodeWhenConsolidatedFinancialStatementsArePreparedInAccordanceWithIndustrySpecificRegulationsDEI')
+#     industryCodeNonConsolidatedQn = pluginData.qname('jpdei_cor', 'IndustryCodeWhenFinancialStatementsArePreparedInAccordanceWithIndustrySpecificRegulationsDEI')
+
+#     industryCodeConsolidatedFacts = list(pluginData.iterValidNonNilFacts(val.modelXbrl, industryCodeConsolidatedQn))
+#     industryCodeNonConsolidatedFacts = list(pluginData.iterValidNonNilFacts(val.modelXbrl, industryCodeNonConsolidatedQn))
+
+#     industryCodes = set()
+#     if industryCodeConsolidatedFacts:
+#         industryCodes.add(industryCodeConsolidatedFacts[0].xValue)
+#     if industryCodeNonConsolidatedFacts:
+#         industryCodes.add(industryCodeNonConsolidatedFacts[0].xValue)
+
+#     def hasFactsWithConsolidationFilter(roleUris: frozenset[str], requireConsolidated: bool) -> bool:
+#         for fact in pluginData.iterValidFactsForPrimaryItemsInRoles(val.modelXbrl, roleUris):
+#             if fact.context.qnameDims and not all(
+#                 dimQn == pluginData.consolidatedOrNonConsolidatedAxisQn
+#                 for dimQn in fact.context.qnameDims
+#             ):
+#                 continue
+
+#             memberValue = fact.context.dimMemberQname(
+#                 pluginData.consolidatedOrNonConsolidatedAxisQn,
+#                 includeDefaults=True
+#             )
+#             contextIsConsolidated = memberValue != pluginData.nonConsolidatedMemberQn
+#             if contextIsConsolidated == requireConsolidated:
+#                 return True
+#         return False
+
+#     def hasSegmentFacts(roleUris: frozenset[str]) -> bool:
+#         for fact in pluginData.iterValidFactsForPrimaryItemsInRoles(val.modelXbrl, roleUris):
+#             for dimValue in fact.context.qnameDims.values():
+#                 memberQname = dimValue.memberQname
+#                 if memberQname is not None and (
+#                     'Segment' in memberQname.localName or 'segment' in memberQname.localName
+#                 ):
+#                     return True
+#         return False
+
+#     if not any(pluginData.iterValidFactsForPrimaryItemsInRoles(val.modelXbrl, MAJOR_SHAREHOLDERS_ROLE_URIS)):
+#         yield Validation.warning(
+#             codes='EDINET.EC8038W',
+#             msg=_("The details of the major shareholders' status have not been tagged. "
+#                   "Please provide detailed tagging of the status of major shareholders."),
+#         )
+
+#     if isConsolidated and accountingStandard == AccountingStandard.JAPAN_GAAP.value:
+#         if hasFactsWithConsolidationFilter(CONSOLIDATED_BALANCE_SHEET_ROLE_URIS, requireConsolidated=True):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8039W',
+#                 msg=_("The consolidated balance sheet details have not been tagged. "
+#                       "Please provide detailed tagging of the consolidated balance sheet. "
+#                       "If you do not provide a consolidated balance sheet, please confirm that the "
+#                       "'Consolidated Financial Statements' field in the DEI information is correct."),
+#             )
+
+#     if isConsolidated is False and accountingStandard == AccountingStandard.JAPAN_GAAP.value:
+#         if not hasFactsWithConsolidationFilter(BALANCE_SHEET_ROLE_URIS, requireConsolidated=False):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8040W',
+#                 msg=_("Balance sheet details not tagged. "
+#                       "Please tag the balance sheet in detail."),
+#             )
+
+#     if isConsolidated and accountingStandard == AccountingStandard.JAPAN_GAAP.value:
+#         if not hasFactsWithConsolidationFilter(CONSOLIDATED_INCOME_STATEMENT_ROLE_URIS, requireConsolidated=True):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8041W',
+#                 msg=_("The consolidated income statement has not been tagged in detail. "
+#                       "Please provide detailed tagging for the consolidated income statement. "
+#                       "If you do not provide a consolidated income statement, please confirm that the "
+#                       "'Consolidated Financial Statements' field in the DEI information is correct."),
+#             )
+
+#     if isConsolidated is False and accountingStandard == AccountingStandard.JAPAN_GAAP.value:
+#         if not hasFactsWithConsolidationFilter(INCOME_STATEMENT_ROLE_URIS, requireConsolidated=False):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8042W',
+#                 msg=_("The income statement details are not tagged. "
+#                       "Please provide detailed tagging of your income statement."),
+#             )
+
+#     if isConsolidated is False and accountingStandard == AccountingStandard.JAPAN_GAAP.value:
+#         if not hasFactsWithConsolidationFilter(INCOME_AND_RETAINED_EARNINGS_ROLE_URIS, requireConsolidated=False):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8043W',
+#                 msg=_("The profit and loss statement has not been tagged in detail. "
+#                       "Please provide detailed tagging of the profit and loss and retained earnings statement."),
+#             )
+
+#     if isConsolidated and accountingStandard == AccountingStandard.JAPAN_GAAP.value:
+#         if not hasFactsWithConsolidationFilter(CONSOLIDATED_EQUITY_STATEMENT_ROLE_URIS, requireConsolidated=True):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8044W',
+#                 msg=_("The consolidated statement of changes in equity has not been detailed. "
+#                       "Please tag the details of the consolidated statement of changes in equity. "
+#                       "If you do not include a consolidated statement of changes in equity, please confirm that the "
+#                       "'Consolidated Financial Statements' field in the DEI information is correct."),
+#             )
+
+#     if isConsolidated is False and accountingStandard == AccountingStandard.JAPAN_GAAP.value:
+#         if not hasFactsWithConsolidationFilter(EQUITY_STATEMENT_ROLE_URIS, requireConsolidated=False):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8045W',
+#                 msg=_("The statement of changes in equity has not been tagged in detail. "
+#                       "Please provide detailed tagging for the Statement of Changes in Equity."),
+#             )
+
+#     if 'inv' in industryCodes:
+#         if not any(pluginData.iterValidFactsForPrimaryItemsInRoles(val.modelXbrl, UNITHOLDERS_EQUITY_ROLE_URIS)):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8046W',
+#                 msg=_("The statement of changes in unitholders' equity has not been tagged in detail. "
+#                       "Please provide detailed tagging for the Statement of Changes in Unitholders' Equity."),
+#             )
+
+#     if 'liq' in industryCodes:
+#         if not any(pluginData.iterValidFactsForPrimaryItemsInRoles(val.modelXbrl, MEMBERS_EQUITY_ROLE_URIS)):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8047W',
+#                 msg=_("The statement of changes in employee capital etc. has not been tagged in detail. "
+#                       "Please provide detailed tagging for the Statement of Changes in Employee Capital, etc."),
+#             )
+
+#     if isConsolidated:
+#         if not hasFactsWithConsolidationFilter(CONSOLIDATED_CASH_FLOW_ROLE_URIS, requireConsolidated=True):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8048W',
+#                 msg=_("The consolidated cash flow statement is not detailed. "
+#                       "Please tag the details of the consolidated cash flow statement. "
+#                       "If you do not provide a consolidated cash flow statement, please make sure that the "
+#                       "'Consolidated Financial Statements' in the DEI information is correct."),
+#             )
+
+#     if isConsolidated is False:
+#         if not hasFactsWithConsolidationFilter(CASH_FLOW_ROLE_URIS, requireConsolidated=False):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8049W',
+#                 msg=_("The cash flow statement is not tagged in detail. "
+#                       "Please provide detailed tagging for the cash flow statement."),
+#             )
+
+#     if accountingStandard in (AccountingStandard.JAPAN_GAAP.value, AccountingStandard.IFRS.value):
+#         if not hasSegmentFacts(SEGMENT_INFORMATION_ROLE_URIS):
+#             yield Validation.warning(
+#                 codes='EDINET.EC8050W',
+#                 msg=_("Segment information is not tagged in detail. "
+#                       "Please provide detailed tagging of segment information."),
+#             )
