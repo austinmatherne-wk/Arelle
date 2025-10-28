@@ -371,9 +371,9 @@ def isFactDimensionallyValid(val, f, setPrototypeContextElements=False, otherFac
 def priItemElrHcRels(val, priItem, ELR=None):
     key = (priItem, ELR)
     try:
-        priItemElrHcRels = val.priItemElrHcRels
+        priItemElrHcRels = val.modelXbrl.priItemElrHcRels
     except AttributeError:
-        priItemElrHcRels = val.priItemElrHcRels = {}
+        priItemElrHcRels = val.modelXbrl.priItemElrHcRels = {}
     try:
         return priItemElrHcRels[key]
     except KeyError:
