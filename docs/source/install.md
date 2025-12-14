@@ -89,3 +89,24 @@ arelleCmdLine --help
 # To launch the GUI
 arelleGUI
 ```
+
+## Taxonomy Packages
+
+After installing Arelle, you may need to install taxonomy packages for your jurisdiction.
+Taxonomy packages provide offline access to taxonomies and resolve URL mappings that
+would otherwise require internet access.
+
+For detailed information about what taxonomy packages are, where to get them, and
+how to install them, see the [Taxonomy Packages Guide][taxonomy-packages].
+
+**Quick start**: Obtain packages from your regulatory authority (SEC, ESMA, HMRC, etc.)
+and install them using:
+
+```shell
+# CLI: Load packages for a single run
+arelleCmdLine --packages=/path/to/package.zip --file report.xbrl --validate
+
+# GUI: Help > Manage Packages
+```
+
+[taxonomy-packages]: project:user_guides/taxonomy_packages.md

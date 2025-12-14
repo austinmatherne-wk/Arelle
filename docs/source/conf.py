@@ -19,6 +19,7 @@ extensions = [
     "autodoc2",
     "myst_parser",
     "sphinx_copybutton",
+    "sphinxarg.ext",
 ]
 
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]

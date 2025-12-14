@@ -12,8 +12,9 @@ from arelle.RuntimeOptions import RuntimeOptions
 
 if TYPE_CHECKING:
     import io
-    from optparse import OptionParser
     from tkinter import Menu
+
+    from arelle.utils.optparse_compat import OptparseShim
 
     from bottle import Bottle  # type: ignore[import-untyped]
 
@@ -81,7 +82,7 @@ class PluginHooks(ABC):
 
     @staticmethod
     def cntlrCmdLineOptions(
-        parser: OptionParser,
+        parser: OptparseShim,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -89,6 +90,8 @@ class PluginHooks(ABC):
         Plugin hook: `CntlrCmdLine.Options`
 
         This hook is used to add plugin specific options to the command line.
+        The parser supports both optparse-style add_option() and argparse-style
+        add_argument() methods for backward compatibility.
 
         Example:
         ```python
@@ -99,7 +102,7 @@ class PluginHooks(ABC):
         )
         ```
 
-        :param parser: the parser class to add options to.
+        :param parser: the parser shim to add options to (supports add_option for compatibility).
         :param args: Argument capture to ensure new parameters don't break plugin hook.
         :param kwargs: Argument capture to ensure new named parameters don't break plugin hook.
         :return: None

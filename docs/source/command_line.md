@@ -3,6 +3,11 @@
 :::{index} Command Line Operation
 :::
 
+:::{note}
+For the most up-to-date and complete list of command line options, run `arelleCmdLine --help`.
+The options below provide an overview but may not include all available arguments.
+:::
+
 ## Running Arelle on the Command Line
 
 | Method or System      | Command                                                             |
@@ -89,7 +94,41 @@ The following file options determine the type of file saved by the extension of 
 | `--testReport=FILE`                                                             | Write a test report of validation (of test cases) in specified `FILE`                                                                                                                                                                                                                                                                                                                                                      |
 | `--testReportCols=REPORTCOLS`                                                   | Used with `--testReport` argument. Specifies columns for test report. <br/>`REPORTCOLS` are comma separated and can be any of these: Index, Testcase, ID, Name, Reference, ReadMeFirst, Status, Expected, Actual“.                                                                                                                                                                                                         |
 | `--rssReport=FILE`                                                              | Write a test report of RSS feed processing in specified `FILE`                                                                                                                                                                                                                                                                                                                                                             |
-| `--rssReportCols=RSSCOLS`                                                       | Used with `--rssReport` argument. Specifies columns for RSS processing.<br/>`RSSCOLS` are comma separated and can be any of these: Company Name, Accession Number, Form, Filing Date, CIK, Status, Period, Yr End, Results”.                                                                                                                                                                                               |
+| `--rssReportCols=RSSCOLS`                                                       | Used with `--rssReport` argument. Specifies columns for RSS processing.<br/>`RSSCOLS` are comma separated and can be any of these: Company Name, Accession Number, Form, Filing Date, CIK, Status, Period, Yr End, Results".                                                                                                                                                                                               |
+
+#### Output Examples
+
+**Extract facts to CSV**:
+```bash
+arelleCmdLine --file report.xbrl --facts=facts.csv
+```
+
+**Extract facts to JSON with custom columns**:
+```bash
+arelleCmdLine --file report.xbrl --facts=facts.json \
+  --factListCols=Label,Name,contextRef,unitRef,Value,Period,Dimensions
+```
+
+**Export facts with entity and period information**:
+```bash
+arelleCmdLine --file report.xbrl --facts=facts.csv \
+  --factListCols=Label,Value,EntityIdentifier,Period,Dimensions
+```
+
+**Generate HTML presentation view**:
+```bash
+arelleCmdLine --file report.xbrl --pre=presentation.html
+```
+
+**Export calculation linkbase to CSV**:
+```bash
+arelleCmdLine --file taxonomy.xsd --cal=calculations.csv
+```
+
+**Export concepts with German labels**:
+```bash
+arelleCmdLine --file report.xbrl --concepts=concepts.csv --labelLang=de
+```
 
 ### Logging Arguments
 
@@ -202,3 +241,30 @@ arelleCmdLine -f c:\temp\test.rss -v --disclosureSystem efm-pragmatic-all-years 
 ### Disclosure System Selections
 
 Run with `--disclosureSystem=help` to list the disclosure systems that are available for the currently loaded plugins.
+
+Common disclosure systems include:
+
+| Disclosure System | Jurisdiction | Description |
+|-------------------|--------------|-------------|
+| `efm-pragmatic` | SEC (US) | US SEC filings with pragmatic validation (recommended) |
+| `efm-strict` | SEC (US) | US SEC filings with strict validation |
+| `efm-pragmatic-all-years` | SEC (US) | All years of US GAAP taxonomies |
+| `esef` | ESEF (EU) | Current year ESEF validation |
+| `esef-2024` | ESEF (EU) | ESEF 2024 reporting period |
+| `esef-2023` | ESEF (EU) | ESEF 2023 reporting period |
+| `esef-unconsolidated` | ESEF (EU) | ESEF for unconsolidated reports |
+| `hmrc` | HMRC (UK) | UK tax authority filings |
+| `cipc` | CIPC (ZA) | South African company filings |
+| `nl` | Netherlands | Dutch regulatory filings |
+
+**Note**: Year-specific disclosure systems (like `esef-2024`) apply validation rules for that
+reporting period. Use the year matching your filing period, not necessarily the current year.
+
+**Pragmatic vs Strict**: Pragmatic disclosure systems focus on errors that would cause filing
+rejection. Strict systems include additional warnings and style issues. For production filings,
+start with pragmatic mode to ensure acceptance, then optionally run strict mode for quality checks.
+
+See [ESEF Guide][esef] or [EDGAR Guide][edgar] for detailed jurisdiction-specific validation instructions.
+
+[esef]: project:esef.md
+[edgar]: project:edgar.md

@@ -6,7 +6,10 @@
 install
 command_line
 faq
+troubleshooting
+glossary
 esef
+edgar
 user_guides/user_guides
 plugins/plugins
 python_api/python_api

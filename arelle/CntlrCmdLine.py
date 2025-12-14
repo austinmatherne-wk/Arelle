@@ -21,7 +21,10 @@ import sys
 import threading
 import time
 import traceback
-from optparse import SUPPRESS_HELP, Option, OptionGroup, OptionParser
+import argparse
+from argparse import SUPPRESS
+
+from arelle.utils.optparse_compat import OptionGroup, OptparseShim
 from pprint import pprint
 
 import regex as re
@@ -104,13 +107,13 @@ PREPARSE_ARG_CONFIGS = frozenset([
 ])
 
 
-def preparseArgs(args: list[str], parser: OptionParser) -> dict[str, str]:
+def preparseArgs(args: list[str], parser: argparse.ArgumentParser) -> dict[str, str]:
     """
     Some command line arguments influence the actual parsing of other arguments.
     This function pre-parses those arguments to allow for processing before full
     argument parseing occurs.
     :param args: Command line arguments
-    :param parser: OptionParser to report errors
+    :param parser: ArgumentParser to report errors
     :return: Dictionary of pre-parsed options
     """
     preparsedArgs = {}
@@ -151,11 +154,18 @@ def parseArgs(args):
     # Check if the config cache needs to be disabled prior to initializing the cntlr
     disable_persistent_config = bool({DISABLE_PERSISTENT_CONFIG_OPTION, DISABLE_PERSISTENT_CONFIG_OPTION.lower()} & set(args))
     cntlr = CntlrCmdLine(uiLang=uiLang, disable_persistent_config=disable_persistent_config)  # This Cntlr is needed for translations and to enable the web cache.  The cntlr is not used outside the parse function
-    usage = "usage: %prog [options]"
-    parser = OptionParser(usage,
-                          version=f"Arelle(r) {Version.__version__} ({getSystemWordSize()}bit)",
-                          conflict_handler="resolve") # allow reloading plug-in options without errors
-    parser.add_option("-f", "--file", dest="entrypointFile",
+    usage = "usage: %(prog)s [options]"
+    parser = argparse.ArgumentParser(
+        usage=usage,
+        conflict_handler="resolve",  # allow reloading plug-in options without errors
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"Arelle(r) {Version.__version__} ({getSystemWordSize()}bit)",
+    )
+    parser.add_argument("-f", "--file", dest="entrypointFile",
                       help=_("FILENAME is an entry point, which may be "
                              "an XBRL instance, schema, linkbase file, "
                              "inline XBRL instance, testcase file, "
@@ -163,22 +173,22 @@ def parseArgs(args):
                              "a local file or a URI to a web located file.  "
                              "For multiple instance filings may be | separated file names or JSON list "
                              "of file/parameter dicts [{\"file\":\"filepath\"}, {\"file\":\"file2path\"} ...]."))
-    parser.add_option("--username", dest="username",
+    parser.add_argument("--username", dest="username",
                       help=_("user name if needed (with password) for web file retrieval"))
-    parser.add_option("--password", dest="password",
+    parser.add_argument("--password", dest="password",
                       help=_("password if needed (with user name) for web retrieval"))
     # special option for web interfaces to suppress closing an opened modelXbrl
-    parser.add_option("--keepOpen", dest="keepOpen", action="store_true", help=SUPPRESS_HELP)
-    parser.add_option("-i", "--import", dest="importFiles",
+    parser.add_argument("--keepOpen", dest="keepOpen", action="store_true", help=SUPPRESS)
+    parser.add_argument("-i", "--import", dest="importFiles",
                       help=_("FILENAME is a list of files to import to the DTS, such as "
                              "additional formula or label linkbases.  "
                              "Multiple file names are separated by a '|' character. "))
-    parser.add_option("-d", "--diff", dest="diffFile",
+    parser.add_argument("-d", "--diff", dest="diffFile",
                       help=_("FILENAME is a second entry point when "
                              "comparing (diffing) two DTSes producing a versioning report."))
-    parser.add_option("-r", "--report", dest="versReportFile",
+    parser.add_argument("-r", "--report", dest="versReportFile",
                       help=_("FILENAME is the filename to save as the versioning report."))
-    parser.add_option("-v", "--validate",
+    parser.add_argument("-v", "--validate",
                       action="store_true", dest="validate",
                       help=_("Validate the file according to the entry "
                              "file type.  If an XBRL file, it is validated "
@@ -190,11 +200,11 @@ def parseArgs(args):
                              "are individually so validated. "
                              "If formulae are present they will be validated and run unless --formula=none is specified. "
                              ))
-    parser.add_option("--validateDuplicateFacts", "--validateduplicatefacts",
+    parser.add_argument("--validateDuplicateFacts", "--validateduplicatefacts",
                       choices=[a.value for a in ValidateDuplicateFacts.DUPLICATE_TYPE_ARG_MAP],
                       dest="validateDuplicateFacts",
                       help=_("Select which types of duplicates should trigger warnings."))
-    parser.add_option("--baseTaxonomyValidation", "--basetaxonomyvalidation",
+    parser.add_argument("--baseTaxonomyValidation", "--basetaxonomyvalidation",
                       choices=("disclosureSystem", "none", "all"),
                       dest="baseTaxonomyValidationMode",
                       default="disclosureSystem",
@@ -203,35 +213,36 @@ def parseArgs(args):
                              disclosureSystem - (default) skip validation of base taxonomy files which are known to be valid by the disclosure system
                              none - skip validation of all base taxonomies
                              all - validate all base taxonomies"""))
-    parser.add_option("--saveOIMToXMLReport", "--saveoimtoxmlreport", "--saveOIMinstance", "--saveoiminstance",
+    parser.add_argument("--saveOIMToXMLReport", "--saveoimtoxmlreport", "--saveOIMinstance", "--saveoiminstance",
                       action="store",
                       dest="saveOIMToXMLReport",
                       help=_("Save a report loaded from OIM into this file XML file name."))
-    parser.add_option("--validateXmlOim", "--validatexmloim", "--oim",
+    parser.add_argument("--validateXmlOim", "--validatexmloim", "--oim",
                       action="store_true",
                       dest="validateXmlOim",
                       help=_("Enables OIM validation for XML and iXBRL documents. OIM only formats (json, csv) are always OIM validated."))
-    parser.add_option("--reportPackage", "--reportPackage",
+    parser.add_argument("--reportPackage", "--reportPackage",
                       action="store_true",
                       dest="reportPackage",
                       help=_("Ignore detected file type and validate all files as Report Packages."))
-    parser.add_option("--deduplicateFacts", "--deduplicatefacts",
+    parser.add_argument("--deduplicateFacts", "--deduplicatefacts",
                       choices=[a.value for a in ValidateDuplicateFacts.DeduplicationType],
                       dest="deduplicateFacts",
                       help=_("When using '--saveDeduplicatedInstance' to save a deduplicated instance, check for duplicates of this type. "
                              "Defaults to 'complete'."))
-    parser.add_option("--saveDeduplicatedInstance", "--savededuplicatedinstance",
+    parser.add_argument("--saveDeduplicatedInstance", "--savededuplicatedinstance",
                       dest="saveDeduplicatedInstance",
                       help=_("Save an instance document with duplicates of the provided type ('--deduplicateFacts') deduplicated."))
-    parser.add_option("--noValidateTestcaseSchema", "--novalidatetestcaseschema", action="store_false", dest="validateTestcaseSchema", default=True,
+    parser.add_argument("--noValidateTestcaseSchema", "--novalidatetestcaseschema", action="store_false", dest="validateTestcaseSchema", default=True,
                       help=_("Validate testcases against their schemas."))
-    betaGroup = OptionGroup(parser, "Beta Features",
-                        "Caution: these are beta features, use these options at your own risk.")
+    betaGroup = parser.add_argument_group(
+        "Beta Features",
+        "Caution: these are beta features, use these options at your own risk."
+    )
     for featureName, featureDescription in BETA_FEATURES_AND_DESCRIPTIONS.items():
         assert featureName.startswith('beta'), 'All beta options must start with "beta"'
-        betaGroup.add_option(f'--{featureName}', f'--{featureName.lower()}', action="store_true", default=False, help=featureDescription)
-    parser.add_option_group(betaGroup)
-    parser.add_option("--calc", action="store", dest="calcs",
+        betaGroup.add_argument(f'--{featureName}', f'--{featureName.lower()}', action="store_true", default=False, help=featureDescription)
+    parser.add_argument("--calc", action="store", dest="calcs",
                       help=_("Specify calculations validations: "
                              "none - no calculations validation, "
                              #"xbrl21precision - pre-2010 xbrl v2.1 calculations linkbase inferring precision, "
@@ -240,180 +251,180 @@ def parseArgs(args):
                              "c11r or round-to-nearest - Calc 1.1 round-to-nearest mode, "
                              "c11t or truncation - Calc 1.1 truncation mode"
                              ))
-    parser.add_option("--calcDecimals", "--calcdecimals", action="store_true", dest="calcDecimals",
+    parser.add_argument("--calcDecimals", "--calcdecimals", action="store_true", dest="calcDecimals",
                       help=_("Deprecated - XBRL v2.1 calculation linkbase validation inferring decimals."))
-    parser.add_option("--calcPrecision", "--calcprecision", action="store_true", dest="calcPrecision",
+    parser.add_argument("--calcPrecision", "--calcprecision", action="store_true", dest="calcPrecision",
                       help=_("Deprecated - pre-2010 XBRL v2.1 calculation linkbase validation inferring precision."))
-    parser.add_option("--calcDeduplicate", "--calcdeduplicate", action="store_true", dest="calcDeduplicate",
+    parser.add_argument("--calcDeduplicate", "--calcdeduplicate", action="store_true", dest="calcDeduplicate",
                       help=_("Deprecaated -  de-duplication of consistent facts when performing calculation validation, chooses most accurate fact."))
-    parser.add_option("--efm", action="store_true", dest="validateEFM",
+    parser.add_argument("--efm", action="store_true", dest="validateEFM",
                       help=_("Select Edgar Filer Manual (U.S. SEC) disclosure system validation (strict)."))
-    parser.add_option("--efm-skip-calc-tree", action="store_false", default=True, dest="validateEFMCalcTree",
+    parser.add_argument("--efm-skip-calc-tree", action="store_false", default=True, dest="validateEFMCalcTree",
                       help=_("Skip walking of calculation tree during EFM validation."))
-    parser.add_option("--gfm", action="store", dest="disclosureSystemName", help=SUPPRESS_HELP)
-    parser.add_option("--disclosureSystem", "--disclosuresystem", action="store", dest="disclosureSystemName",
+    parser.add_argument("--gfm", action="store", dest="disclosureSystemName", help=SUPPRESS)
+    parser.add_argument("--disclosureSystem", "--disclosuresystem", action="store", dest="disclosureSystemName",
                       help=_("Specify a disclosure system name and"
                              " select disclosure system validation.  "
                              "Enter --disclosureSystem=help for list of names or help-verbose for list of names and descriptions. "))
-    parser.add_option("--hmrc", action="store_true", dest="validateHMRC",
+    parser.add_argument("--hmrc", action="store_true", dest="validateHMRC",
                       help=_("Select HMRC disclosure system validation."))
-    parser.add_option("--utr", action="store_true", dest="utrValidate",
+    parser.add_argument("--utr", action="store_true", dest="utrValidate",
                       help=_("Select validation with respect to Unit Type Registry."))
-    parser.add_option("--utrUrl", "--utrurl", action="store", dest="utrUrl",
+    parser.add_argument("--utrUrl", "--utrurl", action="store", dest="utrUrl",
                       help=_("Override disclosure systems Unit Type Registry location (URL or file path)."))
-    parser.add_option("--infoset", action="store_true", dest="infosetValidate",
+    parser.add_argument("--infoset", action="store_true", dest="infosetValidate",
                       help=_("Select validation with respect testcase infosets."))
-    parser.add_option("--labelLang", "--labellang", action="store", dest="labelLang",
+    parser.add_argument("--labelLang", "--labellang", action="store", dest="labelLang",
                       help=_("Language for labels in following file options (override system settings)"))
-    parser.add_option("--disableRtl", action="store_true", dest="disableRtl", default=False,
+    parser.add_argument("--disableRtl", action="store_true", dest="disableRtl", default=False,
                        help=_("Flag to disable reversing string read order for right to left languages, useful for some locale settings"))
-    parser.add_option("--labelRole", "--labelrole", action="store", dest="labelRole",
+    parser.add_argument("--labelRole", "--labelrole", action="store", dest="labelRole",
                       help=_("Label role for labels in following file options (instead of standard label)"))
-    parser.add_option("--DTS", "--csvDTS", action="store", dest="DTSFile",
+    parser.add_argument("--DTS", "--csvDTS", action="store", dest="DTSFile",
                       help=_("Write DTS tree into FILE"))
-    parser.add_option("--facts", "--csvFacts", action="store", dest="factsFile",
+    parser.add_argument("--facts", "--csvFacts", action="store", dest="factsFile",
                       help=_("Write fact list into FILE"))
-    parser.add_option("--factListCols", action="store", dest="factListCols",
+    parser.add_argument("--factListCols", action="store", dest="factListCols",
                       help=_("Columns for fact list file"))
-    parser.add_option("--factTable", "--csvFactTable", action="store", dest="factTableFile",
+    parser.add_argument("--factTable", "--csvFactTable", action="store", dest="factTableFile",
                       help=_("Write fact table into FILE"))
-    parser.add_option("--factTableCols", action="store", dest="factTableCols",
+    parser.add_argument("--factTableCols", action="store", dest="factTableCols",
                       help=_("Columns for fact table file"))
-    parser.add_option("--concepts", "--csvConcepts", action="store", dest="conceptsFile",
+    parser.add_argument("--concepts", "--csvConcepts", action="store", dest="conceptsFile",
                       help=_("Write concepts into FILE"))
-    parser.add_option("--pre", "--csvPre", action="store", dest="preFile",
+    parser.add_argument("--pre", "--csvPre", action="store", dest="preFile",
                       help=_("Write presentation linkbase into FILE"))
-    parser.add_option("--table", "--csvTable", action="store", dest="tableFile",
+    parser.add_argument("--table", "--csvTable", action="store", dest="tableFile",
                       help=_("Write table linkbase into FILE"))
-    parser.add_option("--cal", "--csvCal", action="store", dest="calFile",
+    parser.add_argument("--cal", "--csvCal", action="store", dest="calFile",
                       help=_("Write calculation linkbase into FILE"))
-    parser.add_option("--dim", "--csvDim", action="store", dest="dimFile",
+    parser.add_argument("--dim", "--csvDim", action="store", dest="dimFile",
                       help=_("Write dimensions (of definition) linkbase into FILE"))
-    parser.add_option("--anch", action="store", dest="anchFile",
+    parser.add_argument("--anch", action="store", dest="anchFile",
                       help=_("Write anchoring relationships (of definition) linkbase into FILE"))
-    parser.add_option("--formulae", "--htmlFormulae", action="store", dest="formulaeFile",
+    parser.add_argument("--formulae", "--htmlFormulae", action="store", dest="formulaeFile",
                       help=_("Write formulae linkbase into FILE"))
-    parser.add_option("--viewArcrole", "--viewarcrole", action="store", dest="viewArcrole",
+    parser.add_argument("--viewArcrole", "--viewarcrole", action="store", dest="viewArcrole",
                       help=_("Write linkbase relationships for viewArcrole into viewFile"))
-    parser.add_option("--viewFile", "--viewfile", action="store", dest="viewFile",
+    parser.add_argument("--viewFile", "--viewfile", action="store", dest="viewFile",
                       help=_("Write linkbase relationships for viewArcrole into viewFile"))
-    parser.add_option("--relationshipCols", "--relationshipcols", action="store", dest="relationshipCols",
+    parser.add_argument("--relationshipCols", "--relationshipcols", action="store", dest="relationshipCols",
                       help=_("Extra columns for relationship file (comma or space separated: Name, Namespace, LocalName, Documentation and References)"))
-    parser.add_option("--roleTypes", "--roletypes", action="store", dest="roleTypesFile",
+    parser.add_argument("--roleTypes", "--roletypes", action="store", dest="roleTypesFile",
                       help=_("Write defined role types into FILE"))
-    parser.add_option("--arcroleTypes", "--arcroletypes", action="store", dest="arcroleTypesFile",
+    parser.add_argument("--arcroleTypes", "--arcroletypes", action="store", dest="arcroleTypesFile",
                       help=_("Write defined arcrole types into FILE"))
-    parser.add_option("--testReport", "--csvTestReport", "--testreport", "--csvtestreport", action="store", dest="testReport",
+    parser.add_argument("--testReport", "--csvTestReport", "--testreport", "--csvtestreport", action="store", dest="testReport",
                       help=_("Write test report of validation (of test cases) into FILE"))
-    parser.add_option("--testReportCols", "--testreportcols", action="store", dest="testReportCols",
+    parser.add_argument("--testReportCols", "--testreportcols", action="store", dest="testReportCols",
                       help=_("Columns for test report file"))
-    parser.add_option("--rssReport", "--rssreport", action="store", dest="rssReport",
+    parser.add_argument("--rssReport", "--rssreport", action="store", dest="rssReport",
                       help=_("Write RSS report into FILE"))
-    parser.add_option("--rssReportCols", "--rssreportcols", action="store", dest="rssReportCols",
+    parser.add_argument("--rssReportCols", "--rssreportcols", action="store", dest="rssReportCols",
                       help=_("Columns for RSS report file"))
-    parser.add_option("--skipDTS", "--skipdts", action="store_true", dest="skipDTS",
+    parser.add_argument("--skipDTS", "--skipdts", action="store_true", dest="skipDTS",
                       help=_("Skip DTS activities (loading, discovery, validation), useful when an instance needs only to be parsed."))
-    parser.add_option("--skipLoading", "--skiploading", action="store", dest="skipLoading",
+    parser.add_argument("--skipLoading", "--skiploading", action="store", dest="skipLoading",
                       help=_("Skip loading discovered or schemaLocated files matching pattern (unix-style file name patterns separated by '|'), useful when not all linkbases are needed."))
-    parser.add_option("--logFile", "--logfile", action="store", dest="logFile",
+    parser.add_argument("--logFile", "--logfile", action="store", dest="logFile",
                       help=_("Write log messages into file, otherwise they go to standard output.  "
                              "If file ends in .xml it is xml-formatted, otherwise it is text. "))
-    parser.add_option("--logFileMode", "--logfilemode", action="store", dest="logFileMode",
+    parser.add_argument("--logFileMode", "--logfilemode", action="store", dest="logFileMode",
                       help=_("Write log file mode, a=append if existing (default), w=overwrite if existing. "))
-    parser.add_option("--logFormat", "--logformat", action="store", dest="logFormat",
-                      help=_("Logging format for messages capture, otherwise default is \"[%(messageCode)s] %(message)s - %(file)s\"."))
-    parser.add_option("--logLevel", "--loglevel", action="store", dest="logLevel",
+    parser.add_argument("--logFormat", "--logformat", action="store", dest="logFormat",
+                      help=_("Logging format for messages capture, otherwise default is \"[%%(messageCode)s] %%(message)s - %%(file)s\"."))
+    parser.add_argument("--logLevel", "--loglevel", action="store", dest="logLevel",
                       help=_("Minimum level for messages capture, otherwise the message is ignored.  "
                              "Current order of levels are debug, info, info-semantic, warning, warning-semantic, warning, assertion-satisfied, inconsistency, error-semantic, assertion-not-satisfied, and error. "))
-    parser.add_option("--logLevelFilter", "--loglevelfilter", action="store", dest="logLevelFilter",
+    parser.add_argument("--logLevelFilter", "--loglevelfilter", action="store", dest="logLevelFilter",
                       help=_("Regular expression filter for logLevel.  "
                              "(E.g., to not match *-semantic levels, logLevelFilter=(?!^.*-semantic$)(.+). "))
-    parser.add_option("--logCodeFilter", "--logcodefilter", action="store", dest="logCodeFilter",
+    parser.add_argument("--logCodeFilter", "--logcodefilter", action="store", dest="logCodeFilter",
                       help=_("Regular expression filter for log message code."))
-    parser.add_option("--logTextMaxLength", "--logtextmaxlength", action="store", dest="logTextMaxLength", type="int",
+    parser.add_argument("--logTextMaxLength", "--logtextmaxlength", action="store", dest="logTextMaxLength", type=int,
                       help=_("Log file text field max length override."))
-    parser.add_option("--logRefObjectProperties", "--logrefobjectproperties", action="store_true", dest="logRefObjectProperties",
+    parser.add_argument("--logRefObjectProperties", "--logrefobjectproperties", action="store_true", dest="logRefObjectProperties",
                       help=_("Log reference object properties (default)."), default=True)
-    parser.add_option("--logNoRefObjectProperties", "--lognorefobjectproperties", action="store_false", dest="logRefObjectProperties",
+    parser.add_argument("--logNoRefObjectProperties", "--lognorefobjectproperties", action="store_false", dest="logRefObjectProperties",
                       help=_("Do not log reference object properties."))
-    parser.add_option("--logXmlMaxAttributeLength", "--logxmlmaxattributelength", action="store", dest="logXmlMaxAttributeLength", type="int",
+    parser.add_argument("--logXmlMaxAttributeLength", "--logxmlmaxattributelength", action="store", dest="logXmlMaxAttributeLength", type=int,
                       help=_("Truncate XML log file attribute values at length. The default is 4096000 for JSON content and 128 for everything else."))
-    parser.add_option("--statusPipe", action="store", dest="statusPipe", help=SUPPRESS_HELP)
-    parser.add_option("--monitorParentProcess", action="store", dest="monitorParentProcess", help=SUPPRESS_HELP)
-    parser.add_option("--outputAttribution", "--outputattribution", action="store", dest="outputAttribution", help=SUPPRESS_HELP)
-    parser.add_option("--showOptions", action="store_true", dest="showOptions", help=SUPPRESS_HELP)
-    parser.add_option("--parameters", action="store", dest="parameters", help=_("Specify parameters for formula and validation (name=value[,name=value])."))
-    parser.add_option("--parameterSeparator", "--parameterseparator", action="store", dest="parameterSeparator", help=_("Specify parameters separator string (if other than comma)."))
-    parser.add_option("--formula", choices=("validate", "run", "none"), dest="formulaAction",
+    parser.add_argument("--statusPipe", action="store", dest="statusPipe", help=SUPPRESS)
+    parser.add_argument("--monitorParentProcess", action="store", dest="monitorParentProcess", help=SUPPRESS)
+    parser.add_argument("--outputAttribution", "--outputattribution", action="store", dest="outputAttribution", help=SUPPRESS)
+    parser.add_argument("--showOptions", action="store_true", dest="showOptions", help=SUPPRESS)
+    parser.add_argument("--parameters", action="store", dest="parameters", help=_("Specify parameters for formula and validation (name=value[,name=value])."))
+    parser.add_argument("--parameterSeparator", "--parameterseparator", action="store", dest="parameterSeparator", help=_("Specify parameters separator string (if other than comma)."))
+    parser.add_argument("--formula", choices=("validate", "run", "none"), dest="formulaAction",
                       help=_("Specify formula action: "
                              "validate - validate only, without running, "
                              "run - validate and run, or "
                              "none - prevent formula validation or running when also specifying -v or --validate.  "
                              "if this option is not specified, -v or --validate will validate and run formulas if present"))
-    parser.add_option("--formulaParamExprResult", "--formulaparamexprresult", action="store_true", dest="formulaParamExprResult", help=_("Specify formula tracing."))
-    parser.add_option("--formulaParamInputValue", "--formulaparaminputvalue", action="store_true", dest="formulaParamInputValue", help=_("Specify formula tracing."))
-    parser.add_option("--formulaMaximumMessageInterpolationLength", "--formulamaximummessageinterpolationlength", action="store", dest="formulaMaximumMessageInterpolationLength", type="int",
+    parser.add_argument("--formulaParamExprResult", "--formulaparamexprresult", action="store_true", dest="formulaParamExprResult", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaParamInputValue", "--formulaparaminputvalue", action="store_true", dest="formulaParamInputValue", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaMaximumMessageInterpolationLength", "--formulamaximummessageinterpolationlength", action="store", dest="formulaMaximumMessageInterpolationLength", type=int,
                       help=_("Truncate interpolated expressions in formula messages to this length."), default=1000)
-    parser.add_option("--formulaCallExprSource", "--formulacallexprsource", action="store_true", dest="formulaCallExprSource", help=_("Specify formula tracing."))
-    parser.add_option("--formulaCallExprCode", "--formulacallexprcode", action="store_true", dest="formulaCallExprCode", help=_("Specify formula tracing."))
-    parser.add_option("--formulaCallExprEval", "--formulacallexpreval", action="store_true", dest="formulaCallExprEval", help=_("Specify formula tracing."))
-    parser.add_option("--formulaCallExprResult", "--formulacallexprtesult", action="store_true", dest="formulaCallExprResult", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarSetExprEval", "--formulavarsetexpreval", action="store_true", dest="formulaVarSetExprEval", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarSetExprResult", "--formulavarsetexprresult", action="store_true", dest="formulaVarSetExprResult", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarSetTiming", "--formulavarsettiming", action="store_true", dest="timeVariableSetEvaluation", help=_("Specify showing times of variable set evaluation."))
-    parser.add_option("--formulaAsserResultCounts", "--formulaasserresultcounts", action="store_true", dest="formulaAsserResultCounts", help=_("Specify formula tracing."))
-    parser.add_option("--formulaSatisfiedAsser", "--formulasatisfiedasser", action="store_true", dest="formulaSatisfiedAsser", help=_("Specify formula tracing."))
-    parser.add_option("--formulaUnsatisfiedAsser", "--formulaunsatisfiedasser", action="store_true", dest="formulaUnsatisfiedAsser", help=_("Specify formula tracing."))
-    parser.add_option("--formulaUnsatisfiedAsserError", "--formulaunsatisfiedassererror", action="store_true", dest="formulaUnsatisfiedAsserError", help=_("Specify formula tracing."))
-    parser.add_option("--formulaUnmessagedUnsatisfiedAsser", "--formulaunmessagedunsatisfiedasser", action="store_true", dest="formulaUnmessagedUnsatisfiedAsser", help=_("Specify trace messages for unsatisfied assertions with no formula messages."))
-    parser.add_option("--formulaFormulaRules", "--formulaformularules", action="store_true", dest="formulaFormulaRules", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarsOrder", "--formulavarsorder", action="store_true", dest="formulaVarsOrder", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarExpressionSource", "--formulavarexpressionsource", action="store_true", dest="formulaVarExpressionSource", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarExpressionCode", "--formulavarexpressioncode", action="store_true", dest="formulaVarExpressionCode", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarExpressionEvaluation", "--formulavarexpressionevaluation", action="store_true", dest="formulaVarExpressionEvaluation", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarExpressionResult", "--formulavarexpressionresult", action="store_true", dest="formulaVarExpressionResult", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarFilterWinnowing", "--formulavarfilterwinnowing", action="store_true", dest="formulaVarFilterWinnowing", help=_("Specify formula tracing."))
-    parser.add_option("--formulaVarFiltersResult", "--formulavarfiltersresult", action="store_true", dest="formulaVarFiltersResult", help=_("Specify formula tracing."))
-    parser.add_option("--testcaseExpectedErrors", "--testcaseexpectederrors", action="append", dest=TESTCASE_EXPECTED_ERRORS_OPTION,
+    parser.add_argument("--formulaCallExprSource", "--formulacallexprsource", action="store_true", dest="formulaCallExprSource", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaCallExprCode", "--formulacallexprcode", action="store_true", dest="formulaCallExprCode", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaCallExprEval", "--formulacallexpreval", action="store_true", dest="formulaCallExprEval", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaCallExprResult", "--formulacallexprtesult", action="store_true", dest="formulaCallExprResult", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarSetExprEval", "--formulavarsetexpreval", action="store_true", dest="formulaVarSetExprEval", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarSetExprResult", "--formulavarsetexprresult", action="store_true", dest="formulaVarSetExprResult", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarSetTiming", "--formulavarsettiming", action="store_true", dest="timeVariableSetEvaluation", help=_("Specify showing times of variable set evaluation."))
+    parser.add_argument("--formulaAsserResultCounts", "--formulaasserresultcounts", action="store_true", dest="formulaAsserResultCounts", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaSatisfiedAsser", "--formulasatisfiedasser", action="store_true", dest="formulaSatisfiedAsser", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaUnsatisfiedAsser", "--formulaunsatisfiedasser", action="store_true", dest="formulaUnsatisfiedAsser", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaUnsatisfiedAsserError", "--formulaunsatisfiedassererror", action="store_true", dest="formulaUnsatisfiedAsserError", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaUnmessagedUnsatisfiedAsser", "--formulaunmessagedunsatisfiedasser", action="store_true", dest="formulaUnmessagedUnsatisfiedAsser", help=_("Specify trace messages for unsatisfied assertions with no formula messages."))
+    parser.add_argument("--formulaFormulaRules", "--formulaformularules", action="store_true", dest="formulaFormulaRules", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarsOrder", "--formulavarsorder", action="store_true", dest="formulaVarsOrder", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarExpressionSource", "--formulavarexpressionsource", action="store_true", dest="formulaVarExpressionSource", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarExpressionCode", "--formulavarexpressioncode", action="store_true", dest="formulaVarExpressionCode", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarExpressionEvaluation", "--formulavarexpressionevaluation", action="store_true", dest="formulaVarExpressionEvaluation", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarExpressionResult", "--formulavarexpressionresult", action="store_true", dest="formulaVarExpressionResult", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarFilterWinnowing", "--formulavarfilterwinnowing", action="store_true", dest="formulaVarFilterWinnowing", help=_("Specify formula tracing."))
+    parser.add_argument("--formulaVarFiltersResult", "--formulavarfiltersresult", action="store_true", dest="formulaVarFiltersResult", help=_("Specify formula tracing."))
+    parser.add_argument("--testcaseExpectedErrors", "--testcaseexpectederrors", action="append", dest=TESTCASE_EXPECTED_ERRORS_OPTION,
                       help=_("For testcase results, specify comma separated additional expected errors by test case id. --testcaseExpectedErrors=testcase-index.xml:test_id1|IOerror,oime:invalidTaxonomy"))
-    parser.add_option("--testcaseFilter", "--testcasefilter", action="append", dest="testcaseFilters",
+    parser.add_argument("--testcaseFilter", "--testcasefilter", action="append", dest="testcaseFilters",
                       help=_("If any filters are provided, any testcase variation path in the form {testcaseFilepath}:{testcaseVariationId} that doesn't pass any filter "
                              "will be skipped." ))
-    parser.add_option("--testcaseResultsCaptureWarnings", "--testcaseresultscapturewarnings", action="store_true", dest="testcaseResultsCaptureWarnings",
+    parser.add_argument("--testcaseResultsCaptureWarnings", "--testcaseresultscapturewarnings", action="store_true", dest="testcaseResultsCaptureWarnings",
                       help=_("For testcase variations and RSS feed items, capture warning results, default is inconsistency or warning if there is any warning expected result.  "))
-    parser.add_option("--testcaseResultOptions", choices=("match-any", "match-all"), action="store", dest="testcaseResultOptions",
+    parser.add_argument("--testcaseResultOptions", choices=("match-any", "match-all"), action="store", dest="testcaseResultOptions",
                       help=_("For testcase results, default is match any expected result, options to match any or match all expected result(s).  "))
-    parser.add_option("--formulaRunIDs", "--formularunids", action="store", dest="formulaRunIDs", help=_("Specify formula/assertion IDs to run, separated by a '|' character, or a regex expression."))
-    parser.add_option("--formulaCompileOnly", "--formulacompileonly", action="store_true", dest="formulaCompileOnly", help=_("Specify formula are to be compiled but not executed."))
-    parser.add_option("--formulaCacheSize", "--formulacachesize", action="store", dest="formulaCacheSize", help=_("Specify the number of fact aspect combinations to cache during formula evaluations. Negative numbers have no limit. (10_000_000 is default)"))
-    parser.add_option(UILANG_OPTION, UILANG_OPTION.lower(), action="store", dest="uiLang",
+    parser.add_argument("--formulaRunIDs", "--formularunids", action="store", dest="formulaRunIDs", help=_("Specify formula/assertion IDs to run, separated by a '|' character, or a regex expression."))
+    parser.add_argument("--formulaCompileOnly", "--formulacompileonly", action="store_true", dest="formulaCompileOnly", help=_("Specify formula are to be compiled but not executed."))
+    parser.add_argument("--formulaCacheSize", "--formulacachesize", action="store", dest="formulaCacheSize", help=_("Specify the number of fact aspect combinations to cache during formula evaluations. Negative numbers have no limit. (10_000_000 is default)"))
+    parser.add_argument(UILANG_OPTION, UILANG_OPTION.lower(), action="store", dest="uiLang",
                       help=_("Language for user interface (override system settings, such as program messages).  Does not save setting.  Requires locale country code, e.g. en-GB or en-US."))
-    parser.add_option("--proxy", action="store", dest="proxy",
+    parser.add_argument("--proxy", action="store", dest="proxy",
                       help=_("Modify and re-save proxy settings configuration.  "
                              "Enter 'system' to use system proxy setting, 'none' to use no proxy, "
                              "'http://[user[:password]@]host[:port]' "
                              " (e.g., http://192.168.1.253, http://example.com:8080, http://joe:secret@example.com:8080), "
                              " or 'show' to show current setting, ." ))
-    parser.add_option(f"--{INTERNET_CONNECTIVITY}", f"--{INTERNET_CONNECTIVITY.lower()}", choices=("online", OFFLINE), dest="internetConnectivity",
+    parser.add_argument(f"--{INTERNET_CONNECTIVITY}", f"--{INTERNET_CONNECTIVITY.lower()}", choices=("online", OFFLINE), dest="internetConnectivity",
                       help=_("Specify internet connectivity: online or offline"))
-    parser.add_option("--internetTimeout", "--internettimeout", type="int", dest="internetTimeout",
+    parser.add_argument("--internetTimeout", "--internettimeout", type=int, dest="internetTimeout",
                       help=_("Specify internet connection timeout in seconds (0 means unlimited)."))
-    parser.add_option("--internetRecheck", "--internetrecheck", choices=("weekly", "daily", "never", "hourly", "quarter-hourly"), action="store", dest="internetRecheck",
+    parser.add_argument("--internetRecheck", "--internetrecheck", choices=("weekly", "daily", "never", "hourly", "quarter-hourly"), action="store", dest="internetRecheck",
                       help=_("Specify rechecking for newer cache files 'daily', 'weekly', 'monthly' or 'never' ('weekly' is default)"))
-    parser.add_option("--internetLogDownloads", "--internetlogdownloads", action="store_true", dest="internetLogDownloads",
+    parser.add_argument("--internetLogDownloads", "--internetlogdownloads", action="store_true", dest="internetLogDownloads",
                       help=_("Log info message for downloads to web cache."))
-    parser.add_option("--noCertificateCheck", "--nocertificatecheck", action="store_true", dest="noCertificateCheck",
+    parser.add_argument("--noCertificateCheck", "--nocertificatecheck", action="store_true", dest="noCertificateCheck",
                       help=_("Specify no checking of internet secure connection certificate"))
-    parser.add_option("--httpsRedirectCache", "--httpsredirectcache", action="store_true", dest="httpsRedirectCache",
+    parser.add_argument("--httpsRedirectCache", "--httpsredirectcache", action="store_true", dest="httpsRedirectCache",
                       help=_("Treat http and https schemes interchangeably when looking up files from the webcache"))
-    parser.add_option("--cacheDirectory", "--cachedirectory", action="store", dest="cacheDirectory",
+    parser.add_argument("--cacheDirectory", "--cachedirectory", action="store", dest="cacheDirectory",
                       help=_("Override the default location of the cache directory"))
-    parser.add_option("--httpUserAgent", "--httpuseragent", action="store", dest="httpUserAgent",
+    parser.add_argument("--httpUserAgent", "--httpuseragent", action="store", dest="httpUserAgent",
                       help=_("Specify non-standard http header User-Agent value"))
-    parser.add_option(DISABLE_PERSISTENT_CONFIG_OPTION, DISABLE_PERSISTENT_CONFIG_OPTION.lower(), action="store_true", dest="disablePersistentConfig", help=_("Prohibits Arelle from reading and writing a config to the local cache."))
-    parser.add_option("--xdgConfigHome", action="store", dest="xdgConfigHome",
+    parser.add_argument(DISABLE_PERSISTENT_CONFIG_OPTION, DISABLE_PERSISTENT_CONFIG_OPTION.lower(), action="store_true", dest="disablePersistentConfig", help=_("Prohibits Arelle from reading and writing a config to the local cache."))
+    parser.add_argument("--xdgConfigHome", action="store", dest="xdgConfigHome",
                       help=_("Specify non-standard location for configuration and cache files (overrides environment parameter XDG_CONFIG_HOME)."))
-    parser.add_option("--plugins", action="store", dest="plugins",
+    parser.add_argument("--plugins", action="store", dest="plugins",
                       help=_("Specify plug-in configuration for this invocation.  "
                              "Enter 'show' to confirm plug-in configuration.  "
                              "Commands show, and module urls are '|' separated: "
@@ -423,27 +434,24 @@ def parseArgs(args):
                              "or ../examples/plugin/hello_dolly.py for relative use of examples directory) "
                              "Local python files do not require .py suffix, e.g., hello_dolly without .py is sufficient, "
                              "Packaged plug-in urls are their directory's url (e.g., --plugins EDGAR/render or --plugins xbrlDB).  " ))
-    parser.add_option("--packages", "--package", action="append", dest="packages",
+    parser.add_argument("--packages", "--package", action="append", dest="packages",
                       help=_("Load taxonomy packages. Option can be repeated for multiple files. "
                              "If a directory is specified, all .zip files in the directory will be loaded. "
                              "(Package settings from GUI are no longer shared with cmd line operation. "
                              "Cmd line package settings are not persistent.)  " ))
-    parser.add_option("--packageManifestName", action="store", dest="packageManifestName",
+    parser.add_argument("--packageManifestName", action="store", dest="packageManifestName",
                       help=_("Provide non-standard archive manifest file name pattern (e.g., *taxonomyPackage.xml).  "
                              "Uses unix file name pattern matching.  "
                              "Multiple manifest files are supported in archive (such as oasis catalogs).  "
                              "(Replaces search for either .taxonomyPackage.xml or catalog.xml).  " ))
-    parser.add_option("--abortOnMajorError", action="store_true", dest="abortOnMajorError", help=_("Abort process on major error, such as when load is unable to find an entry or discovered file."))
-    parser.add_option("--showEnvironment", "--showenvironment", action="store_true", dest="showEnvironment", help=_("Show Arelle's config and cache directory and host OS environment parameters."))
-    parser.add_option("--collectProfileStats", action="store_true", dest="collectProfileStats", help=_("Collect profile statistics, such as timing of validation activities and formulae."))
+    parser.add_argument("--abortOnMajorError", action="store_true", dest="abortOnMajorError", help=_("Abort process on major error, such as when load is unable to find an entry or discovered file."))
+    parser.add_argument("--showEnvironment", "--showenvironment", action="store_true", dest="showEnvironment", help=_("Show Arelle's config and cache directory and host OS environment parameters."))
+    parser.add_argument("--collectProfileStats", action="store_true", dest="collectProfileStats", help=_("Collect profile statistics, such as timing of validation activities and formulae."))
     if hasWebServer():
-        parser.add_option("--webserver", action="store", dest="webserver",
+        parser.add_argument("--webserver", action="store", dest="webserver",
                           help=_("start web server on host:port[:server] for REST and web access, e.g., --webserver locahost:8080, "
                                  "or specify nondefault a server name, such as cheroot, --webserver locahost:8080:cheroot. "
                                  "(It is possible to specify options to be defaults for the web server, such as disclosureSystem and validations, but not including file names.) "))
-    pluginOptionsIndex = len(parser.option_list)
-    pluginOptionsGroupIndex = len(parser.option_groups)
-
     preparsedArgs = preparseArgs(args, parser)
 
     preloadPlugins = []
@@ -465,17 +473,16 @@ def parseArgs(args):
                 arellePluginModules[cmd] = moduleInfo
                 PluginManager.reset()
 
-    # add plug-in options
+    # add plug-in options using compatibility shim for optparse-style plugins
+    pluginShim = OptparseShim(parser)
     for optionsExtender in PluginManager.pluginClassMethods("CntlrCmdLine.Options"):
-        optionsExtender(parser)
-    pluginLastOptionIndex = len(parser.option_list)
-    pluginLastOptionsGroupIndex = len(parser.option_groups)
-    parser.add_option("-a", "--about",
+        optionsExtender(pluginShim)
+    parser.add_argument("-a", "--about",
                       action="store_true", dest="about",
                       help=_("Show product version, copyright, and license."))
-    parser.add_option("--diagnostics", action="store_true", dest="diagnostics",
+    parser.add_argument("--diagnostics", action="store_true", dest="diagnostics",
                       help=_("output system diagnostics information"))
-    parser.add_option("--optionsFile", "--optionsfile",
+    parser.add_argument("--optionsFile", "--optionsfile",
                       action="store", dest="optionsFile",
                       help=_("Provide a path to a JSON file containing runtime options. "
                              "These options will be overridden by any command line options provided."))
@@ -492,11 +499,12 @@ def parseArgs(args):
         args = []
         namedOptions = set()
         optionsWithArg = set()
-        for option in parser.option_list:
-            names = str(option).split('/')
-            namedOptions.update(names)
-            if option.action == "store":
-                optionsWithArg.update(names)
+        for action in parser._actions:
+            for optString in action.option_strings:
+                namedOptions.add(optString)
+                # Actions that consume an argument (store, append, etc.)
+                if action.nargs != 0 and action.const is None:
+                    optionsWithArg.add(optString)
         priorArg = None
         for arg in sourceArgs:
             if priorArg in optionsWithArg and arg in namedOptions:
@@ -508,7 +516,7 @@ def parseArgs(args):
             args.append(arg)
             priorArg = arg
 
-    (options, leftoverArgs) = parser.parse_args(args)
+    (options, leftoverArgs) = parser.parse_known_args(args)
     if options.about:
         print(_("\narelle(r) {version} ({wordSize}bit {platform})\n\n"
                           "An open source XBRL platform\n"
@@ -550,13 +558,14 @@ def parseArgs(args):
             parser.exit()
     elif len(leftoverArgs) != 0 and (not hasWebServer() or options.webserver is None):
         parser.error(_("unrecognized arguments: {}").format(', '.join(leftoverArgs)))
+    # Collect plugin option destinations from the shim (which tracks what plugins added)
     pluginOptionDestinations = {
-        option.dest
-        for option in parser.option_list[pluginOptionsIndex:pluginLastOptionIndex]
+        action.dest
+        for action in pluginShim.option_list
     }
-    for optGroup in parser.option_groups[pluginOptionsGroupIndex:pluginLastOptionsGroupIndex]:
-        for groupOption in optGroup.option_list:
-            pluginOptionDestinations.add(groupOption.dest)
+    for optGroup in pluginShim.option_groups:
+        for groupAction in optGroup.option_list:
+            pluginOptionDestinations.add(groupAction.dest)
 
     baseOptions = {}
     # Collect options from options file
@@ -649,27 +658,51 @@ def configAndRunCntlr(options, arellePluginModules):
 
 
 class ParserForDynamicPlugins:
+    """Shim parser for plugins loaded dynamically after initial argument parsing.
+
+    This allows late-loaded plugins to register their options, which are then
+    added to the already-parsed options namespace with their default values.
+    Supports both optparse-style add_option() and argparse-style add_argument().
+    """
     def __init__(self, options):
         self._long_opt = {}
         self._short_opt = {}
         self.conflict_handler = 'error'
         self.defaults = {}
-        self.option_class = Option
         self.options = options
 
     def add_option(self, *args, **kwargs):
+        """Add option using optparse-style API (for backward compatibility)."""
         if 'dest' in kwargs:
             _dest = kwargs['dest']
             if not hasattr(self.options, _dest):
                 setattr(self.options, _dest, kwargs.get('default'))
 
+    def add_argument(self, *args, **kwargs):
+        """Add argument using argparse-style API."""
+        self.add_option(*args, **kwargs)
+
     def add_option_group(self, featureGroup, *args, **kwargs):
+        """Add option group (optparse compatibility)."""
         for opt in featureGroup.option_list:
             if hasattr(opt, "dest"):
                 self.add_option(dest=opt.dest, default=getattr(opt, 'default', None))
 
+    def add_argument_group(self, title=None, description=None):
+        """Add argument group (argparse compatibility)."""
+        return _DummyArgumentGroup(self)
+
     def __getattr__(self, name: str) -> None:
         return None
+
+
+class _DummyArgumentGroup:
+    """Dummy argument group for ParserForDynamicPlugins."""
+    def __init__(self, parser):
+        self._parser = parser
+
+    def add_argument(self, *args, **kwargs):
+        self._parser.add_argument(*args, **kwargs)
 
 
 def _pluginHasCliOptions(moduleInfo):
@@ -680,7 +713,7 @@ def _pluginHasCliOptions(moduleInfo):
     return False
 
 
-def _parseOptionsFile(optionsFile: str, parser: OptionParser) -> dict:
+def _parseOptionsFile(optionsFile: str, parser: argparse.ArgumentParser) -> dict:
     """
     Parse the JSON options within the provided filepath.
     :param optionsFile: The path to the JSON options file.
@@ -719,8 +752,8 @@ class CntlrCmdLine(Cntlr.Cntlr):
         When a web server has been requested, this method may be called multiple times, once for each web service (REST) request that requires processing.
         Otherwise (when called for a command line request) this method is called only once for the command line arguments request.
 
-        :param options: OptionParser options from parse_args of main argv arguments (when called from command line) or corresponding arguments from web service (REST) request.
-        :type options: optparse.Values
+        :param options: Parsed command line options from main argv arguments (when called from command line) or corresponding arguments from web service (REST) request.
+        :type options: argparse.Namespace
         """
         for b in BETA_FEATURES_AND_DESCRIPTIONS:
             self.betaFeatures[b] = getattr(options, b)
