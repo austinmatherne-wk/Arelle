@@ -303,6 +303,9 @@ class ModelXbrl:
     _factsByDatatype: dict[bool | tuple[bool, QName], set[ModelFact]]
     _factsByLocalName: dict[str, set[ModelFact]]
     _factsByPeriodType: dict[str, set[ModelFact]]
+    _factsByPeriodHash: dict[int, set[ModelFact]]
+    _factsByEntityIdentifier: dict[tuple[str, str], set[ModelFact]]
+    _factsByUnitHash: dict[int, set[ModelFact]]
     _nonNilFactsInInstance: set[ModelFact]
     _startedProfiledActivity: float
     _startedTimeStat: float
