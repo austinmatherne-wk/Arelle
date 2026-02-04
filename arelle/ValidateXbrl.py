@@ -410,6 +410,9 @@ class ValidateXbrl:
             ValidateXbrlDTS.checkDTS(self, importedModelDocument, checkedModelDocuments)
         del checkedModelDocuments, self.DTSreferenceResourceIDs
 
+        # Check namespace schema connectivity (XBRL 2.1 Section 5.1)
+        ValidateXbrlDTS.checkNamespaceSchemaConnectivity(self, modelXbrl)
+
         for modelType in modelXbrl.qnameTypes.values():
             validateUniqueParticleAttribution(modelXbrl, modelType.particlesList, modelType)
         modelXbrl.profileStat(_("validateDTS"))

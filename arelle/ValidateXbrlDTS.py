@@ -16,6 +16,7 @@ from collections import defaultdict
 import regex as re
 
 if TYPE_CHECKING:
+    from arelle.ModelXbrl import ModelXbrl
     from arelle.ValidateXbrl import ValidateXbrl
 
 
@@ -1444,3 +1445,63 @@ def _shouldValidateBaseTaxonomyDoc(val: ValidateXbrl, modelDocument: ModelDocume
     if baseTaxonomyValidationMode == ValidateBaseTaxonomiesMode.DISCLOSURE_SYSTEM:
         return modelDocument.uri not in getattr(val.disclosureSystem, "standardTaxonomiesDict", {})
     raise ValueError(f"Invalid base taxonomy validation mode: {baseTaxonomyValidationMode}")
+
+
+def checkNamespaceSchemaConnectivity(val: ValidateXbrl, modelXbrl: ModelXbrl) -> None:
+    """
+    Validates that for each targetNamespace with multiple schemas,
+    there is at most one top-level schema (not included by other schemas).
+
+    XBRL 2.1 Section 5.1 requirement (2025 revision).
+    """
+    for targetNamespace, schemaDocs in modelXbrl.namespaceDocs.items():
+        # Skip namespaces with single schema, standard namespaces, and no-namespace schemas
+        if not targetNamespace or len(schemaDocs) <= 1:
+            continue
+        if XbrlConst.isStandardNamespace(targetNamespace):
+            continue
+
+        # Build set of schemas for this namespace (only SCHEMA type documents)
+        namespaceSchemaSet = {doc for doc in schemaDocs if doc.type == ModelDocument.Type.SCHEMA}
+        if len(namespaceSchemaSet) <= 1:
+            continue
+
+        # Find schemas that are included by other schemas in the same namespace
+        includedSchemas = set()
+        for schema in namespaceSchemaSet:
+            for refDoc, docRef in schema.referencesDocument.items():
+                if "include" in docRef.referenceTypes and refDoc in namespaceSchemaSet:
+                    includedSchemas.add(refDoc)
+
+        # Top-level schemas = schemas not included by any other schema in this namespace
+        topLevelSchemas = namespaceSchemaSet - includedSchemas
+
+        if len(topLevelSchemas) > 1:
+            modelXbrl.error("xbrl:multipleTopLevelSchemasForNamespace",
+                _("Multiple top-level schemas found for namespace %(namespace)s: %(schemas)s. "
+                  "All schemas for a namespace must be connected by xs:include links with at most one top-level schema."),
+                modelObject=list(topLevelSchemas),
+                namespace=targetNamespace,
+                schemas=", ".join(sorted(doc.basename for doc in topLevelSchemas)))
+
+        # Check 2: Hard references to non-top-level schemas
+        # Build reverse lookup: which documents hard-reference each schema
+        hardReferencedBy: dict[ModelDocument.ModelDocument, list[ModelDocument.ModelDocument]] = defaultdict(list)
+        for doc in modelXbrl.urlDocs.values():
+            for refDoc, docRef in doc.referencesDocument.items():
+                if "href" in docRef.referenceTypes and refDoc.type == ModelDocument.Type.SCHEMA:
+                    hardReferencedBy[refDoc].append(doc)
+
+        for schema in includedSchemas:
+            hardRefDocs = hardReferencedBy.get(schema)
+            if hardRefDocs:
+                # Find which schemas include this one
+                includers = [s.basename for s in namespaceSchemaSet
+                             if schema in {r for r, d in s.referencesDocument.items() if "include" in d.referenceTypes}]
+                modelXbrl.error("xbrl:hardReferenceToNonTopLevelSchema",
+                    _("Hard reference to non-top-level schema %(schema)s for namespace %(namespace)s. "
+                      "The schema is included by %(includer)s and should not be directly referenced."),
+                    modelObject=[schema] + hardRefDocs,
+                    schema=schema.basename,
+                    namespace=targetNamespace,
+                    includer=", ".join(includers))
