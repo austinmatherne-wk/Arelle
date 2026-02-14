@@ -16,6 +16,7 @@ from collections import defaultdict
 import regex as re
 
 if TYPE_CHECKING:
+    from arelle.ModelXbrl import ModelXbrl
     from arelle.ValidateXbrl import ValidateXbrl
 
 
@@ -1444,3 +1445,32 @@ def _shouldValidateBaseTaxonomyDoc(val: ValidateXbrl, modelDocument: ModelDocume
     if baseTaxonomyValidationMode == ValidateBaseTaxonomiesMode.DISCLOSURE_SYSTEM:
         return modelDocument.uri not in getattr(val.disclosureSystem, "standardTaxonomiesDict", {})
     raise ValueError(f"Invalid base taxonomy validation mode: {baseTaxonomyValidationMode}")
+
+
+def checkNamespaceSchemaConnectivity(val: ValidateXbrl, modelXbrl: ModelXbrl) -> None:
+    """
+    Validates that for each targetNamespace with multiple schemas,
+    there is at most one top-level schema (not included by other schemas).
+
+    XBRL 2.1 Section 3.2 requirement (2025 revision).
+    """
+    for targetNamespace, schemaDocs in modelXbrl.namespaceDocs.items():
+        if not targetNamespace or len(schemaDocs) <= 1:
+            continue
+
+        schemaDocSet = set(schemaDocs)
+        includedSchemas = set()
+        for schema in schemaDocs:
+            for refDoc, docRef in schema.referencesDocument.items():
+                if "include" in docRef.referenceTypes and refDoc in schemaDocSet:
+                    includedSchemas.add(refDoc)
+
+        topLevelSchemas = schemaDocSet - includedSchemas
+
+        if len(topLevelSchemas) > 1:
+            modelXbrl.error("xbrl:multipleTopLevelSchemasForNamespace",
+                _("Multiple top-level schemas found for namespace %(namespace)s: %(schemas)s. "
+                  "All schemas for a namespace must be connected by xs:include links with at most one top-level schema."),
+                modelObject=list(topLevelSchemas),
+                namespace=targetNamespace,
+                schemas=", ".join(sorted(doc.basename for doc in topLevelSchemas)))
