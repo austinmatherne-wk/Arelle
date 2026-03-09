@@ -22,6 +22,7 @@ from arelle import (ModelDocument, ModelXbrl, PackageManager, UrlUtil,
                     ValidateXbrlDimensions, XbrlConst, XmlUtil, XmlValidate)
 from arelle.ModelValue import (DATETIME, dateTime, dayTimeDuration, qname,
                                yearMonthDuration)
+from arelle.oim._tc.metadata import parse_tc_metadata
 from arelle.PluginManager import pluginClassMethods
 from arelle.PrototypeInstanceObject import DimValuePrototype
 from arelle.PythonUtil import attrdict, isLegacyAbs, strTruncate
@@ -1229,6 +1230,7 @@ def _loadFromOIM(cntlr, error, warning, modelXbrl, oimFile, mappedUri):
             documentInfoProperties.add("final")
             reportProperties = {"documentInfo", "tableTemplates", "tables", "parameters", "parameterURL", "dimensions", "decimals", "links"}
             columnProperties = {"comment", "decimals", "dimensions", "propertyGroups", "parameterURL", "propertiesFrom"}
+            modelXbrl.tcMetadata = parse_tc_metadata(oimObject, namespaces)
 
         entityNaQName = qname(re.sub("/xbrl-(json|csv)$","/entities",documentType), "NA")
         allowedDuplicatesFeature = ALL
