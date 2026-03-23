@@ -935,59 +935,141 @@ def factsPartitions(xpCtx, facts, aspects):
 
 
 def evaluationIsUnnecessary(thisEval, xpCtx):
+    """Returns True if thisEval duplicates a prior evaluation and can be skipped.
+
+    A formula evaluation binds each variable to a fact (or to None when no
+    matching fact exists and the variable falls back to its declared fallback
+    value). The Cartesian product of variable bindings generates many
+    evaluations, and this function suppresses duplicates.
+
+    Not all variables can be compared for duplicate detection. A variable is
+    "dependent" if its binding was influenced by another variable that fell
+    back (Variables 1.0 section 4 bullet 3). Because the dependent variable's
+    value is an artifact of fallback expansion rather than a genuinely distinct
+    input, it is excluded from comparison. Only non-dependent variables — those
+    whose bindings reflect real fact matches — are compared.
+
+    Decision tree:
+
+    1.  No prior evaluations exist.
+        -> Not a duplicate (False).
+
+    2.  Every fact variable fell back. Per the spec, "if a variable set
+        contains fact variables but all of the fact variables in it evaluate
+        to fallback values, then the variable set is not deemed to have been
+        evaluated" (Variables 1.0 section 4, bullet 2) (True).
+
+    3.  Hash-narrow prior evaluations to candidates. For each bound variable,
+        look up which prior evaluations share the same fact hash, then
+        intersect to find prior evaluations that agree on ALL variables by
+        hash. If no hashes were seen, all prior evaluations are candidates.
+
+    4.  Identify dependent variables and exclude them from comparison.
+
+    5.  Any non-dependent variable has a binding never seen in any prior
+        evaluation.
+        -> Not a duplicate (False).
+
+    6.  Check equality of non-dependent variables against candidates (handles
+        hash collisions).
+        a. A prior evaluation matches on all non-dependent variables.
+           -> Duplicate (True).
+        b. No prior evaluation matches.
+           -> Not a duplicate (False).
+
+    Dependent variable detection (used in scenario 4):
+    A variable $A is dependent if ALL of the following are true:
+      1. $A references another variable $B in its binding expression.
+      2. $B fell back in the current evaluation (no matching fact).
+      3. $B was actually bound to a fact in at least one candidate prior
+         evaluation — confirming that $B's fallback is situational, not
+         universal. If $B fell back in every prior evaluation too, then
+         every evaluation computed $A the same way, and $A's value is
+         still reliable for comparison.
+    """
+
+    # ── Scenario 1: no prior evaluations ──
     otherEvals = xpCtx.evaluations
     if not otherEvals:
         return False
 
+    # otherEvalHashDicts indexes all prior evaluations by variable and
+    # bound-fact hash: {vQn: {hash(boundFact): {eval indices}}}
+    # Only contains entries for variables that were bound to a fact
+    # (not fallen back).
     otherEvalHashDicts = xpCtx.evaluationHashDicts
+
+    # ── Scenario 2: every fact variable fell back (Variables 1.0 §4 bullet 2) ──
     if all(e is None for e in thisEval.values()):
-        # evaluation not necessary, all fallen back
         return True
+
+    # Variables that are bound to facts (not fallen back) in this evaluation.
     nonNoneEvals = {
         vQn: vBoundFact
         for vQn, vBoundFact in thisEval.items()
         if vBoundFact is not None
     }
-    # hash check if any hashes merit further look for equality
+
+    # ── Scenario 3: hash-narrow prior evaluations to candidates ──
+    # For each bound variable, look up which prior evaluations share the
+    # same fact hash. Each entry is a set of eval indices.
     otherEvalSets = [
         otherEvalHashDicts[vQn][hash(vBoundFact)]
         for vQn, vBoundFact in nonNoneEvals.items()
         if vQn in otherEvalHashDicts
         if hash(vBoundFact) in otherEvalHashDicts[vQn]
     ]
+    # Intersect to find prior evaluations that agree on ALL bound variables
+    # by hash. A candidate duplicate must match every variable, not just one.
+    # If no hashes were seen (e.g. variables were always fallen back in prior
+    # evals, or the fact is novel), fall back to all prior evals.
     if otherEvalSets:
         matchingEvals = [otherEvals[i] for i in set.intersection(*otherEvalSets)]
     else:
         matchingEvals = otherEvals
-    # find set of vQn whose dependencies are fallen back in this eval but not others that match
+
+    # ── Scenario 4: identify dependent variables ──
+    # A variable $A is dependent if it references another variable $B
+    # where $B has fallen back in the current eval. $A's value is then
+    # unreliable — it was computed using $B's fallback instead of a real
+    # fact — so we exclude $A from the duplicate comparison.
+    # However, we only exclude $A if $B is actually bound (not fallen
+    # back) in at least one candidate prior eval. If $B fell back in
+    # every prior eval too, then every eval computed $A the same way
+    # (with $B's fallback), so $A's value is consistent and safe to compare.
     varBindings = xpCtx.varBindings
     vQnDependent = set(
         vQn
         for vQn in nonNoneEvals
         if vQn in varBindings
         and any(
+            # condition 2: $B fell back
             varBindings[varRefQn].isFallback
+            # condition 3: $B bound in candidates
             and any(
                 m[varRefQn] is not None
                 for m in matchingEvals
             )
+            # condition 1: $A references $B
             for varRefQn in varBindings[vQn].var.variableRefs()
             if varRefQn in varBindings
         )
     )
+    # The variables whose bindings reflect real fact matches and will be
+    # used for the duplicate comparison.
     evalsNotDependent = [
         (vQn, vBoundFact)
         for vQn, vBoundFact in nonNoneEvals.items()
         if vQn not in vQnDependent
     ]
-    # If any compared variable has an indexed hash not seen in prior
-    # evaluations, no prior evaluation can match on all compared
-    # variables simultaneously, so this evaluation is unique.
+
+    # ── Scenario 5: a non-dependent variable has a novel binding ──
     for vQn, vBoundFact in evalsNotDependent:
         if vQn in otherEvalHashDicts and hash(vBoundFact) not in otherEvalHashDicts[vQn]:
             return False
-    # detects evaluations which are not different (duplicate) and extra fallback evaluations
-    # vBoundFact may be single fact or tuple of facts
+
+    # ── Scenario 6: check equality against candidates ──
+    # Hash agreement narrows candidates; equality confirms (handles collisions).
     return any(
         all(
             vBoundFact == matchingEval[vQn]
