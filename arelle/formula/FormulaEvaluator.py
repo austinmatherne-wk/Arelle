@@ -977,8 +977,10 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
            matter. Check equality against candidates.
            -> Identical match found (True), otherwise (False).
         c. The intersection is non-empty and some variables fell back.
-           Identify dependent variables (see below), then compare only
-           non-dependent variables against the candidate prior evaluations.
+           First check for identical evaluations (all variables match).
+           If not identical, fall back to bullet 3 suppression: identify
+           dependent variables (see below), then compare only non-dependent
+           variables against the candidates.
            i.   Any non-dependent variable has a binding never seen in any
                 prior evaluation.
                 -> Not a duplicate (False).
@@ -988,7 +990,7 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
            iii. No prior evaluation matches on all non-dependent variables.
                 -> Not a duplicate (False).
 
-    Dependent variable detection (used in scenario 4):
+    Dependent variable detection (used in scenarios 3 and 4b):
     A variable $A is dependent if ALL of the following are true:
       1. $A references another variable $B in its binding expression.
       2. $B fell back in the current evaluation (no matching fact).
@@ -1021,7 +1023,6 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
         if vBoundFact is not None
     }
 
-    # ── Scenario 3: hash-narrow prior evaluations to candidates ──
     # For each bound variable, look up which prior evaluations share the
     # same fact hash. Each entry is a set of eval indices.
     otherEvalSets = [
@@ -1030,12 +1031,12 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
         if vQn in otherEvalHashDicts
         if hash(vBoundFact) in otherEvalHashDicts[vQn]
     ]
+
     varBindings = xpCtx.varBindings
 
-    # If no hashes were seen (e.g. variables were always fallen back in prior
-    # evals, or the fact is novel), the only way this is still a duplicate is
-    # if every variable is dependent, leaving nothing to compare.
-    # Short-circuits on the first non-dependent variable.
+    # ── Scenario 3: no bound variable's fact hash was seen before ──
+    # The only way this is still a duplicate is if every variable is
+    # dependent, leaving nothing to compare.
     if not otherEvalSets:
         return all(
             vQn in varBindings
@@ -1048,9 +1049,15 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
             for vQn in nonNoneEvals
         )
 
+    # ── Scenario 4: some hashes matched ──
     # Intersect to find prior evaluations that agree on ALL bound variables
     # by hash. A candidate duplicate must match every variable, not just one.
-    matchingEvals = [otherEvals[i] for i in set.intersection(*otherEvalSets)]
+    matchingEvals = [
+        otherEvals[i]
+        for i in set.intersection(*otherEvalSets)
+    ]
+
+    # ── Scenario 4a: intersection is empty ──
     if not matchingEvals:
         return False
 
@@ -1073,11 +1080,14 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
     # been bound without changing any non-dependent variable's value.
     #
     # Identify dependent variables. See docstring for the three conditions.
-    # qnBoundInCandidateEvals is the set of variable QNames that are bound
-    # (not fallen back) in at least one candidate prior evaluation — a single
+    # qnBoundInMatch is the set of variable QNames that are bound (not
+    # fallen back) in at least one candidate prior evaluation — a single
     # O(1) lookup replaces scanning matchingEvals per variable reference.
     qnBoundInCandidateEvals = frozenset(
-        vQn for m in matchingEvals for vQn, val in m.items() if val is not None
+        vQn
+        for eval in matchingEvals
+        for vQn, vBoundFact in eval.items()
+        if vBoundFact is not None
     )
     vQnDependent = set(
         vQn
@@ -1093,8 +1103,8 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
             if varRefQn in varBindings
         )
     )
-    # Build the list of non-dependent variables for the bullet 3 comparison.
-    # If any has a novel binding (scenario 4c-i), exit early.
+    # Build the list of non-dependent variables for the duplicate / bullet 3
+    # comparison. If any has a novel binding (scenario 4c-i), exit early.
     evalsNotDependent = []
     for vQn, vBoundFact in nonNoneEvals.items():
         if vQn not in vQnDependent:
