@@ -1066,15 +1066,19 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
             ) for matchingEval in matchingEvals
         )
 
-    # ── Scenario 4c: identify dependent variables ──
-    # A variable $A is dependent if it references another variable $B
-    # where $B has fallen back in the current eval. $A's value is then
-    # unreliable — it was computed using $B's fallback instead of a real
-    # fact — so we exclude $A from the duplicate comparison.
-    # However, we only exclude $A if $B is actually bound (not fallen
-    # back) in at least one candidate prior eval. If $B fell back in
-    # every prior eval too, then every eval computed $A the same way
-    # (with $B's fallback), so $A's value is consistent and safe to compare.
+    # ── Scenario 4c: some variables fell back — check bullet 3 suppression ──
+    # A variable is dependent if its binding was influenced by a fallback.
+    # Excluding dependent variables lets us detect evaluations that are
+    # unnecessary per bullet 3: a fact variable fell back, but could have
+    # been bound without changing any non-dependent variable's value.
+    #
+    # Identify dependent variables. See docstring for the three conditions.
+    # qnBoundInCandidateEvals is the set of variable QNames that are bound
+    # (not fallen back) in at least one candidate prior evaluation — a single
+    # O(1) lookup replaces scanning matchingEvals per variable reference.
+    qnBoundInCandidateEvals = frozenset(
+        vQn for m in matchingEvals for vQn, val in m.items() if val is not None
+    )
     vQnDependent = set(
         vQn
         for vQn in nonNoneEvals
@@ -1083,29 +1087,22 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
             # condition 2: $B fell back
             varBindings[varRefQn].isFallback
             # condition 3: $B bound in candidates
-            and any(
-                m[varRefQn] is not None
-                for m in matchingEvals
-            )
+            and varRefQn in qnBoundInCandidateEvals
             # condition 1: $A references $B
             for varRefQn in varBindings[vQn].var.variableRefs()
             if varRefQn in varBindings
         )
     )
-    # The variables whose bindings reflect real fact matches and will be
-    # used for the duplicate comparison.
-    evalsNotDependent = [
-        (vQn, vBoundFact)
-        for vQn, vBoundFact in nonNoneEvals.items()
-        if vQn not in vQnDependent
-    ]
+    # Build the list of non-dependent variables for the bullet 3 comparison.
+    # If any has a novel binding (scenario 4c-i), exit early.
+    evalsNotDependent = []
+    for vQn, vBoundFact in nonNoneEvals.items():
+        if vQn not in vQnDependent:
+            if not (vQn in otherEvalHashDicts and hash(vBoundFact) in otherEvalHashDicts[vQn]):
+                return False
+            evalsNotDependent.append((vQn, vBoundFact))
 
-    # ── Scenario 5: a non-dependent variable has a novel binding ──
-    for vQn, vBoundFact in evalsNotDependent:
-        if vQn in otherEvalHashDicts and hash(vBoundFact) not in otherEvalHashDicts[vQn]:
-            return False
-
-    # ── Scenario 6: check equality against candidates ──
+    # ── Scenario 4c-ii / 4c-iii: check equality on non-dependent vars ──
     # Hash agreement narrows candidates; equality confirms (handles collisions).
     return any(
         all(
