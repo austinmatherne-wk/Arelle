@@ -972,15 +972,19 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
         a. The intersection is empty — no single prior evaluation matches
            all variables simultaneously.
            -> Not a duplicate (False).
-        b. The intersection is non-empty. Identify dependent variables
-           (see below), then compare only non-dependent variables against
-           the candidate prior evaluations.
+        b. The intersection is non-empty and no variables fell back.
+           Dependencies are impossible, so only identical evaluations
+           matter. Check equality against candidates.
+           -> Identical match found (True), otherwise (False).
+        c. The intersection is non-empty and some variables fell back.
+           Identify dependent variables (see below), then compare only
+           non-dependent variables against the candidate prior evaluations.
            i.   Any non-dependent variable has a binding never seen in any
                 prior evaluation.
                 -> Not a duplicate (False).
            ii.  A prior evaluation matches on all non-dependent variables
                 (confirmed by equality, not just hash).
-                -> Duplicate (True).
+                -> Unnecessary per bullet 3 (True).
            iii. No prior evaluation matches on all non-dependent variables.
                 -> Not a duplicate (False).
 
@@ -1050,7 +1054,19 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
     if not matchingEvals:
         return False
 
-    # ── Scenario 4: identify dependent variables ──
+    # ── Scenario 4b: no variables fell back ──
+    # Dependencies are impossible (no fallbacks to depend on), so bullet 3
+    # cannot apply. Only identical evaluations are duplicates.
+    # matchingEvals already agree on all variable hashes; equality confirms.
+    if len(nonNoneEvals) == len(thisEval):
+        return any(
+            all(
+                vBoundFact == matchingEval[vQn]
+                for vQn, vBoundFact in nonNoneEvals.items()
+            ) for matchingEval in matchingEvals
+        )
+
+    # ── Scenario 4c: identify dependent variables ──
     # A variable $A is dependent if it references another variable $B
     # where $B has fallen back in the current eval. $A's value is then
     # unreliable — it was computed using $B's fallback instead of a real
