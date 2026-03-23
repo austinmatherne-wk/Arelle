@@ -959,23 +959,30 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
         to fallback values, then the variable set is not deemed to have been
         evaluated" (Variables 1.0 section 4, bullet 2) (True).
 
-    3.  Hash-narrow prior evaluations to candidates. For each bound variable,
-        look up which prior evaluations share the same fact hash, then
-        intersect to find prior evaluations that agree on ALL variables by
-        hash. If no hashes were seen, all prior evaluations are candidates.
-
-    4.  Identify dependent variables and exclude them from comparison.
-
-    5.  Any non-dependent variable has a binding never seen in any prior
-        evaluation.
-        -> Not a duplicate (False).
-
-    6.  Check equality of non-dependent variables against candidates (handles
-        hash collisions).
-        a. A prior evaluation matches on all non-dependent variables.
+    3.  No variable's bound fact hash was seen in any prior evaluation.
+        The only way this can still be a duplicate is if every variable is
+        dependent (leaving nothing to compare).
+        a. Every variable is dependent.
            -> Duplicate (True).
-        b. No prior evaluation matches.
+        b. At least one variable is not dependent.
+           -> Not a duplicate — it has a novel binding (False).
+
+    4.  Some hashes were seen. Intersect the hash match sets to find prior
+        evaluations that agree on all variables by hash.
+        a. The intersection is empty — no single prior evaluation matches
+           all variables simultaneously.
            -> Not a duplicate (False).
+        b. The intersection is non-empty. Identify dependent variables
+           (see below), then compare only non-dependent variables against
+           the candidate prior evaluations.
+           i.   Any non-dependent variable has a binding never seen in any
+                prior evaluation.
+                -> Not a duplicate (False).
+           ii.  A prior evaluation matches on all non-dependent variables
+                (confirmed by equality, not just hash).
+                -> Duplicate (True).
+           iii. No prior evaluation matches on all non-dependent variables.
+                -> Not a duplicate (False).
 
     Dependent variable detection (used in scenario 4):
     A variable $A is dependent if ALL of the following are true:
@@ -1019,14 +1026,29 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
         if vQn in otherEvalHashDicts
         if hash(vBoundFact) in otherEvalHashDicts[vQn]
     ]
+    varBindings = xpCtx.varBindings
+
+    # If no hashes were seen (e.g. variables were always fallen back in prior
+    # evals, or the fact is novel), the only way this is still a duplicate is
+    # if every variable is dependent, leaving nothing to compare.
+    # Short-circuits on the first non-dependent variable.
+    if not otherEvalSets:
+        return all(
+            vQn in varBindings
+            and any(
+                varBindings[varRefQn].isFallback
+                and varRefQn in otherEvalHashDicts
+                for varRefQn in varBindings[vQn].var.variableRefs()
+                if varRefQn in varBindings
+            )
+            for vQn in nonNoneEvals
+        )
+
     # Intersect to find prior evaluations that agree on ALL bound variables
     # by hash. A candidate duplicate must match every variable, not just one.
-    # If no hashes were seen (e.g. variables were always fallen back in prior
-    # evals, or the fact is novel), fall back to all prior evals.
-    if otherEvalSets:
-        matchingEvals = [otherEvals[i] for i in set.intersection(*otherEvalSets)]
-    else:
-        matchingEvals = otherEvals
+    matchingEvals = [otherEvals[i] for i in set.intersection(*otherEvalSets)]
+    if not matchingEvals:
+        return False
 
     # ── Scenario 4: identify dependent variables ──
     # A variable $A is dependent if it references another variable $B
@@ -1037,7 +1059,6 @@ def evaluationIsUnnecessary(thisEval, xpCtx):
     # back) in at least one candidate prior eval. If $B fell back in
     # every prior eval too, then every eval computed $A the same way
     # (with $B's fallback), so $A's value is consistent and safe to compare.
-    varBindings = xpCtx.varBindings
     vQnDependent = set(
         vQn
         for vQn in nonNoneEvals
