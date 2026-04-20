@@ -11,6 +11,7 @@ from arelle.oim._tc.const import (
     TCME_DUPLICATE_KEY_NAME,
     TCME_ILLEGAL_KEY_FIELD,
     TCME_MISSING_KEY_PROPERTY,
+    TCME_UNKNOWN_KEY,
     TCME_UNKNOWN_SEVERITY,
 )
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
@@ -50,6 +51,7 @@ def validate_keys(
                 error.prepend_path(*keys_path)
                 yield error
     yield from _validate_cross_template_unique_keys(tc_metadata)
+    yield from _validate_referenced_key_names(tc_metadata)
 
 
 def _validate_template_keys(
@@ -104,6 +106,15 @@ def _validate_template_keys(
             code=TCME_DUPLICATE_KEY_NAME,
             related_paths=tuple((section, str(index), "name") for section, index in name_occ[1:]),
         )
+
+    if keys.sort_key is not None:
+        unique_key_names = {key.name for key in (keys.unique or ())}
+        if keys.sort_key not in unique_key_names:
+            yield TCMetadataValidationError(
+                _("Sort key '{}' does not refer to a unique key in this template").format(keys.sort_key),
+                "sortKey",
+                code=TCME_UNKNOWN_KEY,
+            )
 
 
 def _validate_key_fields(
@@ -196,3 +207,30 @@ def _validate_cross_template_unique_keys(tc_metadata: TCMetadata) -> Generator[T
                 for tid, key_i in (*non_shared_keys[1:], *shared_keys)
             ),
         )
+
+
+def _validate_referenced_key_names(tc_metadata: TCMetadata) -> Generator[TCMetadataValidationError, None, None]:
+    """Validates that referencedKeyName in each reference key names an existing unique key."""
+    all_unique_key_names = {
+        key.name
+        for tc in tc_metadata.template_constraints.values()
+        if tc.keys is not None and tc.keys.unique is not None
+        for key in tc.keys.unique
+    }
+    for template_id, tc in tc_metadata.template_constraints.items():
+        if tc.keys is None or tc.keys.reference is None:
+            continue
+        for ref_i, ref_key in enumerate(tc.keys.reference):
+            if ref_key.referenced_key_name not in all_unique_key_names:
+                yield TCMetadataValidationError(
+                    _("Referenced key '{}' does not exist as a unique key in any template").format(
+                        ref_key.referenced_key_name
+                    ),
+                    TABLE_TEMPLATES_KEY,
+                    template_id,
+                    TC_KEYS_PROPERTY_NAME,
+                    "reference",
+                    str(ref_i),
+                    "referencedKeyName",
+                    code=TCME_UNKNOWN_KEY,
+                )
