@@ -27,7 +27,6 @@ config = ConformanceSuiteConfig(
     expected_failure_ids=frozenset(f'table-constraints-conformance-{_VERSION}/{s}' for s in [
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-06',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-12',
-        '710-tc-metadata-processor/index-tc-metadata-table.xml:V-16a',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-17',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-17a',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-fractionDigits-invalid',
@@ -39,7 +38,6 @@ config = ConformanceSuiteConfig(
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-809f',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-809i',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-809j',
-        '710-tc-metadata-processor/index-tc-metadata-table.xml:V-879',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-887',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-887a',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-887b',
