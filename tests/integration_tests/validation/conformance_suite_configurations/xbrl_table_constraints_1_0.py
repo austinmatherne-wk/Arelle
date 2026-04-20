@@ -19,16 +19,16 @@ config = ConformanceSuiteConfig(
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-817c': {
             'arelle:notLoaded': 1,
         },
-        # Reference key includes incorporationDate (no tc:constraints), which also triggers illegalKeyField.
+        # Reference key includes incorporationDate (no tc:constraints, wrong field count) which also
+        # triggers illegalKeyField and inconsistentReferenceKeyFields.
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-13c': {
             'tcme:illegalKeyField': 1,
+            'tcme:inconsistentReferenceKeyFields': 1,
         },
     }.items()},
     expected_failure_ids=frozenset(f'table-constraints-conformance-{_VERSION}/{s}' for s in [
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-06',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-12',
-        '710-tc-metadata-processor/index-tc-metadata-table.xml:V-17',
-        '710-tc-metadata-processor/index-tc-metadata-table.xml:V-17a',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-fractionDigits-invalid',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-length-invalid',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-maxLength-invalid',
@@ -36,7 +36,6 @@ config = ConformanceSuiteConfig(
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-pattern-invalid',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-809e',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-809f',
-        '710-tc-metadata-processor/index-tc-metadata-table.xml:V-809i',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-809j',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-887',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-887a',

@@ -10,12 +10,13 @@ from arelle.oim._tc.const import (
     TC_KEYS_PROPERTY_NAME,
     TCME_DUPLICATE_KEY_NAME,
     TCME_ILLEGAL_KEY_FIELD,
+    TCME_INCONSISTENT_REFERENCE_KEY_FIELDS,
     TCME_MISSING_KEY_PROPERTY,
     TCME_UNKNOWN_KEY,
     TCME_UNKNOWN_SEVERITY,
 )
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
-from arelle.oim._tc.metadata.model import TCKeys, TCMetadata, TCTemplateConstraints
+from arelle.oim._tc.metadata.model import TCKeys, TCMetadata, TCTemplateConstraints, TCUniqueKey
 from arelle.oim._tc.metadata.types import (
     OPTIONALLY_TIME_ZONED_TYPES,
     PERIOD_CONSTRAINT_TYPE,
@@ -52,6 +53,7 @@ def validate_keys(
                 yield error
     yield from _validate_cross_template_unique_keys(tc_metadata)
     yield from _validate_referenced_key_names(tc_metadata)
+    yield from _validate_reference_key_field_consistency(tc_metadata)
 
 
 def _validate_template_keys(
@@ -234,3 +236,63 @@ def _validate_referenced_key_names(tc_metadata: TCMetadata) -> Generator[TCMetad
                     "referencedKeyName",
                     code=TCME_UNKNOWN_KEY,
                 )
+
+
+def _validate_reference_key_field_consistency(
+    tc_metadata: TCMetadata,
+) -> Generator[TCMetadataValidationError, None, None]:
+    """Validates that reference key fields are consistent with the referenced unique key's fields."""
+    unique_key_registry: dict[str, tuple[str, int, TCUniqueKey]] = {}
+    for template_id, tc in tc_metadata.template_constraints.items():
+        if tc.keys is not None and tc.keys.unique is not None:
+            for key_i, key in enumerate(tc.keys.unique):
+                unique_key_registry.setdefault(key.name, (template_id, key_i, key))
+
+    for template_id, tc in tc_metadata.template_constraints.items():
+        if tc.keys is None or tc.keys.reference is None:
+            continue
+        for ref_i, ref_key in enumerate(tc.keys.reference):
+            if ref_key.referenced_key_name not in unique_key_registry:
+                continue
+            unique_template_id, unique_key_i, unique_key = unique_key_registry[ref_key.referenced_key_name]
+            unique_tc = tc_metadata.template_constraints[unique_template_id]
+            ref_path = (TABLE_TEMPLATES_KEY, template_id, TC_KEYS_PROPERTY_NAME, "reference", str(ref_i))
+            unique_path = (TABLE_TEMPLATES_KEY, unique_template_id, TC_KEYS_PROPERTY_NAME, "unique", str(unique_key_i))
+
+            if len(ref_key.fields) != len(unique_key.fields):
+                yield TCMetadataValidationError(
+                    _("Reference key '{}' has {} fields but referenced key '{}' has {} fields").format(
+                        ref_key.name,
+                        len(ref_key.fields),
+                        ref_key.referenced_key_name,
+                        len(unique_key.fields),
+                    ),
+                    *ref_path,
+                    "fields",
+                    code=TCME_INCONSISTENT_REFERENCE_KEY_FIELDS,
+                    related_paths=((*unique_path, "fields"),),
+                )
+                continue
+
+            zipped_fields = zip(ref_key.fields, unique_key.fields, strict=True)
+            for field_j, (ref_field, uniq_field) in enumerate(zipped_fields):
+                ref_constraint = tc.constraints.get(ref_field) or tc.parameters.get(ref_field)
+                uniq_constraint = unique_tc.constraints.get(uniq_field) or unique_tc.parameters.get(uniq_field)
+                if ref_constraint is None or uniq_constraint is None:
+                    continue
+                if (
+                    ref_constraint.type != uniq_constraint.type
+                    or ref_constraint.time_zone != uniq_constraint.time_zone
+                    or ref_constraint.duration_type != uniq_constraint.duration_type
+                ):
+                    yield TCMetadataValidationError(
+                        _("Reference key '{}' has fields inconsistent with referenced key '{}'").format(
+                            ref_key.name, ref_key.referenced_key_name
+                        ),
+                        *ref_path,
+                        "fields",
+                        str(field_j),
+                        code=TCME_INCONSISTENT_REFERENCE_KEY_FIELDS,
+                        related_paths=((*unique_path, "fields", str(field_j)),),
+                    )
+                    break
