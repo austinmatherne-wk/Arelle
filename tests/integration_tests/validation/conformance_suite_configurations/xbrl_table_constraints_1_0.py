@@ -23,6 +23,11 @@ config = ConformanceSuiteConfig(
             'tcme:illegalKeyField': 1,
             'tcme:inconsistentReferenceKeyFields': 1,
         },
+        # paramThree (xs:duration without durationType) also triggers illegalUniqueKeyOrder because it follows
+        # constrained column fields keyOne and keyTwo in the unique key fields list.
+        '720-tc-report-processor/index-tc-report-table.xml:V-61': {
+            'tcme:illegalUniqueKeyOrder': 1,
+        },
     }.items()},
     expected_failure_ids=frozenset(f'table-constraints-conformance-2026-03-18/{s}' for s in [
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-06',
@@ -41,7 +46,6 @@ config = ConformanceSuiteConfig(
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-778g',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-778h',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-778i',
-        '710-tc-metadata-processor/index-tc-metadata-table.xml:V-887',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-m28',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-m28a',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-m29',
