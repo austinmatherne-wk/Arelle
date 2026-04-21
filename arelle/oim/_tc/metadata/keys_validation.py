@@ -11,6 +11,7 @@ from arelle.oim._tc.const import (
     TCME_DUPLICATE_KEY_NAME,
     TCME_ILLEGAL_KEY_FIELD,
     TCME_MISSING_KEY_PROPERTY,
+    TCME_UNKNOWN_SEVERITY,
 )
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
 from arelle.oim._tc.metadata.model import TCKeys, TCMetadata, TCTemplateConstraints
@@ -25,6 +26,13 @@ from arelle.typing import TypeGetText
 from arelle.XbrlConst import qnXsdDuration
 
 _: TypeGetText
+
+_VALID_SEVERITIES = frozenset(
+    {
+        "error",
+        "warning",
+    }
+)
 
 
 def validate_keys(
@@ -61,11 +69,27 @@ def _validate_template_keys(
     if keys.unique is not None:
         for key_i, key in enumerate(keys.unique):
             name_occurrences.setdefault(key.name, []).append(("unique", key_i))
+            if key.severity not in _VALID_SEVERITIES:
+                yield TCMetadataValidationError(
+                    _("Unknown severity '{}' for unique key '{}'").format(key.severity, key.name),
+                    "unique",
+                    str(key_i),
+                    "severity",
+                    code=TCME_UNKNOWN_SEVERITY,
+                )
             yield from _validate_key_fields(key.fields, tc, namespaces, "unique", key_i)
 
     if keys.reference is not None:
         for ref_i, ref_key in enumerate(keys.reference):
             name_occurrences.setdefault(ref_key.name, []).append(("reference", ref_i))
+            if ref_key.severity not in _VALID_SEVERITIES:
+                yield TCMetadataValidationError(
+                    _("Unknown severity '{}' for reference key '{}'").format(ref_key.severity, ref_key.name),
+                    "reference",
+                    str(ref_i),
+                    "severity",
+                    code=TCME_UNKNOWN_SEVERITY,
+                )
             yield from _validate_key_fields(ref_key.fields, tc, namespaces, "reference", ref_i)
 
     for name, name_occ in name_occurrences.items():
