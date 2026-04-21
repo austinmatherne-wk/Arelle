@@ -10,6 +10,7 @@ from arelle.oim._tc.const import (
     TC_KEYS_PROPERTY_NAME,
     TCME_DUPLICATE_KEY_NAME,
     TCME_ILLEGAL_KEY_FIELD,
+    TCME_ILLEGAL_UNIQUE_KEY_ORDER,
     TCME_INCONSISTENT_REFERENCE_KEY_FIELDS,
     TCME_INCONSISTENT_SHARED_KEY_FIELDS,
     TCME_INCONSISTENT_SHARED_KEY_SEVERITY,
@@ -85,6 +86,7 @@ def _validate_template_keys(
                     code=TCME_UNKNOWN_SEVERITY,
                 )
             yield from _validate_key_fields(key.fields, tc, namespaces, "unique", key_i)
+            yield from _validate_unique_key_order(key.fields, tc, key_i)
 
     if keys.reference is not None:
         for ref_i, ref_key in enumerate(keys.reference):
@@ -174,6 +176,31 @@ def _validate_key_fields(
                 str(field_j),
                 code=TCME_ILLEGAL_KEY_FIELD,
             )
+
+
+def _validate_unique_key_order(
+    fields: tuple[str, ...],
+    tc: TCTemplateConstraints,
+    key_i: int,
+) -> Generator[TCMetadataValidationError, None, None]:
+    """Validates that parameter fields come before constrained column fields in a unique key."""
+    seen_column_field = False
+    out_of_order: list[tuple[str, ...]] = []
+    for field_j, field in enumerate(fields):
+        is_parameter = field in tc.parameters
+        is_column = field in tc.constraints
+        if is_column:
+            seen_column_field = True
+        elif is_parameter and seen_column_field:
+            out_of_order.append(("unique", str(key_i), "fields", str(field_j)))
+    if out_of_order:
+        first, *rest = out_of_order
+        yield TCMetadataValidationError(
+            _("Parameter fields must come before constrained column fields in unique key"),
+            *first,
+            code=TCME_ILLEGAL_UNIQUE_KEY_ORDER,
+            related_paths=tuple(rest),
+        )
 
 
 def _validate_cross_template_unique_keys(tc_metadata: TCMetadata) -> Generator[TCMetadataValidationError, None, None]:
