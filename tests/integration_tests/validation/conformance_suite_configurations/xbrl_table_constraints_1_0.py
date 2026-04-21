@@ -35,7 +35,6 @@ config = ConformanceSuiteConfig(
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-16a',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-17',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-17a',
-        '710-tc-metadata-processor/index-tc-metadata-table.xml:V-20',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-fractionDigits-invalid',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-length-invalid',
         '710-tc-metadata-processor/index-tc-metadata-table.xml:V-577-enumerationValues-vs-maxLength-invalid',
