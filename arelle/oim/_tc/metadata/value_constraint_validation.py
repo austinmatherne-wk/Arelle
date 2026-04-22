@@ -8,10 +8,11 @@ from collections.abc import Generator, Iterable, Mapping
 
 import regex
 
+from arelle.ModelValue import QName
 from arelle.oim._tc.const import TCME_ILLEGAL_CONSTRAINT, TCME_UNKNOWN_TYPE
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
 from arelle.oim._tc.metadata.model import TCValueConstraint
-from arelle.oim._tc.metadata.types import resolve_effective_lexical_type
+from arelle.oim._tc.metadata.types import TCFacet, applicable_facets, resolve_effective_lexical_type
 from arelle.typing import TypeGetText
 from arelle.XmlValidate import XsdPattern
 
@@ -45,6 +46,7 @@ def validate_value_constraint(
         )
         return
     yield from _validate_patterns(constraint)
+    yield from _validate_length_facets(constraint, effective_lexical_type)
 
 
 def _validate_patterns(constraint: TCValueConstraint) -> Generator[TCMetadataValidationError, None, None]:
@@ -64,3 +66,44 @@ def _is_valid_xsd_pattern(pattern: str) -> bool:
     except regex.error:
         return False
     return True
+
+
+def _validate_length_facets(
+    constraint: TCValueConstraint,
+    effective_lexical_type: QName,
+) -> Generator[TCMetadataValidationError, None, None]:
+    if TCFacet.LENGTH not in applicable_facets(effective_lexical_type):
+        for facet_name, facet_value in (
+            ("length", constraint.length),
+            ("minLength", constraint.min_length),
+            ("maxLength", constraint.max_length),
+        ):
+            if facet_value is not None:
+                yield TCMetadataIllegalConstraintError(
+                    _("{} is not applicable to type '{}'").format(facet_name, constraint.type),
+                    facet_name,
+                    related_paths=(("type",),),
+                )
+        return
+
+    length = constraint.length
+    min_length = constraint.min_length
+    max_length = constraint.max_length
+    if min_length is not None and length is not None and min_length > length:
+        yield TCMetadataIllegalConstraintError(
+            _("minLength ({}) must be less than or equal to length ({})").format(min_length, length),
+            "minLength",
+            related_paths=(("length",),),
+        )
+    if length is not None and max_length is not None and length > max_length:
+        yield TCMetadataIllegalConstraintError(
+            _("length ({}) must be less than or equal to maxLength ({})").format(length, max_length),
+            "length",
+            related_paths=(("maxLength",),),
+        )
+    if min_length is not None and max_length is not None and min_length > max_length:
+        yield TCMetadataIllegalConstraintError(
+            _("minLength ({}) must be less than or equal to maxLength ({})").format(min_length, max_length),
+            "minLength",
+            related_paths=(("maxLength",),),
+        )
