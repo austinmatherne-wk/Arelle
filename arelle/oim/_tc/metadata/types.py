@@ -157,6 +157,29 @@ _CORE_EFFECTIVE_LEXICAL_TYPES: Mapping[str, QName] = MappingProxyType(
 )
 
 
+OPTIONALLY_TIME_ZONED_TYPES = frozenset(
+    {
+        _DATE,
+        _DATE_TIME,
+        _G_DAY,
+        _G_MONTH_DAY,
+        _G_YEAR_MONTH,
+        _TIME,
+    }
+)
+
+PROHIBITED_KEY_TYPES = frozenset(
+    {
+        _DOUBLE,
+        _FLOAT,
+        _HEX_BINARY,
+        _BASE64_BINARY,
+    }
+)
+
+PERIOD_CONSTRAINT_TYPE = "period"
+
+
 def resolve_effective_lexical_type(constraint_type: str, namespaces: Mapping[str, str]) -> QName | None:
     if core_effective_type := _CORE_EFFECTIVE_LEXICAL_TYPES.get(constraint_type):
         return core_effective_type

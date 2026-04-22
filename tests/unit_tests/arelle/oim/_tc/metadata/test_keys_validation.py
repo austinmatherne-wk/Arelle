@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import dataclasses
 
+import pytest
+
 from arelle import XbrlConst
 from arelle.oim._tc.const import (
     TCME_DUPLICATE_KEY_NAME,
+    TCME_ILLEGAL_KEY_FIELD,
     TCME_MISSING_KEY_PROPERTY,
 )
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
@@ -127,6 +130,100 @@ class TestDuplicateKeyName:
 
     def test_no_error_distinct_names(self) -> None:
         assert _errors(TCKeys(unique=(_UNIQUE_KEY,), reference=(_REFERENCE_KEY,))) == []
+
+
+class TestIllegalKeyField:
+    @pytest.mark.parametrize("prohibited_type", ["xs:double", "xs:float", "xs:hexBinary", "xs:base64Binary"])
+    def test_prohibited_type_in_unique_key_column(self, prohibited_type: str) -> None:
+        tc = TCTemplateConstraints(constraints={"c": TCValueConstraint(type=prohibited_type)})
+        keys = TCKeys(unique=(TCUniqueKey(name="k", fields=("c",)),))
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+        assert errors[0].json_pointers == [f"/tableTemplates/{_T}/tc:keys/unique/0/fields/0"]
+
+    @pytest.mark.parametrize("prohibited_type", ["xs:double", "xs:float", "xs:hexBinary", "xs:base64Binary"])
+    def test_prohibited_type_in_unique_key_parameter(self, prohibited_type: str) -> None:
+        tc = TCTemplateConstraints(parameters={"p": TCValueConstraint(type=prohibited_type)})
+        keys = TCKeys(unique=(TCUniqueKey(name="k", fields=("p",)),))
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+        assert errors[0].json_pointers == [f"/tableTemplates/{_T}/tc:keys/unique/0/fields/0"]
+
+    @pytest.mark.parametrize("prohibited_type", ["xs:double", "xs:float", "xs:hexBinary", "xs:base64Binary"])
+    def test_prohibited_type_in_reference_key(self, prohibited_type: str) -> None:
+        tc = TCTemplateConstraints(
+            constraints={"safe": TCValueConstraint(type="xs:string"), "c": TCValueConstraint(type=prohibited_type)}
+        )
+        keys = TCKeys(
+            unique=(TCUniqueKey(name="k", fields=("safe",)),),
+            reference=(TCReferenceKey(name="r", fields=("c",), referenced_key_name="k"),),
+        )
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+        assert errors[0].json_pointers == [f"/tableTemplates/{_T}/tc:keys/reference/0/fields/0"]
+
+    def test_allowed_type(self) -> None:
+        tc = TCTemplateConstraints(constraints={"c": TCValueConstraint(type="xs:string")})
+        keys = TCKeys(unique=(TCUniqueKey(name="k", fields=("c",)),))
+        assert _errors(keys, tc) == []
+
+    def test_field_not_in_constraints_or_parameters_unique_key(self) -> None:
+        tc = TCTemplateConstraints()
+        keys = TCKeys(unique=(TCUniqueKey(name="k", fields=("unknown",)),))
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+        assert errors[0].json_pointers == [f"/tableTemplates/{_T}/tc:keys/unique/0/fields/0"]
+
+    def test_field_not_in_constraints_or_parameters_reference_key(self) -> None:
+        tc = TCTemplateConstraints(constraints={"c": TCValueConstraint(type="xs:string")})
+        keys = TCKeys(
+            unique=(TCUniqueKey(name="k", fields=("c",)),),
+            reference=(TCReferenceKey(name="r", fields=("unknown",), referenced_key_name="k"),),
+        )
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+        assert errors[0].json_pointers == [f"/tableTemplates/{_T}/tc:keys/reference/0/fields/0"]
+
+    def test_field_name_with_trailing_space_not_matched(self) -> None:
+        tc = TCTemplateConstraints(constraints={"c": TCValueConstraint(type="xs:string")})
+        keys = TCKeys(unique=(TCUniqueKey(name="k", fields=("c ",)),))
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+
+    def test_duration_field_without_duration_type_unique_key(self) -> None:
+        tc = TCTemplateConstraints(constraints={"c": TCValueConstraint(type="xs:duration")})
+        keys = TCKeys(unique=(TCUniqueKey(name="k", fields=("c",)),))
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+        assert errors[0].json_pointers == [f"/tableTemplates/{_T}/tc:keys/unique/0/fields/0"]
+
+    def test_duration_field_with_duration_type_is_valid(self) -> None:
+        tc = TCTemplateConstraints(constraints={"c": TCValueConstraint(type="xs:duration", duration_type="yearMonth")})
+        keys = TCKeys(unique=(TCUniqueKey(name="k", fields=("c",)),))
+        assert _errors(keys, tc) == []
+
+    def test_duration_field_without_duration_type_reference_key(self) -> None:
+        tc = TCTemplateConstraints(
+            constraints={
+                "safe": TCValueConstraint(type="xs:string"),
+                "dur": TCValueConstraint(type="xs:duration"),
+            }
+        )
+        keys = TCKeys(
+            unique=(TCUniqueKey(name="k", fields=("safe",)),),
+            reference=(TCReferenceKey(name="r", fields=("dur",), referenced_key_name="k"),),
+        )
+        errors = _errors(keys, tc)
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_KEY_FIELD
+        assert errors[0].json_pointers == [f"/tableTemplates/{_T}/tc:keys/reference/0/fields/0"]
 
 
 class TestCrossTemplateDuplicateKeyName:
