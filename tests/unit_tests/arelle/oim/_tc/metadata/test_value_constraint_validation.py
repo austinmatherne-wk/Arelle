@@ -51,19 +51,18 @@ class TestValidateValueConstraint:
         errors = _errors(TCValueConstraint(type="xs:string", total_digits=5))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/totalDigits"]
 
     def test_multiple_disallowed_restrictions(self) -> None:
         errors = _errors(TCValueConstraint(type="xs:string", total_digits=5, fraction_digits=2))
         assert len(errors) == 1
-        pointers = errors[0].json_pointers
-        assert "/type" in pointers
-        assert "/fractionDigits" in pointers
-        assert "/totalDigits" in pointers
+        assert errors[0].json_pointers == ["/type", "/fractionDigits", "/totalDigits"]
 
     def test_boolean_disallows_length(self) -> None:
         errors = _errors(TCValueConstraint(type="xs:boolean", length=1))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/length"]
 
     def test_boolean_permits_patterns(self) -> None:
         assert _errors(TCValueConstraint(type="xs:boolean", patterns=frozenset({"true|false"}))) == []
@@ -71,9 +70,7 @@ class TestValidateValueConstraint:
     def test_date_disallows_length_and_digits(self) -> None:
         errors = _errors(TCValueConstraint(type="xs:date", length=10, total_digits=5))
         assert len(errors) == 1
-        pointers = errors[0].json_pointers
-        assert "/length" in pointers
-        assert "/totalDigits" in pointers
+        assert errors[0].json_pointers == ["/type", "/length", "/totalDigits"]
 
     def test_date_permits_bounds(self) -> None:
         assert _errors(TCValueConstraint(type="xs:date", min_inclusive="2020-01-01")) == []
@@ -82,6 +79,7 @@ class TestValidateValueConstraint:
         errors = _errors(TCValueConstraint(type="xs:anySimpleType", length=1))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/length"]
 
     def test_time_zone_permitted_on_period(self) -> None:
         assert _errors(TCValueConstraint(type="period", time_zone=True)) == []
@@ -93,6 +91,7 @@ class TestValidateValueConstraint:
         errors = _errors(TCValueConstraint(type="xs:string", time_zone=True))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/timeZone"]
 
     def test_period_type_permitted_on_period(self) -> None:
         assert _errors(TCValueConstraint(type="period", period_type="instant")) == []
@@ -101,6 +100,7 @@ class TestValidateValueConstraint:
         errors = _errors(TCValueConstraint(type="xs:string", period_type="instant"))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/periodType"]
 
     def test_duration_type_permitted_on_duration(self) -> None:
         assert _errors(TCValueConstraint(type="xs:duration", duration_type="P1Y")) == []
@@ -109,11 +109,13 @@ class TestValidateValueConstraint:
         errors = _errors(TCValueConstraint(type="xs:string", duration_type="P1Y"))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/durationType"]
 
     def test_duration_type_disallowed_on_period(self) -> None:
         errors = _errors(TCValueConstraint(type="period", duration_type="P1Y"))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/durationType"]
 
     def test_patterns_single_valid_no_error(self) -> None:
         assert _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"[a-z]+"}))) == []
@@ -131,6 +133,7 @@ class TestValidateValueConstraint:
         errors = _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"[a-z]+", "(", r"\d+"})))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/patterns"]
         assert "(" in str(errors[0])
         assert "[a-z]+" not in str(errors[0])
 
@@ -139,3 +142,33 @@ class TestValidateValueConstraint:
 
     def test_patterns_unicode_category_no_error(self) -> None:
         assert _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"\p{L}+"}))) == []
+
+    def test_length_with_min_length_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", length=5, min_length=5))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/length", "/minLength"]
+
+    def test_length_with_max_length_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", length=5, max_length=5))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/length", "/maxLength"]
+
+    def test_length_with_both_min_and_max_length_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", length=5, min_length=3, max_length=10))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/length", "/minLength", "/maxLength"]
+
+    def test_min_length_greater_than_max_length_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", min_length=10, max_length=5))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/minLength", "/maxLength"]
+
+    def test_min_and_max_length_without_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", min_length=2, max_length=10)) == []
+
+    def test_min_length_equal_max_length_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", min_length=5, max_length=5)) == []

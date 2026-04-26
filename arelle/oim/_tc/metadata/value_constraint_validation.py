@@ -49,6 +49,7 @@ def validate_value_constraint(
         return
     yield from _validate_restrictions_applicability(constraint, effective_lexical_type)
     yield from _validate_patterns_restriction(constraint)
+    yield from _validate_length_restrictions(constraint)
 
 
 def _validate_restrictions_applicability(
@@ -86,3 +87,27 @@ def _is_valid_pattern(pattern: str) -> bool:
     except regex.error:
         return False
     return True
+
+
+def _validate_length_restrictions(constraint: TCValueConstraint) -> Generator[TCMetadataValidationError, None, None]:
+    if constraint.length is not None:
+        conflictingProperties = []
+        if constraint.min_length is not None:
+            conflictingProperties.append(TCRestriction.MIN_LENGTH)
+        if constraint.max_length is not None:
+            conflictingProperties.append(TCRestriction.MAX_LENGTH)
+        if conflictingProperties:
+            yield TCMetadataIllegalConstraintError(
+                _("length must not be specified together with {}").format(" or ".join(conflictingProperties)),
+                TCRestriction.LENGTH,
+                *conflictingProperties,
+            )
+
+    min_length = constraint.min_length
+    max_length = constraint.max_length
+    if min_length is not None and max_length is not None and min_length > max_length:
+        yield TCMetadataIllegalConstraintError(
+            _("minLength ({}) must be less than or equal to maxLength ({})").format(min_length, max_length),
+            TCRestriction.MIN_LENGTH,
+            TCRestriction.MAX_LENGTH,
+        )
