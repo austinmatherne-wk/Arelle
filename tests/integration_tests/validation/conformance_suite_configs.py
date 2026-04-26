@@ -49,6 +49,7 @@ from tests.integration_tests.validation.conformance_suite_configurations.xbrl_li
 from tests.integration_tests.validation.conformance_suite_configurations.xbrl_oim_1_0 import config as xbrl_oim_1_0
 from tests.integration_tests.validation.conformance_suite_configurations.xbrl_report_packages_1_0 import config as xbrl_report_packages_1_0
 from tests.integration_tests.validation.conformance_suite_configurations.xbrl_table_constraints_1_0 import config as xbrl_table_constraints_1_0
+from tests.integration_tests.validation.conformance_suite_configurations.xbrl_table_constraints_1_1 import config as xbrl_table_constraints_1_1
 from tests.integration_tests.validation.conformance_suite_configurations.xbrl_table_linkbase_1_0 import config as xbrl_table_linkbase_1_0
 from tests.integration_tests.validation.conformance_suite_configurations.xbrl_taxonomy_packages_1_0 import config as xbrl_taxonomy_packages_1_0
 from tests.integration_tests.validation.conformance_suite_configurations.xbrl_utr_registry_1_0 import config as xbrl_utr_registry_1_0
@@ -104,6 +105,7 @@ ALL_CONFORMANCE_SUITE_CONFIGS: tuple[ConformanceSuiteConfig, ...] = (
     xbrl_oim_1_0,
     xbrl_report_packages_1_0,
     xbrl_table_constraints_1_0,
+    xbrl_table_constraints_1_1,
     xbrl_table_linkbase_1_0,
     xbrl_taxonomy_packages_1_0,
     xbrl_utr_registry_1_0,
