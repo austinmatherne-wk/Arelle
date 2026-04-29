@@ -28,6 +28,7 @@ from arelle.utils.PluginHooks import ValidationHook
 from arelle.utils.validate.Characters import findProhibitedCharacters
 from arelle.utils.validate.Decorator import validation
 from arelle.utils.validate.Document import checkDocumentEncoding
+from arelle.utils.validate.Facts import isValidNonNilFact
 from arelle.utils.validate.Validation import Validation
 from arelle.utils.validate.Common import isExtensionUri
 from arelle.utils.validate.ValidationUtil import hasPresentationalConceptsWithFacts
@@ -1681,6 +1682,60 @@ def rule_EC8050W(
         codes='EDINET.EC8050W',
         msg=_("Segment information is not tagged in detail. "
               "Please provide detailed tagging of segment information."),
+    )
+
+
+@validation(
+    hook=ValidationHook.COMPLETE,
+    disclosureSystems=[DISCLOSURE_SYSTEM_EDINET],
+)
+def rule_EC8055W(
+        pluginData: ControllerPluginData,
+        cntlr: Cntlr,
+        fileSource: FileSource,
+        *args: Any,
+        **kwargs: Any,
+) -> Iterable[Validation]:
+    """
+    EDINET.EC8055W: The value of "WhetherConsolidatedFinancialStatementsArePreparedDEI"
+    in the DEI information and the tagging at the beginning of the accounting status section must be consistent.
+    """
+    deiLocalName = "WhetherConsolidatedFinancialStatementsArePreparedDEI"
+    consolidated = pluginData.getDeiValue(deiLocalName)
+    requiredFactLocalName = 'RegulationsInAccordanceWithWhichFinancialStatementsHaveBeenPreparedFinancialInformation'
+    if consolidated == True:
+        requiredFactLocalName = 'RegulationsInAccordanceWithWhichConsolidatedFinancialStatementsHaveBeenPreparedFinancialInformation'
+
+    for modelXbrl in pluginData.loadedModelXbrls:
+        for fact in modelXbrl.factsByLocalName.get(requiredFactLocalName, set()):
+            if isValidNonNilFact(fact):
+                # Expected fact (based on DEI value) is present.
+                return
+
+    roleUris = tuple(
+        f"http://disclosure.edinet-fsa.go.jp/role/jpcrp/{name}"
+        for name in (
+            "rol_CabinetOfficeOrdinanceOnDisclosureOfCorporateInformationEtcFormNo32AnnualSecuritiesReport",
+            "rol_CabinetOfficeOrdinanceOnDisclosureOfCorporateInformationEtcFormNo3AnnualSecuritiesReport",
+            "rol_CabinetOfficeOrdinanceOnDisclosureOfCorporateInformationEtcFormNo4AnnualSecuritiesReport",
+            "rol_CabinetOfficeOrdinanceOnDisclosureOfCorporateInformationEtcFormNo8AnnualSecuritiesReport",
+            "rol_CabinetOfficeOrdinanceOnDisclosureOfCorporateInformationEtcFormNo9AnnualSecuritiesReport",
+        )
+    )
+    if not any(
+            hasPresentationalConceptsWithFacts(modelXbrl, roleUris)
+            for modelXbrl in pluginData.loadedModelXbrls
+    ):
+        # No fact with concept in relevant presention roles, rule is not applicable.
+        return
+
+    yield Validation.warning(
+        codes='EDINET.EC8055W',
+        msg=_('There is an inconsistency between the DEI "%(deiLocalName)s" information and the '
+              'tagging at the beginning of the accounting status. Please confirm that the '
+              'value of "Consolidated Financial Statements" in the DEI information and the '
+              'tagging at the beginning of the accounting status are correct.'),
+        deiLocalName=deiLocalName,
     )
 
 
