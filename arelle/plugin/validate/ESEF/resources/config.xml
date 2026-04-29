@@ -6,7 +6,7 @@
 
     <DisclosureSystem
         names="Draft ESMA RTS on ESEF-2025|ESEF-2025-DRAFT|esef-2025-draft|ESEF-2025|esef-2025|ESEF|esef"
-        description="ESMA RTS on ESEF-2025 Validation Checks for Consolidated Financial Statements (DRAFT)"
+        description="ESMA RTS on ESEF-2025 Validation Checks for Consolidated Financial Statements"
         validationType="ESEF"
         exclusiveTypesPattern="EFM|GFM|FERC|HMRC|SBR.NL|EBA|EIOPA|ESEF"
         blockDisallowedReferences="false"
@@ -16,7 +16,7 @@
 
     <DisclosureSystem
         names="Draft ESMA RTS on ESEF-2025 Unconsolidated|ESEF-Unconsolidated-2025-DRAFT|esef-unconsolidated-2025-draft|ESEF-Unconsolidated-2025|esef-unconsolidated-2025|ESEF-Unconsolidated|esef-unconsolidated"
-        description="ESMA RTS on ESEF-2025 Validation Checks for Unconsolidated Financial Statements (DRAFT)"
+        description="ESMA RTS on ESEF-2025 Validation Checks for Unconsolidated Financial Statements"
         validationType="ESEF"
         exclusiveTypesPattern="EFM|GFM|FERC|HMRC|SBR.NL|EBA|EIOPA|ESEF"
         blockDisallowedReferences="false"
