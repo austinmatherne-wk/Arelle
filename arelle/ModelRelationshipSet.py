@@ -179,7 +179,7 @@ class ModelRelationshipSet:
                     modelLinks.extend(self.modelXbrl.baseSets.get((ar, lr, linkqname, arcqname), []))
 
         # gather arcs
-        relationships: dict[Any, ModelRelationship | str] = {}
+        relationships: dict[int, ModelRelationship | str] = {}
         modelRel: ModelRelationship | str
         isDimensionRel =  self.arcrole == "XBRL-dimensions" # all dimensional relationship arcroles
         isFormulaRel =  self.arcrole == "XBRL-formulae" # all formula relationship arcroles
