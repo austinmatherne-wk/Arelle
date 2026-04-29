@@ -1569,7 +1569,7 @@ def fact_footnotes(xc: XPathContext.XPathContext, p: OperationDef, args: XPathCo
     assert inst is not None
     relationshipSet = inst.relationshipSet(arcroleURI, linkroleURI)
     if relationshipSet:  # must return empty sequence, not None if no footnotes match filters
-        return relationshipSet.label(itemObj, footnoteroleURI, lang, returnMultiple=True) or ()  # type: ignore[arg-type]
+        return relationshipSet.label(itemObj, footnoteroleURI, lang, returnMultiple=True) or ()
     return ()
 
 

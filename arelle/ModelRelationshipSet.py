@@ -14,7 +14,7 @@ from arelle.ModelValue import QName
 from types import MappingProxyType
 
 from arelle import Locale, ModelValue, XbrlConst
-from arelle.ModelDtsObject import ModelRelationship, ModelLink, ModelConcept
+from arelle.ModelDtsObject import ModelRelationship, ModelLink
 from arelle.ModelObject import ModelObject
 from arelle.PrototypeDtsObject import PrototypeObject, LinkPrototype
 from arelle.PythonUtil import OrderedSet
@@ -228,7 +228,7 @@ class ModelRelationshipSet:
         #reduce effective arcs and order relationships...
         self.modelRelationshipsFrom = None
         self.modelRelationshipsTo = None
-        self.modelConceptRoots: list[ModelConcept] | None = None
+        self.modelConceptRoots: list[ModelObject] | None = None
         self.modellinkRoleUris = None
         orderRels: dict[float, list[ModelRelationship]] = defaultdict(list)
         for modelRel in relationships.values():
@@ -256,7 +256,7 @@ class ModelRelationshipSet:
     def __bool__(self) -> bool:  # some modelRelationships exist
         return len(self.modelRelationships) > 0
 
-    def contains(self, modelObject: ModelConcept) -> bool:
+    def contains(self, modelObject: ModelObject) -> bool:
         return bool(self.fromModelObject(modelObject) or self.toModelObject(modelObject))
 
     @property
@@ -267,7 +267,7 @@ class ModelRelationshipSet:
             self.modellinkRoleUris = OrderedSet([lr[0] for lr in sorted(linkroleObjSeqs, key=lambda l: l[1])])  # type: ignore[assignment]
         return self.modellinkRoleUris  # type: ignore[return-value]
 
-    def loadModelRelationshipsFrom(self) -> dict[ModelConcept, list[ModelRelationship]]:
+    def loadModelRelationshipsFrom(self) -> dict[ModelObject, list[ModelRelationship]]:
         modelRelationshipsFrom = self.modelRelationshipsFrom
         if modelRelationshipsFrom is None:
             modelRelationshipsFrom = defaultdict(list)
@@ -278,7 +278,7 @@ class ModelRelationshipSet:
             self.modelRelationshipsFrom = modelRelationshipsFrom
         return modelRelationshipsFrom
 
-    def loadModelRelationshipsTo(self) -> dict[ModelConcept, list[ModelRelationship]]:
+    def loadModelRelationshipsTo(self) -> dict[ModelObject, list[ModelRelationship]]:
         modelRelationshipsTo = self.modelRelationshipsTo
         if modelRelationshipsTo is None:
             modelRelationshipsTo = defaultdict(list)
@@ -295,7 +295,7 @@ class ModelRelationshipSet:
     def fromModelObject(self, modelFrom: ModelObject) -> list[ModelRelationship]:
         if getattr(self.modelXbrl, "isSupplementalIxdsTarget", False) and modelFrom is not None and modelFrom.modelXbrl != self.modelXbrl:
             modelFrom = self.modelXbrl.qnameConcepts.get(modelFrom.qname, None)  # type: ignore[union-attr,assignment]
-        return self.loadModelRelationshipsFrom().get(modelFrom, [])  # type: ignore[no-any-return,call-overload]
+        return self.loadModelRelationshipsFrom().get(modelFrom, [])
 
     def toModelObjects(self) -> dict[Any, list[ModelRelationship]]:
         return self.loadModelRelationshipsTo()
@@ -303,16 +303,16 @@ class ModelRelationshipSet:
     def toModelObject(self, modelTo: ModelObject) -> list[ModelRelationship]:
         if getattr(self.modelXbrl, "isSupplementalIxdsTarget", False) and modelTo is not None and modelTo.modelXbrl != self.modelXbrl:
             modelTo = self.modelXbrl.qnameConcepts.get(modelTo.qname, None)  # type: ignore[union-attr,assignment]
-        return self.loadModelRelationshipsTo().get(modelTo, [])  # type: ignore[no-any-return,call-overload]
+        return self.loadModelRelationshipsTo().get(modelTo, [])
 
-    def fromToModelObjects(self, modelFrom: ModelConcept, modelTo: ModelConcept, checkBothDirections: bool = False) -> list[ModelRelationship]:
+    def fromToModelObjects(self, modelFrom: ModelObject, modelTo: ModelObject, checkBothDirections: bool = False) -> list[ModelRelationship]:
         rels = [rel for rel in self.fromModelObject(modelFrom) if rel.toModelObject is modelTo]
         if checkBothDirections:
             rels += [rel for rel in self.fromModelObject(modelTo) if rel.toModelObject is modelFrom]
         return rels
 
     @property
-    def rootConcepts(self) -> list[ModelConcept]:
+    def rootConcepts(self) -> list[ModelObject]:
         if self.modelConceptRoots is None:
             modelRelationshipsFrom = self.loadModelRelationshipsFrom()
             modelRelationshipsTo = self.loadModelRelationshipsTo()
@@ -328,19 +328,19 @@ class ModelRelationshipSet:
     # if only modelFrom, determine that there are relationships present of specified axis
     def isRelated(
             self,
-            modelFrom: ModelConcept,
+            modelFrom: ModelObject,
             axis: str,
-            modelTo: ModelConcept | None = None,
-            visited: set[ModelConcept] | None = None,
+            modelTo: ModelObject | None = None,
+            visited: set[ModelObject] | None = None,
             isDRS: bool = False,
             consecutiveLinkrole: bool = False
         ) -> bool: # either model concept or qname
         assert self.modelXbrl is not None
         if getattr(self.modelXbrl, "isSupplementalIxdsTarget", False):
             if modelFrom is not None and modelFrom.modelXbrl != self.modelXbrl:
-                modelFrom = modelFrom.qname
+                modelFrom = modelFrom.qname  # type: ignore[assignment]
             if modelTo is not None and modelTo.modelXbrl != self.modelXbrl:
-                modelTo = modelTo.qname
+                modelTo = modelTo.qname  # type: ignore[assignment]
         if isinstance(modelFrom,ModelValue.QName):
             modelFrom = self.modelXbrl.qnameConcepts.get(modelFrom) # fails if None
         if isinstance(modelTo,ModelValue.QName):
@@ -404,7 +404,7 @@ class ModelRelationshipSet:
 
     def label(
             self,
-            modelFrom: ModelConcept,
+            modelFrom: ModelObject,
             role: str,
             lang: str,
             returnMultiple: bool = False,
