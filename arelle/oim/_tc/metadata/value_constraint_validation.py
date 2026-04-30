@@ -54,6 +54,7 @@ def validate_value_constraint(
     yield from _validate_patterns_restriction(constraint)
     yield from _validate_length_restrictions(constraint)
     yield from _validate_bounds_restrictions(constraint, effective_lexical_type)
+    yield from _validate_digit_restrictions(constraint)
 
 
 def _validate_restrictions_applicability(
@@ -114,6 +115,25 @@ def _validate_length_restrictions(constraint: TCValueConstraint) -> Generator[TC
             _("minLength ({}) must be less than or equal to maxLength ({})").format(min_length, max_length),
             TCRestriction.MIN_LENGTH,
             TCRestriction.MAX_LENGTH,
+        )
+
+
+def _validate_digit_restrictions(constraint: TCValueConstraint) -> Generator[TCMetadataValidationError, None, None]:
+    total_digits = constraint.total_digits
+    if total_digits is not None and total_digits < 1:
+        yield TCMetadataIllegalConstraintError(
+            _("totalDigits must be a positive integer, got {}").format(total_digits),
+            TCRestriction.TOTAL_DIGITS,
+        )
+
+    fraction_digits = constraint.fraction_digits
+    if total_digits is not None and fraction_digits is not None and fraction_digits > total_digits:
+        yield TCMetadataIllegalConstraintError(
+            _("fractionDigits ({}) must be less than or equal to totalDigits ({})").format(
+                fraction_digits, total_digits
+            ),
+            TCRestriction.FRACTION_DIGITS,
+            TCRestriction.TOTAL_DIGITS,
         )
 
 
