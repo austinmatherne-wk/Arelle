@@ -5,12 +5,15 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 from collections.abc import Generator, Mapping
+from dataclasses import dataclass
+from decimal import InvalidOperation
 
 import regex
 
 from arelle.ModelValue import QName
 from arelle.oim._tc.const import TCME_ILLEGAL_CONSTRAINT, TCME_UNKNOWN_TYPE
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
+from arelle.oim._tc.metadata.constraint_value_parser import ParsedValue, parse_constraint_value
 from arelle.oim._tc.metadata.model import TCValueConstraint
 from arelle.oim._tc.metadata.restrictions import TCRestriction, applicable_restrictions
 from arelle.oim._tc.metadata.types import resolve_effective_lexical_type
@@ -50,6 +53,7 @@ def validate_value_constraint(
     yield from _validate_restrictions_applicability(constraint, effective_lexical_type)
     yield from _validate_patterns_restriction(constraint)
     yield from _validate_length_restrictions(constraint)
+    yield from _validate_bounds_restrictions(constraint, effective_lexical_type)
 
 
 def _validate_restrictions_applicability(
@@ -110,4 +114,77 @@ def _validate_length_restrictions(constraint: TCValueConstraint) -> Generator[TC
             _("minLength ({}) must be less than or equal to maxLength ({})").format(min_length, max_length),
             TCRestriction.MIN_LENGTH,
             TCRestriction.MAX_LENGTH,
+        )
+
+
+def _validate_bounds_restrictions(
+    constraint: TCValueConstraint,
+    effective_lexical_type: QName,
+) -> Generator[TCMetadataValidationError, None, None]:
+    min_inclusive = constraint.min_inclusive
+    min_exclusive = constraint.min_exclusive
+    if min_inclusive is not None and min_exclusive is not None:
+        yield TCMetadataIllegalConstraintError(
+            _("minInclusive and minExclusive must not be specified together"),
+            TCRestriction.MIN_INCLUSIVE,
+            TCRestriction.MIN_EXCLUSIVE,
+        )
+
+    max_inclusive = constraint.max_inclusive
+    max_exclusive = constraint.max_exclusive
+    if max_inclusive is not None and max_exclusive is not None:
+        yield TCMetadataIllegalConstraintError(
+            _("maxInclusive and maxExclusive must not be specified together"),
+            TCRestriction.MAX_INCLUSIVE,
+            TCRestriction.MAX_EXCLUSIVE,
+        )
+
+    min_inc = _try_parse_bound(TCRestriction.MIN_INCLUSIVE, min_inclusive, effective_lexical_type)
+    min_exc = _try_parse_bound(TCRestriction.MIN_EXCLUSIVE, min_exclusive, effective_lexical_type)
+    max_inc = _try_parse_bound(TCRestriction.MAX_INCLUSIVE, max_inclusive, effective_lexical_type)
+    max_exc = _try_parse_bound(TCRestriction.MAX_EXCLUSIVE, max_exclusive, effective_lexical_type)
+
+    yield from _check_bounds_ordering(min_inc, max_inc, exclusive=False)
+    yield from _check_bounds_ordering(min_inc, max_exc, exclusive=True)
+    yield from _check_bounds_ordering(min_exc, max_inc, exclusive=True)
+    yield from _check_bounds_ordering(min_exc, max_exc, exclusive=False)
+
+
+@dataclass(frozen=True, slots=True)
+class _Bound:
+    restriction: TCRestriction
+    raw: str
+    parsed: ParsedValue
+
+
+def _try_parse_bound(restriction: TCRestriction, raw: str | None, effective_lexical_type: QName) -> _Bound | None:
+    if raw is None:
+        return None
+    try:
+        parsed = parse_constraint_value(effective_lexical_type, raw)
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+    return _Bound(restriction, raw, parsed)
+
+
+def _check_bounds_ordering(
+    lower: _Bound | None,
+    upper: _Bound | None,
+    exclusive: bool,
+) -> Generator[TCMetadataValidationError, None, None]:
+    if lower is None or upper is None:
+        return
+    violates = lower.parsed >= upper.parsed if exclusive else lower.parsed > upper.parsed  # type: ignore[operator]
+    if violates:
+        relation = "<" if exclusive else "<="
+        yield TCMetadataIllegalConstraintError(
+            _("{} ({}) must be {} {} ({})").format(
+                lower.restriction,
+                lower.raw,
+                relation,
+                upper.restriction,
+                upper.raw,
+            ),
+            lower.restriction,
+            upper.restriction,
         )
