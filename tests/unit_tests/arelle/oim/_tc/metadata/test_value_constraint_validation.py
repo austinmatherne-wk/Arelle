@@ -114,3 +114,28 @@ class TestValidateValueConstraint:
         errors = _errors(TCValueConstraint(type="period", duration_type="P1Y"))
         assert len(errors) == 1
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+
+    def test_patterns_single_valid_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"[a-z]+"}))) == []
+
+    def test_patterns_multiple_valid_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"[a-z]+", r"\d{3}-\d{4}"}))) == []
+
+    def test_patterns_invalid_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", patterns=frozenset({"["})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/patterns"]
+
+    def test_patterns_mixed_reports_only_invalid(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"[a-z]+", "(", r"\d+"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert "(" in str(errors[0])
+        assert "[a-z]+" not in str(errors[0])
+
+    def test_patterns_xsd_name_char_escapes_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"\i\c*"}))) == []
+
+    def test_patterns_unicode_category_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", patterns=frozenset({r"\p{L}+"}))) == []

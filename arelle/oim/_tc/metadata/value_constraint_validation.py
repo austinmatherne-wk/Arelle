@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from collections.abc import Generator, Mapping
 
+import regex
+
 from arelle.ModelValue import QName
 from arelle.oim._tc.const import TCME_ILLEGAL_CONSTRAINT, TCME_UNKNOWN_TYPE
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
@@ -13,6 +15,7 @@ from arelle.oim._tc.metadata.model import TCValueConstraint
 from arelle.oim._tc.metadata.restrictions import TCRestriction, applicable_restrictions
 from arelle.oim._tc.metadata.types import resolve_effective_lexical_type
 from arelle.typing import TypeGetText
+from arelle.XmlValidate import XsdPattern
 
 _: TypeGetText
 
@@ -45,6 +48,7 @@ def validate_value_constraint(
         )
         return
     yield from _validate_restrictions_applicability(constraint, effective_lexical_type)
+    yield from _validate_patterns_restriction(constraint)
 
 
 def _validate_restrictions_applicability(
@@ -64,3 +68,21 @@ def _validate_restrictions_applicability(
             "type",
             *disallowed_restrictions,
         )
+
+
+def _validate_patterns_restriction(constraint: TCValueConstraint) -> Generator[TCMetadataValidationError, None, None]:
+    if constraint.patterns is None:
+        return
+    invalid_patterns = sorted(pattern for pattern in constraint.patterns if not _is_valid_pattern(pattern))
+    if invalid_patterns:
+        yield TCMetadataIllegalConstraintError(
+            _("Patterns {} are not valid XSD regular expressions").format(invalid_patterns), TCRestriction.PATTERNS
+        )
+
+
+def _is_valid_pattern(pattern: str) -> bool:
+    try:
+        XsdPattern.compile(pattern)
+    except regex.error:
+        return False
+    return True
