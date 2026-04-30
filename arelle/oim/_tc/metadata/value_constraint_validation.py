@@ -11,7 +11,12 @@ from decimal import InvalidOperation
 import regex
 
 from arelle.ModelValue import QName
-from arelle.oim._tc.const import TCME_ILLEGAL_CONSTRAINT, TCME_UNKNOWN_PERIOD_TYPE, TCME_UNKNOWN_TYPE
+from arelle.oim._tc.const import (
+    TCME_ILLEGAL_CONSTRAINT,
+    TCME_UNKNOWN_DURATION_TYPE,
+    TCME_UNKNOWN_PERIOD_TYPE,
+    TCME_UNKNOWN_TYPE,
+)
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
 from arelle.oim._tc.metadata.constraint_value_parser import ParsedValue, parse_constraint_value
 from arelle.oim._tc.metadata.model import TCValueConstraint
@@ -21,6 +26,13 @@ from arelle.typing import TypeGetText
 from arelle.XmlValidate import XsdPattern
 
 _: TypeGetText
+
+_VALID_DURATION_TYPES = frozenset(
+    {
+        "yearMonth",
+        "dayTime",
+    }
+)
 
 _VALID_PERIOD_TYPES = frozenset(
     {
@@ -68,6 +80,7 @@ def validate_value_constraint(
     yield from _validate_bounds_restrictions(constraint, effective_lexical_type)
     yield from _validate_digit_restrictions(constraint)
     yield from _validate_period_type_restriction(constraint)
+    yield from _validate_duration_type_restriction(constraint)
 
 
 def _validate_restrictions_applicability(
@@ -97,6 +110,17 @@ def _validate_period_type_restriction(
             _("Unknown period type: '{}'").format(constraint.period_type),
             TCRestriction.PERIOD_TYPE,
             code=TCME_UNKNOWN_PERIOD_TYPE,
+        )
+
+
+def _validate_duration_type_restriction(
+    constraint: TCValueConstraint,
+) -> Generator[TCMetadataValidationError, None, None]:
+    if constraint.duration_type is not None and constraint.duration_type not in _VALID_DURATION_TYPES:
+        yield TCMetadataValidationError(
+            _("Unknown duration type: '{}'").format(constraint.duration_type),
+            TCRestriction.DURATION_TYPE,
+            code=TCME_UNKNOWN_DURATION_TYPE,
         )
 
 
