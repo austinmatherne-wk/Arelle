@@ -1040,6 +1040,33 @@ class TestValidateFacetValueString:
         assert result.xValid == expected_x_valid
 
 
+class TestHexBinaryValidation:
+    @pytest.mark.parametrize("value", [
+        "",
+        "FF",
+        "00",
+        "AABB",
+        "ff",
+        "aAbBcCdDeEfF",
+        "0123456789ABCDEF",
+    ])
+    def test_valid_hex_binary(self, value: str):
+        result = validateValueString("hexBinary", value)
+        assert result.xValid >= VALID
+
+    @pytest.mark.parametrize("value", [
+        "F",
+        "FFF",
+        "GG",
+        "FF-AA",
+        "0xFF",
+        "FFGG",
+    ])
+    def test_invalid_hex_binary(self, value: str):
+        result = validateValueString("hexBinary", value)
+        assert result.xValid == INVALID
+
+
 class TestTimezoneValidation:
     @pytest.mark.parametrize(
         "base_xsd_type,value",
