@@ -5,7 +5,7 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 from collections.abc import Generator, Mapping
-from typing import Any
+from typing import Any, cast
 
 from arelle.ModelValue import QName
 from arelle.oim._tc.const import (
@@ -24,7 +24,7 @@ from arelle.oim._tc.metadata.restrictions import (
 )
 from arelle.oim._tc.metadata.types import resolve_effective_lexical_type
 from arelle.typing import TypeGetText
-from arelle.XmlValidate import XmlValidationResult, validateFacetValueString
+from arelle.XmlValidate import XmlValidationResult, validateFacetValueString, validateValueString
 from arelle.XmlValidateConst import VALID
 
 _: TypeGetText
@@ -79,6 +79,7 @@ def validate_value_constraint(
         return
     yield from _validate_permitted_restrictions(constraint, effective_lexical_type)
     yield from _validate_patterns_restriction(constraint)
+    yield from _validate_enumeration_values_restriction(constraint, effective_lexical_type, namespaces)
     yield from _validate_period_type_restriction(constraint)
     yield from _validate_duration_type_restriction(constraint)
     yield from _validate_length_restrictions(constraint)
@@ -116,6 +117,30 @@ def _validate_patterns_restriction(constraint: TCValueConstraint) -> Generator[T
         yield TCMetadataIllegalConstraintError(
             _("Patterns {} are not valid XSD regular expressions").format(invalid_patterns),
             TCRestriction.PATTERNS,
+        )
+
+
+def _validate_enumeration_values_restriction(
+    constraint: TCValueConstraint,
+    effective_lexical_type: QName,
+    namespaces: Mapping[str, str],
+) -> Generator[TCMetadataValidationError, None, None]:
+    if constraint.enumeration_values is None:
+        return
+    base_xsd_type = effective_lexical_type.localName
+    nsmap = cast(Mapping[str | None, str], namespaces)
+    invalid_values = sorted(
+        value
+        for value in constraint.enumeration_values
+        if validateValueString(base_xsd_type, value, nsmap=nsmap).xValid < VALID
+    )
+    if invalid_values:
+        yield TCMetadataIllegalConstraintError(
+            _("enumerationValues {} are not valid values for type '{}'").format(
+                invalid_values,
+                constraint.type,
+            ),
+            TCRestriction.ENUMERATION_VALUES,
         )
 
 

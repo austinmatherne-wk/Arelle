@@ -415,6 +415,63 @@ class TestBaseTypeBoundsRestrictions:
         assert _errors(TCValueConstraint(type="xs:decimal", min_exclusive="99999999")) == []
 
 
+class TestEnumerationValues:
+    def test_valid_string_values_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", enumeration_values=frozenset({"hello", "world"}))) == []
+
+    def test_valid_decimal_values_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:decimal", enumeration_values=frozenset({"1", "2.5"}))) == []
+
+    def test_invalid_decimal_values_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:decimal", enumeration_values=frozenset({"abc"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/enumerationValues"]
+
+    def test_valid_integer_values_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:integer", enumeration_values=frozenset({"1", "2"}))) == []
+
+    def test_invalid_integer_values_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:integer", enumeration_values=frozenset({"1.5"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/enumerationValues"]
+
+    def test_valid_date_values_no_error(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:date", enumeration_values=frozenset({"2020-01-01"}))) == []
+
+    def test_invalid_date_values_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:date", enumeration_values=frozenset({"not-a-date"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/enumerationValues"]
+
+    def test_mixed_valid_invalid_reports_only_invalid(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:decimal", enumeration_values=frozenset({"1", "abc", "2"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert (
+            str(errors[0]) == "/enumerationValues: enumerationValues ['abc'] are not valid values for type 'xs:decimal'"
+        )
+
+    def test_valid_boolean_values_no_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:boolean", enumeration_values=frozenset({"true", "false"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/type", "/enumerationValues"]
+
+    def test_valid_g_month_day_values_no_error(self) -> None:
+        assert (
+            _errors(TCValueConstraint(type="xs:gMonthDay", enumeration_values=frozenset({"--01-01", "--07-04"}))) == []
+        )
+
+    def test_invalid_g_month_day_values_error(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:gMonthDay", enumeration_values=frozenset({"01-01"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/enumerationValues"]
+
+
 class TestDigitFacets:
     def test_total_digits_one_no_error(self) -> None:
         assert _errors(TCValueConstraint(type="xs:decimal", total_digits=1)) == []
