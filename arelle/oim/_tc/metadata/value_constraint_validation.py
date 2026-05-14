@@ -5,6 +5,7 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 from collections.abc import Generator, Mapping
+from typing import Any
 
 from arelle.ModelValue import QName
 from arelle.oim._tc.const import (
@@ -16,13 +17,14 @@ from arelle.oim._tc.const import (
 from arelle.oim._tc.metadata.common import TCMetadataValidationError
 from arelle.oim._tc.metadata.model import TCValueConstraint
 from arelle.oim._tc.metadata.restrictions import (
+    _BOUNDS_RESTRICTIONS,
     TCRestriction,
     get_constraint_values_by_restriction,
     permitted_restrictions,
 )
 from arelle.oim._tc.metadata.types import resolve_effective_lexical_type
 from arelle.typing import TypeGetText
-from arelle.XmlValidate import validateFacetValueString
+from arelle.XmlValidate import XmlValidationResult, validateFacetValueString
 from arelle.XmlValidateConst import VALID
 
 _: TypeGetText
@@ -80,6 +82,7 @@ def validate_value_constraint(
     yield from _validate_period_type_restriction(constraint)
     yield from _validate_duration_type_restriction(constraint)
     yield from _validate_length_restrictions(constraint)
+    yield from _validate_bounds_restrictions(constraint, effective_lexical_type)
 
 
 def _validate_permitted_restrictions(
@@ -159,3 +162,99 @@ def _validate_length_restrictions(constraint: TCValueConstraint) -> Generator[TC
             TCRestriction.MIN_LENGTH,
             TCRestriction.MAX_LENGTH,
         )
+
+
+def _validate_bounds_restrictions(
+    constraint: TCValueConstraint,
+    effective_lexical_type: QName,
+) -> Generator[TCMetadataValidationError, None, None]:
+    if not _BOUNDS_RESTRICTIONS & permitted_restrictions(constraint.type, effective_lexical_type):
+        return
+
+    min_inclusive = constraint.min_inclusive
+    min_exclusive = constraint.min_exclusive
+    if min_inclusive is not None and min_exclusive is not None:
+        yield TCMetadataIllegalConstraintError(
+            _("minInclusive and minExclusive must not be specified together"),
+            TCRestriction.MIN_INCLUSIVE,
+            TCRestriction.MIN_EXCLUSIVE,
+        )
+
+    max_inclusive = constraint.max_inclusive
+    max_exclusive = constraint.max_exclusive
+    if max_inclusive is not None and max_exclusive is not None:
+        yield TCMetadataIllegalConstraintError(
+            _("maxInclusive and maxExclusive must not be specified together"),
+            TCRestriction.MAX_INCLUSIVE,
+            TCRestriction.MAX_EXCLUSIVE,
+        )
+
+    base_xsd_type = effective_lexical_type.localName
+    min_inc_result = _parse_bounds_facet_value(TCRestriction.MIN_INCLUSIVE, min_inclusive, base_xsd_type)
+    min_exc_result = _parse_bounds_facet_value(TCRestriction.MIN_EXCLUSIVE, min_exclusive, base_xsd_type)
+    max_inc_result = _parse_bounds_facet_value(TCRestriction.MAX_INCLUSIVE, max_inclusive, base_xsd_type)
+    max_exc_result = _parse_bounds_facet_value(TCRestriction.MAX_EXCLUSIVE, max_exclusive, base_xsd_type)
+
+    for restriction, raw, result in (
+        (TCRestriction.MIN_INCLUSIVE, min_inclusive, min_inc_result),
+        (TCRestriction.MAX_INCLUSIVE, max_inclusive, max_inc_result),
+        (TCRestriction.MIN_EXCLUSIVE, min_exclusive, min_exc_result),
+        (TCRestriction.MAX_EXCLUSIVE, max_exclusive, max_exc_result),
+    ):
+        if result is not None and (result.xValid != VALID or isinstance(result.xValue, str)):
+            yield TCMetadataIllegalConstraintError(
+                _("{} value '{}' is not valid for type '{}'").format(restriction, raw, constraint.type),
+                restriction,
+            )
+
+    min_inc = _comparable_value(min_inc_result)
+    min_exc = _comparable_value(min_exc_result)
+    max_inc = _comparable_value(max_inc_result)
+    max_exc = _comparable_value(max_exc_result)
+
+    if min_inc is not None and max_inc is not None and min_inc > max_inc:
+        yield _bounds_ordering_error(
+            TCRestriction.MIN_INCLUSIVE, min_inclusive, "<=", TCRestriction.MAX_INCLUSIVE, max_inclusive
+        )
+    if min_inc is not None and max_exc is not None and min_inc >= max_exc:
+        yield _bounds_ordering_error(
+            TCRestriction.MIN_INCLUSIVE, min_inclusive, "<", TCRestriction.MAX_EXCLUSIVE, max_exclusive
+        )
+    if min_exc is not None and max_inc is not None and min_exc >= max_inc:
+        yield _bounds_ordering_error(
+            TCRestriction.MIN_EXCLUSIVE, min_exclusive, "<", TCRestriction.MAX_INCLUSIVE, max_inclusive
+        )
+    if min_exc is not None and max_exc is not None and min_exc > max_exc:
+        yield _bounds_ordering_error(
+            TCRestriction.MIN_EXCLUSIVE, min_exclusive, "<=", TCRestriction.MAX_EXCLUSIVE, max_exclusive
+        )
+
+
+def _bounds_ordering_error(
+    lower: TCRestriction,
+    lower_value: str | None,
+    relation: str,
+    upper: TCRestriction,
+    upper_value: str | None,
+) -> TCMetadataIllegalConstraintError:
+    return TCMetadataIllegalConstraintError(
+        _("{} ({}) must be {} {} ({})").format(lower, lower_value, relation, upper, upper_value),
+        lower,
+        upper,
+    )
+
+
+def _parse_bounds_facet_value(
+    restriction: TCRestriction,
+    raw: str | None,
+    base_xsd_type: str,
+) -> XmlValidationResult | None:
+    if raw is None:
+        return None
+    return validateFacetValueString(restriction.value, raw, base_xsd_type)
+
+
+def _comparable_value(result: XmlValidationResult | None) -> Any:
+    if result is not None and result.xValid == VALID and not isinstance(result.xValue, str):
+        return result.xValue
+    return None
