@@ -4,7 +4,7 @@ See COPYRIGHT.md for copyright information.
 
 from __future__ import annotations
 
-from collections.abc import Generator, Mapping
+from collections.abc import Generator, Mapping, Set
 from typing import Any, cast
 
 from arelle.ModelValue import QName
@@ -24,7 +24,7 @@ from arelle.oim._tc.metadata.restrictions import (
 )
 from arelle.oim._tc.metadata.types import resolve_effective_lexical_type
 from arelle.typing import TypeGetText
-from arelle.XmlValidate import XmlValidationResult, validateFacetValueString, validateValueString
+from arelle.XmlValidate import XmlValidationResult, XsdPattern, validateFacetValueString, validateValueString
 from arelle.XmlValidateConst import VALID
 
 _: TypeGetText
@@ -129,10 +129,11 @@ def _validate_enumeration_values_restriction(
         return
     base_xsd_type = effective_lexical_type.localName
     nsmap = cast(Mapping[str | None, str], namespaces)
+    facets = _build_enumeration_facets(constraint, base_xsd_type)
     invalid_values = sorted(
         value
         for value in constraint.enumeration_values
-        if validateValueString(base_xsd_type, value, nsmap=nsmap).xValid < VALID
+        if validateValueString(base_xsd_type, value, facets=facets, nsmap=nsmap).xValid < VALID
     )
     if invalid_values:
         yield TCMetadataIllegalConstraintError(
@@ -142,6 +143,50 @@ def _validate_enumeration_values_restriction(
             ),
             TCRestriction.ENUMERATION_VALUES,
         )
+
+
+def _build_enumeration_facets(constraint: TCValueConstraint, base_xsd_type: str) -> Mapping[str, Any] | None:
+    facets: dict[str, Any] = {}
+    if constraint.length is not None:
+        facets["length"] = constraint.length
+    if constraint.min_length is not None:
+        facets["minLength"] = constraint.min_length
+    if constraint.max_length is not None:
+        facets["maxLength"] = constraint.max_length
+    if constraint.total_digits is not None:
+        facets["totalDigits"] = constraint.total_digits
+    if constraint.fraction_digits is not None:
+        facets["fractionDigits"] = constraint.fraction_digits
+    if constraint.patterns is not None:
+        compiled = _compile_patterns(constraint.patterns)
+        if compiled is not None:
+            facets["pattern"] = compiled
+    for facet_name, raw_value in (
+        ("minInclusive", constraint.min_inclusive),
+        ("maxInclusive", constraint.max_inclusive),
+        ("minExclusive", constraint.min_exclusive),
+        ("maxExclusive", constraint.max_exclusive),
+    ):
+        if raw_value is not None:
+            result = validateFacetValueString(facet_name, raw_value, base_xsd_type)
+            parsed = _comparable_value(result)
+            if parsed is not None:
+                facets[facet_name] = parsed
+    return facets or None
+
+
+def _compile_patterns(patterns: Set[str]) -> XsdPattern | None:
+    compiled = []
+    for p in patterns:
+        result = validateFacetValueString("pattern", p, "xsd-pattern")
+        if result.xValid == VALID and isinstance(result.xValue, XsdPattern):
+            compiled.append(result.xValue)
+    if not compiled:
+        return None
+    if len(compiled) == 1:
+        return compiled[0]
+    combined = "|".join(f"({xp.xsdPattern})" for xp in compiled)
+    return XsdPattern.compile(combined)
 
 
 def _validate_period_type_restriction(

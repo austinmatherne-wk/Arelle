@@ -471,6 +471,43 @@ class TestEnumerationValues:
         assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
         assert errors[0].json_pointers == ["/enumerationValues"]
 
+    def test_enum_vs_length_invalid(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", length=3, enumeration_values=frozenset({"abcd"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+        assert errors[0].json_pointers == ["/enumerationValues"]
+
+    def test_enum_vs_length_valid(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", length=3, enumeration_values=frozenset({"abc"}))) == []
+
+    def test_enum_vs_max_length_invalid(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", max_length=3, enumeration_values=frozenset({"abcde"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+
+    def test_enum_vs_fraction_digits_invalid(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:decimal", fraction_digits=2, enumeration_values=frozenset({"1.234"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+
+    def test_enum_vs_min_inclusive_invalid(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:decimal", min_inclusive="100", enumeration_values=frozenset({"50"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+
+    def test_enum_vs_pattern_invalid(self) -> None:
+        errors = _errors(TCValueConstraint(type="xs:string", patterns=frozenset({"[a-z]+"}), enumeration_values=frozenset({"ABC"})))
+        assert len(errors) == 1
+        assert errors[0].code == TCME_ILLEGAL_CONSTRAINT
+
+    def test_enum_vs_pattern_valid(self) -> None:
+        assert _errors(TCValueConstraint(type="xs:string", patterns=frozenset({"[a-z]+"}), enumeration_values=frozenset({"abc"}))) == []
+
+    def test_enum_vs_multiple_facets_valid(self) -> None:
+        assert _errors(TCValueConstraint(
+            type="xs:string", length=3, patterns=frozenset({"[a-z]+"}), enumeration_values=frozenset({"abc", "xyz"})
+        )) == []
+
 
 class TestDigitFacets:
     def test_total_digits_one_no_error(self) -> None:
