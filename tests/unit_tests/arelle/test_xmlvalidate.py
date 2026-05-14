@@ -1000,3 +1000,41 @@ class TestValidateFacetValueString:
         result = validateFacetValueString(facet_name, value, base_xsd_type)
         expected_x_valid = VALID if expected_valid else INVALID
         assert result.xValid == expected_x_valid
+
+    @pytest.mark.parametrize(
+        "base_xsd_type,value,expected_valid",
+        [
+            ("decimal", "0", True),
+            ("decimal", "3", True),
+            ("integer", "0", True),
+            ("integer", "1", False),
+            ("byte", "0", True),
+            ("byte", "1", False),
+            ("short", "0", True),
+            ("short", "1", False),
+            ("int", "0", True),
+            ("int", "1", False),
+            ("long", "0", True),
+            ("long", "1", False),
+            ("unsignedByte", "0", True),
+            ("unsignedByte", "1", False),
+            ("unsignedShort", "0", True),
+            ("unsignedShort", "1", False),
+            ("unsignedInt", "0", True),
+            ("unsignedInt", "1", False),
+            ("unsignedLong", "0", True),
+            ("unsignedLong", "1", False),
+            ("negativeInteger", "0", True),
+            ("negativeInteger", "1", False),
+            ("nonNegativeInteger", "0", True),
+            ("nonNegativeInteger", "1", False),
+            ("nonPositiveInteger", "0", True),
+            ("nonPositiveInteger", "1", False),
+            ("positiveInteger", "0", True),
+            ("positiveInteger", "1", False),
+        ],
+    )
+    def test_fractionDigits_facet_integer_types(self, base_xsd_type: str, value: str, expected_valid: bool):
+        result = validateFacetValueString("fractionDigits", value, base_xsd_type)
+        expected_x_valid = VALID if expected_valid else INVALID
+        assert result.xValid == expected_x_valid
