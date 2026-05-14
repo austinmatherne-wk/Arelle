@@ -1,17 +1,30 @@
 from __future__ import annotations
 
 import datetime
-from _decimal import Decimal, InvalidOperation
+from _decimal import Decimal
 from fractions import Fraction
-from math import inf, nan, isnan
+from math import inf, isnan, nan
 from typing import Any
+from unittest.mock import Mock
 
 import pytest
 import regex
-from unittest.mock import Mock
 
-from arelle.ModelValue import QName, DateTime, Time, isoDuration, gDay, gMonth, gMonthDay, gYear, gYearMonth
-from arelle.XmlValidate import validateValue, validateValueString, validateFacetValueString, VALID, UNKNOWN, INVALID, VALID_ID, NMTOKENPattern, namePattern, NCNamePattern, VALID_NO_CONTENT, XsdPattern
+from arelle.ModelValue import DateTime, QName, Time, gDay, gMonth, gMonthDay, gYear, gYearMonth, isoDuration
+from arelle.XmlValidate import (
+    INVALID,
+    UNKNOWN,
+    VALID,
+    VALID_ID,
+    VALID_NO_CONTENT,
+    NCNamePattern,
+    NMTOKENPattern,
+    XsdPattern,
+    namePattern,
+    validateFacetValueString,
+    validateValue,
+    validateValueString,
+)
 
 FLOAT_CASES = [
     {"value": "-1", "expected": (-1, -1, VALID)},
@@ -602,7 +615,7 @@ def test_validateValue_facets_pattern(value: str, expected: tuple):
     "value,expected",
     [
         pytest.param("1", (float(1), float(1), VALID)),
-        pytest.param("1.01", (float(1.01), float(1.01), VALID)),
+        pytest.param("1.01", (1.01, 1.01, VALID)),
         pytest.param("100", (float(100), float(100), VALID)),
         pytest.param("1.001", ("=", None, INVALID)),
         pytest.param("1.000", ("=", None, INVALID)),
@@ -622,8 +635,8 @@ def test_validateValue_facets_totalDigits(value: str, expected: tuple):
     "value,expected",
     [
         pytest.param("1", (float(1), float(1), VALID)),
-        pytest.param("1.01", (float(1.01), float(1.01), VALID)),
-        pytest.param("1.001", (float(1.001), float(1.001), VALID)),
+        pytest.param("1.01", (1.01, 1.01, VALID)),
+        pytest.param("1.001", (1.001, 1.001, VALID)),
         pytest.param("1.000", (float(1), float(1), VALID)),
         pytest.param("1000", (float(1000), float(1000), VALID)),
         pytest.param("1.0001", ("=", None, INVALID)),
@@ -905,5 +918,25 @@ class TestValidateFacetValueString:
     )
     def test_bounds_facet_type_range(self, base_xsd_type: str, value: str, expected_valid: bool):
         result = validateFacetValueString("minInclusive", value, base_xsd_type)
+        expected_x_valid = VALID if expected_valid else INVALID
+        assert result.xValid == expected_x_valid
+
+    @pytest.mark.parametrize(
+        "facet_name,value,expected_valid",
+        [
+            ("length", "0", True),
+            ("length", "-1", False),
+            ("minLength", "0", True),
+            ("minLength", "-1", False),
+            ("maxLength", "0", True),
+            ("maxLength", "-1", False),
+            ("fractionDigits", "0", True),
+            ("fractionDigits", "-1", False),
+            ("totalDigits", "1", True),
+            ("totalDigits", "0", False),
+        ],
+    )
+    def test_numeric_facet_bounds(self, facet_name: str, value: str, expected_valid: bool):
+        result = validateFacetValueString(facet_name, value, "string")
         expected_x_valid = VALID if expected_valid else INVALID
         assert result.xValid == expected_x_valid
