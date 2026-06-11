@@ -366,6 +366,67 @@ def lastDayOfMonth(year: int, month: int) -> int:
     if year % 400 == 0 or (year % 100 != 0 and year % 4 == 0): return 29
     return 28
 
+
+def _validateDateComponents(
+    year: int,
+    month: int,
+    day: int,
+) -> None:
+    if not 1 <= month <= 12:
+        raise ValueError(f"month must be in 1..12, got {month}")
+    if not 1 <= day <= lastDayOfMonth(year, month):
+        raise ValueError(f"day is out of range for month, got {day}")
+
+
+def _validateDateTimeComponents(
+    year: int,
+    month: int,
+    day: int,
+    hour: int,
+    minute: int,
+    second: int,
+    microsec: int,
+) -> None:
+    if hour == 24 and (minute != 0 or second != 0 or microsec != 0):
+        raise ValueError("hour 24 must have 0 mins and secs.")
+    _validateDateComponents(year, month, day)
+
+
+def _adjustDateComponents(
+    year: int,
+    month: int,
+    day: int,
+    addOneDay: bool = False,
+) -> tuple[int, int, int]:
+    if addOneDay:
+        day += 1
+    lastDay = lastDayOfMonth(year, month)
+    if day > lastDay:
+        day -= lastDay
+        month += 1
+    if month > 12:
+        month = 1
+        year += 1
+    return year, month, day
+
+
+def _adjustDateTimeComponents(
+    year: int,
+    month: int,
+    day: int,
+    hour: int,
+    minute: int,
+    second: int,
+    microsec: int,
+    addOneDay: bool = False,
+) -> tuple[int, int, int, int, int, int, int]:
+    if hour == 24:
+        hour = 0
+        day += 1
+    year, month, day = _adjustDateComponents(year, month, day, addOneDay)
+    return year, month, day, hour, minute, second, microsec
+
+
 #!!! see note in XmlUtil.py datetimeValue, may need exceptions handled or special treatment for end time of 9999-12-31
 
 class DateTime(datetime.datetime):
@@ -386,18 +447,8 @@ class DateTime(datetime.datetime):
         addOneDay: bool = False,
     ) -> DateTime:
         # note: does not support negative years but xml date does allow negative dates
-        lastDay = lastDayOfMonth(y, m)
-        # check day and month before adjustment
-        if not 1 <= m <= 12: raise ValueError("month must be in 1..12")
-        if not 1 <= d <= lastDay: raise ValueError("day is out of range for month")
-        if hr == 24:
-            if min != 0 or sec != 0 or microsec != 0: raise ValueError("hour 24 must have 0 mins and secs.")
-            hr = 0
-            d += 1
-        if addOneDay:
-            d += 1
-        if d > lastDay: d -= lastDay; m += 1
-        if m > 12: m = 1; y += 1
+        _validateDateTimeComponents(y, m, d, hr, min, sec, microsec)
+        y, m, d, hr, min, sec, microsec = _adjustDateTimeComponents(y, m, d, hr, min, sec, microsec, addOneDay)
         dateTime = datetime.datetime.__new__(cls, y, m, d, hr, min, sec, microsec, tzinfo)
         dateTime.dateOnly = dateOnly
         return dateTime
