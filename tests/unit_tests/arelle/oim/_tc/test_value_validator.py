@@ -121,3 +121,18 @@ class TestValidateConcept:
     )
     def test_concept_validation(self, value: str, expected: bool) -> None:
         assert _validator(tc_types.CORE_CONCEPT).validate(value) is expected
+
+
+class TestValidateEntity:
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            ("xs:entity", True),
+            ("xs:entity with space", False),
+            ("unprefixed", False),
+            ("unknown:entity", False),
+            ("", False),
+        ],
+    )
+    def test_entity_validation(self, value: str, expected: bool) -> None:
+        assert _validator(tc_types.CORE_ENTITY).validate(value) is expected
