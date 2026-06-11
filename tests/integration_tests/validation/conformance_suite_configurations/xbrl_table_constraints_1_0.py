@@ -188,7 +188,6 @@ config = ConformanceSuiteConfig(
         '720-tc-report-processor/index-tc-report-table.xml:V-907-none-empty',
         '720-tc-report-processor/index-tc-report-table.xml:V-907-none',
         '720-tc-report-processor/index-tc-report-table.xml:V-unknownSpecialValue',
-        'generated/facets-with-invalid-values/index-tc-facets-with-invalid-values.xml:V-GEN-facetValue-concept-enumerationValues-localOnly-invalid',
         'generated/facets-with-invalid-values/index-tc-facets-with-invalid-values.xml:V-GEN-facetValue-entity-enumerationValues-fooBangBarColonBaz-invalid',
         'generated/facets-with-invalid-values/index-tc-facets-with-invalid-values.xml:V-GEN-facetValue-entity-enumerationValues-fooDollarBar-invalid',
         'generated/facets-with-invalid-values/index-tc-facets-with-invalid-values.xml:V-GEN-facetValue-entity-enumerationValues-fooSpaceBar-invalid',

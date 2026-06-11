@@ -107,3 +107,17 @@ class TestValidateQName:
     )
     def test_qname_validation(self, value: str, expected: bool) -> None:
         assert _validator(tc_types.QNAME).validate(value) is expected
+
+
+class TestValidateConcept:
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            ("xs:string", True),
+            ("localName", False),
+            ("bad:not a qname!", False),
+            ("", False),
+        ],
+    )
+    def test_concept_validation(self, value: str, expected: bool) -> None:
+        assert _validator(tc_types.CORE_CONCEPT).validate(value) is expected

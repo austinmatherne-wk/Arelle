@@ -9,7 +9,7 @@ from typing import cast
 
 from arelle.ModelValue import QName
 from arelle.oim._tc.metadata.model import TCValueConstraint
-from arelle.oim._tc.metadata.types import resolve_effective_lexical_type
+from arelle.oim._tc.metadata.types import CORE_CONCEPT, QNAME, resolve_effective_lexical_type
 from arelle.XmlValidate import validateValueString
 
 
@@ -22,7 +22,15 @@ class ValueConstraintValidator:
     def validate(self, value: str) -> bool:
         if self._effective_lexical_type is None:
             return False
+        if self._constraint.type == CORE_CONCEPT:
+            return self._is_valid_concept_value(value)
         return self._is_base_xsd_type_valid(self._effective_lexical_type, value)
+
+    def _is_valid_concept_value(self, value: str) -> bool:
+        if ":" not in value:
+            # Concept value QName must have a namespace prefix
+            return False
+        return self._is_base_xsd_type_valid(QNAME, value)
 
     def _is_base_xsd_type_valid(self, base_xsd_type: QName, value: str) -> bool:
         result = validateValueString(
