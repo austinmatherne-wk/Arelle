@@ -151,7 +151,9 @@ def anyAtomicType(xc: XPathContext.XPathContext, p: FormulaToken | None, source:
     raise xsFunctionNotAvailable()
 
 
-def dateTime(xc: XPathContext.XPathContext, p: FormulaToken | None, source: Any) -> ModelValue.DateTime:
+def dateTime(
+    xc: XPathContext.XPathContext, p: FormulaToken | None, source: Any
+) -> ModelValue.DateTime | ModelValue.XsdDateTime:
     if isinstance(source, datetime.datetime) and source.dateOnly is False:  # type: ignore[attr-defined]
         return source  # type: ignore[return-value]
     return ModelValue.dateTime(source, type=ModelValue.DATETIME, castException=FORG0001)
@@ -159,7 +161,7 @@ def dateTime(xc: XPathContext.XPathContext, p: FormulaToken | None, source: Any)
 
 def dateTimeInstantEnd(
     xc: XPathContext.XPathContext, p: FormulaToken | None, source: Any
-) -> ModelValue.DateTime:
+) -> ModelValue.DateTime | ModelValue.XsdDateTime:
     if isinstance(source, datetime.datetime):
         return source  # type: ignore[return-value] # true for either datetime.date or datetime.datetime
     return ModelValue.dateTime(source, addOneDay=True, type=ModelValue.DATETIME, castException=FORG0001)
@@ -167,13 +169,15 @@ def dateTimeInstantEnd(
 
 def xbrliDateUnion(
     xc: XPathContext.XPathContext, p: FormulaToken | None, source: Any
-) -> datetime.date | ModelValue.DateTime:
+) -> datetime.date | ModelValue.DateTime | ModelValue.XsdDate | ModelValue.XsdDateTime:
     if isinstance(source, datetime.date):
         return source  # true for either datetime.date or datetime.datetime
     return ModelValue.dateTime(source, type=ModelValue.DATEUNION, castException=FORG0001)
 
 
-def date(xc: XPathContext.XPathContext, p: FormulaToken | None, source: Any) -> ModelValue.DateTime:
+def date(
+    xc: XPathContext.XPathContext, p: FormulaToken | None, source: Any
+) -> ModelValue.DateTime | ModelValue.XsdDate:
     return ModelValue.dateTime(source, type=ModelValue.DATE, castException=FORG0001)
 
 

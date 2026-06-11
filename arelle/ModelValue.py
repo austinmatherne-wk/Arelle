@@ -295,8 +295,8 @@ def tzinfo(tz: str | None) -> datetime.timezone | None:
     else:
         return datetime.timezone(datetime.timedelta(hours=int(tz[0:3]), minutes=int(tz[0]+tz[4:6])))
 
-def tzinfoStr(dt: datetime.datetime | datetime.date) -> str:
-    if isinstance(dt, datetime.datetime):
+def tzinfoStr(dt: datetime.datetime | datetime.date | XsdDate | XsdDateTime) -> str:
+    if isinstance(dt, (datetime.datetime, XsdDate, XsdDateTime)):
         tz = str(dt.tzinfo or "")
         if tz.startswith("UTC"):
             return tz[3:] or "Z"
@@ -310,7 +310,7 @@ def dateTime(
     *,
     type: Literal[1],
     castException: type[Exception],
-) -> DateTime: ...
+) -> DateTime | XsdDate: ...
 
 @overload
 def dateTime(
@@ -320,7 +320,7 @@ def dateTime(
     *,
     type: Literal[2],
     castException: type[Exception],
-) -> DateTime: ...
+) -> DateTime | XsdDateTime: ...
 
 @overload
 def dateTime(
@@ -330,7 +330,7 @@ def dateTime(
     *,
     type: Literal[1],
     castException: None = ...,
-) -> DateTime | None: ...
+) -> DateTime | XsdDate | None: ...
 
 @overload
 def dateTime(
@@ -340,7 +340,7 @@ def dateTime(
     *,
     type: Literal[2],
     castException: None = ...,
-) -> DateTime | None: ...
+) -> DateTime | XsdDateTime | None: ...
 
 @overload
 def dateTime(
@@ -350,7 +350,7 @@ def dateTime(
     *,
     type: int | None = ...,
     castException: type[Exception],
-) -> DateTime: ...
+) -> DateTime | XsdDate | XsdDateTime: ...
 
 @overload
 def dateTime(
@@ -359,7 +359,7 @@ def dateTime(
     addOneDay: bool = ...,
     type: int | None = ...,
     castException: None = ...,
-) -> DateTime | None: ...
+) -> DateTime | XsdDate | XsdDateTime | None: ...
 
 def dateTime(
     value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
@@ -368,7 +368,7 @@ def dateTime(
     # TODO: type is a reserved name in Python, we should rename this
     type: int | None = None,
     castException: type[Exception] | None = None,
-) -> DateTime | None:
+) -> DateTime | XsdDate | XsdDateTime | None:
     if value == "MinDate":
         return DateTime(datetime.MINYEAR,1,1)
     elif value == "maxyear":
@@ -399,6 +399,7 @@ def dateTime(
             raise castException("lexical pattern mismatch")
         return None
     assert match.lastindex is not None
+    result: DateTime | XsdDate | XsdDateTime
     if 6 <= match.lastindex <= 8:
         if type == DATE:
             if castException:
@@ -408,7 +409,19 @@ def dateTime(
         fracSec = match.group(7)
         if fracSec and fracSec[0] == ".":
             ms = int(fracSec[1:7].ljust(6,'0'))
-        result = DateTime(int(match.group(1)),int(match.group(2)),int(match.group(3)),int(match.group(4)),int(match.group(5)),int(match.group(6)),ms,tzinfo(match.group(8)), dateOnly=False)
+        year = int(match.group(1))
+        month = int(match.group(2))
+        day = int(match.group(3))
+        hour = int(match.group(4))
+        minute = int(match.group(5))
+        second = int(match.group(6))
+        tz = tzinfo(match.group(8))
+        if datetime.MINYEAR <= year <= datetime.MAXYEAR:
+            result = DateTime(year, month, day, hour, minute, second, ms, tz, dateOnly=False)
+        else:
+            _validateDateTimeComponents(year, month, day, hour, minute, second, ms)
+            year, month, day, hour, minute, second, ms = _adjustDateTimeComponents(year, month, day, hour, minute, second, ms)
+            result = XsdDateTime(year, month, day, hour, minute, second, ms, tz)
     else:
         if type == DATE or type == DATEUNION:
             dateOnly = True
@@ -416,7 +429,16 @@ def dateTime(
             dateOnly = False
         else:
             dateOnly = False
-        result = DateTime(int(match.group(9)),int(match.group(10)),int(match.group(11)),tzinfo=tzinfo(match.group(12)),dateOnly=dateOnly,addOneDay=addOneDay)
+        year = int(match.group(9))
+        month = int(match.group(10))
+        day = int(match.group(11))
+        tz = tzinfo(match.group(12))
+        if datetime.MINYEAR <= year <= datetime.MAXYEAR:
+            result = DateTime(year, month, day, tzinfo=tz, dateOnly=dateOnly, addOneDay=addOneDay)
+        else:
+            _validateDateComponents(year, month, day)
+            year, month, day = _adjustDateComponents(year, month, day, addOneDay)
+            result = XsdDate(year, month, day, tz) if dateOnly else XsdDateTime(year, month, day, tzinfo=tz)
     return result
 
 def lastDayOfMonth(year: int, month: int) -> int:
@@ -552,6 +574,117 @@ class DateTime(datetime.datetime):
         if isinstance(dt, datetime.datetime):
             return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond, dt.tzinfo, self.dateOnly)
         return NotImplemented
+
+
+class XsdDate:
+    """xs:date supporting years outside Python's datetime range (< 1 or > 9999)."""
+
+    def __init__(
+        self,
+        year: int,
+        month: int,
+        day: int,
+        tzinfo: datetime.tzinfo | None = None,
+    ) -> None:
+        _validateDateComponents(year, month, day)
+        self.year = year
+        self.month = month
+        self.day = day
+        self.tzinfo = tzinfo
+
+    def __copy__(self) -> XsdDate:
+        return XsdDate(self.year, self.month, self.day, self.tzinfo)
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, XsdDate) or (isinstance(other, DateTime) and other.dateOnly):
+            return (
+                self.year == other.year
+                and self.month == other.month
+                and self.day == other.day
+                and self.tzinfo == other.tzinfo
+            )
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash((self.year, self.month, self.day, self.tzinfo))
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"{self.year:04}-{self.month:02}-{self.day:02}{tzinfoStr(self)}"
+
+
+class XsdDateTime:
+    """xs:dateTime supporting years outside Python's datetime range (< 1 or > 9999)."""
+
+    def __init__(
+        self,
+        year: int,
+        month: int,
+        day: int,
+        hour: int = 0,
+        minute: int = 0,
+        second: int = 0,
+        microsecond: int = 0,
+        tzinfo: datetime.tzinfo | None = None,
+    ) -> None:
+        _validateDateTimeComponents(year, month, day, hour, minute, second, microsecond)
+        self.year = year
+        self.month = month
+        self.day = day
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+        self.microsecond = microsecond
+        self.tzinfo = tzinfo
+
+    def __copy__(self) -> XsdDateTime:
+        return XsdDateTime(
+            self.year,
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second,
+            self.microsecond,
+            self.tzinfo,
+        )
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, XsdDateTime) or (isinstance(other, DateTime) and not other.dateOnly):
+            return (
+                self.year == other.year
+                and self.month == other.month
+                and self.day == other.day
+                and self.hour == other.hour
+                and self.minute == other.minute
+                and self.second == other.second
+                and self.microsecond == other.microsecond
+                and self.tzinfo == other.tzinfo
+            )
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.year,
+                self.month,
+                self.day,
+                self.hour,
+                self.minute,
+                self.second,
+                self.microsecond,
+                self.tzinfo,
+            )
+        )
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"{self.year:04}-{self.month:02}-{self.day:02}T{self.hour:02}:{self.minute:02}:{self.second:02}{tzinfoStr(self)}"
+
 
 def dateUnionEqual(
     dateUnion1: DateTime | datetime.date,
@@ -1134,6 +1267,8 @@ TypeXValue = Union[
     datetime.time,
     Decimal,
     dict[str, 're.Pattern[str]'],
+    XsdDate,
+    XsdDateTime,
     float,
     gDay,
     gMonth,

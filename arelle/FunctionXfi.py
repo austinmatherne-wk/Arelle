@@ -18,7 +18,7 @@ from arelle.Locale import format_picture
 from arelle.ModelDtsObject import anonymousTypeSuffix, ModelConcept
 from arelle.ModelInstanceObject import ModelDimensionValue, ModelFact, ModelInlineFact
 from arelle.ModelObject import ModelObject, ModelAttribute
-from arelle.ModelValue import qname, QName, dateTime, DATETIME, DateTime, dateUnionEqual, anyURI
+from arelle.ModelValue import XsdDateTime, qname, QName, dateTime, DATETIME, DateTime, dateUnionEqual, anyURI
 from arelle.ModelXbrl import ModelXbrl
 from arelle.PythonUtil import flattenSequence
 from arelle.ValidateXbrlCalcs import inferredDecimals, inferredPrecision
@@ -253,15 +253,15 @@ def is_period_type(args: XPathContext.ResultStack, periodElement: str | tuple[st
     raise XPathContext.FunctionArgType(1, "xbrl:period")
 
 
-def period_start(xc: XPathContext.XPathContext, p: OperationDef, args: XPathContext.ResultStack) -> DateTime | None:
+def period_start(xc: XPathContext.XPathContext, p: OperationDef, args: XPathContext.ResultStack) -> DateTime | XsdDateTime | None:
     return period_datetime(p, args, ("startDate", "instant"))
 
 
-def period_end(xc: XPathContext.XPathContext, p: OperationDef, args: XPathContext.ResultStack) -> DateTime | None:
+def period_end(xc: XPathContext.XPathContext, p: OperationDef, args: XPathContext.ResultStack) -> DateTime | XsdDateTime | None:
     return period_datetime(p, args, ("endDate", "instant"))
 
 
-def period_instant(xc: XPathContext.XPathContext, p: OperationDef, args: XPathContext.ResultStack) -> DateTime | None:
+def period_instant(xc: XPathContext.XPathContext, p: OperationDef, args: XPathContext.ResultStack) -> DateTime | XsdDateTime | None:
     return period_datetime(p, args, "instant")
 
 
@@ -269,7 +269,7 @@ def period_datetime(
     p: OperationDef,
     args: XPathContext.ResultStack,
     periodElement: str | tuple[str, ...],
-) -> DateTime | None:
+) -> DateTime | XsdDateTime | None:
     if len(args) != 1:
         raise XPathContext.FunctionNumArgs()
     if len(args[0]) != 1:

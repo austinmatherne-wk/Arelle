@@ -22,6 +22,8 @@ from arelle.ModelValue import (
     DATEUNION,
     DateTime,
     DayTimeDuration,
+    XsdDate,
+    XsdDateTime,
     QName,
     Time,
     TypeXValue,
@@ -62,6 +64,8 @@ _: TypeGetText
 ContextItem = Union[
     DayTimeDuration,
     Decimal,
+    XsdDate,
+    XsdDateTime,
     Fraction,
     ModelAttribute,
     ModelObject,
