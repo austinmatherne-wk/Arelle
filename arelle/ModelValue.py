@@ -442,6 +442,8 @@ def validateDateComponents(
     month: int,
     day: int,
 ) -> None:
+    if year == 0:
+        raise ValueError("year zero is not permitted per XSD 1.0")
     if not 1 <= month <= 12:
         raise ValueError(f"month must be in 1..12, got {month}")
     if not 1 <= day <= lastDayOfMonth(year, month):
