@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime, isodate
 from collections.abc import Mapping
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, cast, overload, Optional, Union
+from typing import TYPE_CHECKING, Any, Final, Literal, cast, overload, Optional, Union
 from fractions import Fraction
 from arelle.UrlUtil import isValidUriReference
 from arelle.typing import ModelObjectBase
@@ -283,9 +283,9 @@ datetimePattern = re.compile(r"\s*(-?(?:[1-9][0-9]{3,}|0[0-9]{3}))-([0-9]{2})-([
 timePattern = re.compile(r"\s*([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})?\s*")
 durationPattern = re.compile(r"\s*(-?)P((-?[0-9]+)Y)?((-?[0-9]+)M)?((-?[0-9]+)D)?(T((-?[0-9]+)H)?((-?[0-9]+)M)?((-?[0-9.]+)S)?)?\s*")
 
-DATE = 1
-DATETIME = 2
-DATEUNION = 3
+DATE: Final = 1
+DATETIME: Final = 2
+DATEUNION: Final = 3
 
 def tzinfo(tz: str | None) -> datetime.timezone | None:
     if tz is None:
@@ -301,6 +301,65 @@ def tzinfoStr(dt: datetime.datetime | datetime.date) -> str:
         if tz.startswith("UTC"):
             return tz[3:] or "Z"
     return ""
+
+@overload
+def dateTime(
+    value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
+    time: Any = ...,
+    addOneDay: bool = ...,
+    *,
+    type: Literal[1],
+    castException: type[Exception],
+) -> DateTime: ...
+
+@overload
+def dateTime(
+    value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
+    time: Any = ...,
+    addOneDay: bool = ...,
+    *,
+    type: Literal[2],
+    castException: type[Exception],
+) -> DateTime: ...
+
+@overload
+def dateTime(
+    value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
+    time: Any = ...,
+    addOneDay: bool = ...,
+    *,
+    type: Literal[1],
+    castException: None = ...,
+) -> DateTime | None: ...
+
+@overload
+def dateTime(
+    value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
+    time: Any = ...,
+    addOneDay: bool = ...,
+    *,
+    type: Literal[2],
+    castException: None = ...,
+) -> DateTime | None: ...
+
+@overload
+def dateTime(
+    value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
+    time: Any = ...,
+    addOneDay: bool = ...,
+    *,
+    type: int | None = ...,
+    castException: type[Exception],
+) -> DateTime: ...
+
+@overload
+def dateTime(
+    value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
+    time: Any = ...,
+    addOneDay: bool = ...,
+    type: int | None = ...,
+    castException: None = ...,
+) -> DateTime | None: ...
 
 def dateTime(
     value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
