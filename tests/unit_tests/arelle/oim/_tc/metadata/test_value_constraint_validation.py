@@ -442,6 +442,18 @@ class TestEnumerationValues:
     def test_no_enumeration_values_no_error(self) -> None:
         assert _errors(TCValueConstraint(type="xs:decimal")) == []
 
+    def test_date_enumeration_with_extended_years_no_error(self) -> None:
+        assert _errors(TCValueConstraint(
+            type="xs:date",
+            enumeration_values=frozenset({"-2024-01-01", "12024-01-01", "-12024-01-01"}),
+        )) == []
+
+    def test_datetime_enumeration_with_extended_years_no_error(self) -> None:
+        assert _errors(TCValueConstraint(
+            type="xs:dateTime",
+            enumeration_values=frozenset({"-2024-01-01T00:00:00", "12024-01-01T00:00:00Z"}),
+        )) == []
+
 
 class TestDigitFacets:
     def test_total_digits_one_no_error(self) -> None:

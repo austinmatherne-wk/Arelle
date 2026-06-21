@@ -62,11 +62,45 @@ class TestValidateDate:
         "value, expected",
         [
             ("2020-01-01", True),
+            ("2024-02-29", True),
+            ("2024-02-29Z", True),
+            ("2024-01-01+14:00", True),
+            ("2024-01-01-14:00", True),
+            ("-2024-01-01", True),
+            ("12024-01-01", True),
+            ("-12024-01-01", True),
             ("not-a-date", False),
+            ("0000-01-01", False),
+            ("2024-02-30", False),
+            ("2024-13-01", False),
+            ("2023-02-29", False),
         ],
     )
     def test_date_validation(self, value: str, expected: bool) -> None:
         assert _validator(tc_types.DATE).validate(value) is expected
+
+
+class TestValidateDateTime:
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            ("2024-01-01T00:00:00", True),
+            ("2024-01-01T00:00:00Z", True),
+            ("2024-01-01T24:00:00", True),
+            ("-2024-01-01T00:00:00", True),
+            ("12024-01-01T00:00:00", True),
+            ("-12024-01-01T00:00:00", True),
+            ("-12024-01-01T00:00:00Z", True),
+            ("12024-01-01T12:30:00+05:45", True),
+            ("not-a-datetime", False),
+            ("0000-01-01T00:00:00", False),
+            ("-2024-01-01T24:00:01", False),
+            ("2024-13-01T00:00:00", False),
+            ("2024-02-30T00:00:00", False),
+        ],
+    )
+    def test_datetime_validation(self, value: str, expected: bool) -> None:
+        assert _validator(tc_types.DATE_TIME).validate(value) is expected
 
 
 class TestValidateGMonthDay:
