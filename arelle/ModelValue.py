@@ -279,8 +279,8 @@ class AnyURI(str):
     def __new__(cls, value: str) -> AnyURI:
         return str.__new__(cls, value)
 
-datetimePattern = re.compile(r"\s*([0-9]{4})-([0-9]{2})-([0-9]{2})[T ]([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})?\s*|"
-                             r"\s*([0-9]{4})-([0-9]{2})-([0-9]{2})(Z|[+-][0-9]{2}:[0-9]{2})?\s*")
+datetimePattern = re.compile(r"\s*(-?(?:[1-9][0-9]{3,}|0[0-9]{3}))-([0-9]{2})-([0-9]{2})[T ]([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})?\s*|"
+                             r"\s*(-?(?:[1-9][0-9]{3,}|0[0-9]{3}))-([0-9]{2})-([0-9]{2})(Z|[+-][0-9]{2}:[0-9]{2})?\s*")
 timePattern = re.compile(r"\s*([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})?\s*")
 durationPattern = re.compile(r"\s*(-?)P((-?[0-9]+)Y)?((-?[0-9]+)M)?((-?[0-9]+)D)?(T((-?[0-9]+)H)?((-?[0-9]+)M)?((-?[0-9.]+)S)?)?\s*")
 
@@ -388,6 +388,15 @@ def dateTime(
     if components is None:
         if castException:
             raise castException("lexical pattern mismatch")
+        return None
+    if not (datetime.MINYEAR <= components.year <= datetime.MAXYEAR):
+        # Python's datetime supports years 1-9999, but XML Schema allows years beyond this range.
+        # Previously the lexical pattern rejected these values, so they never reached this point.
+        # Now that the pattern accepts the full XML Schema range, this check explicitly matches the prior behavior by
+        # raising castException or returning None instead of continuing on with a ValueError from datetime.__new__.
+        # Supporting these values in our data model will require a new datetime class and a major breaking change.
+        if castException:
+            raise castException(f"year is outside of Arelle's datetime value range: {components.year}")
         return None
     if not components.dateOnly:
         if type == DATE:
