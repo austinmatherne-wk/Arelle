@@ -9,7 +9,8 @@ from typing import cast
 
 from arelle.ModelValue import parseDateTimeString, validateDateComponents, validateDateTimeComponents
 from arelle.oim._tc.metadata.model import TCValueConstraint
-from arelle.oim._tc.metadata.types import QNAME, resolve_effective_lexical_type
+from arelle.oim._tc.metadata.types import CORE_ENTITY, QNAME, resolve_effective_lexical_type
+from arelle.oim.const import SQNAME_PATTERN
 from arelle.XmlValidate import lexicalPatterns, validateValueString
 
 _LEXICAL_DATE_TYPES = frozenset({"date", "dateTime"})
@@ -62,6 +63,8 @@ class ValueConstraintValidator:
         if self._effective_lexical_type == QNAME:
             # Local only QNames are prohibited.
             return self._has_valid_namespace_prefix(value)
+        if self._constraint.type == CORE_ENTITY:
+            return self._is_valid_sqname(value)
         return True
 
     def _is_base_xsd_type_valid(self, value: str) -> bool:
@@ -80,3 +83,10 @@ class ValueConstraintValidator:
     def _has_valid_namespace_prefix(self, value: str) -> bool:
         prefix, sep, _local_name = value.partition(_PREFIX_SEPARATOR_CHAR)
         return sep == _PREFIX_SEPARATOR_CHAR and prefix in self._namespaces
+
+    def _is_valid_sqname(self, value: str) -> bool:
+        if SQNAME_PATTERN.fullmatch(value) is None:
+            return False
+        if _PREFIX_SEPARATOR_CHAR in value:
+            return self._has_valid_namespace_prefix(value)
+        return True
