@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+from types import MappingProxyType
+
 import pytest
 
 from arelle import XbrlConst
@@ -8,11 +11,18 @@ from arelle.oim._tc.metadata import types as tc_types
 from arelle.oim._tc.metadata.model import TCValueConstraint
 from arelle.oim._tc.value_validator import ValueConstraintValidator
 
-_NAMESPACES: dict[str, str] = {"xs": XbrlConst.xsd}
+_NAMESPACES = MappingProxyType({"xs": XbrlConst.xsd})
+_UNIT_NAMESPACES = MappingProxyType(
+    {
+        **_NAMESPACES,
+        "iso4217": "http://www.xbrl.org/2003/iso4217",
+        "scheme": "http://example.com/scheme",
+    }
+)
 
 
-def _validator(constraint_type: QName | str) -> ValueConstraintValidator:
-    return ValueConstraintValidator(TCValueConstraint(str(constraint_type)), _NAMESPACES)
+def _validator(constraint_type: QName | str, namespaces: Mapping[str, str] = _NAMESPACES) -> ValueConstraintValidator:
+    return ValueConstraintValidator(TCValueConstraint(str(constraint_type)), namespaces)
 
 
 class TestValidateUnknownType:
@@ -196,3 +206,34 @@ class TestValidateEntity:
     )
     def test_entity_validation(self, value: str, expected: bool) -> None:
         assert _validator(tc_types.CORE_ENTITY).validate(value) is expected
+
+
+class TestValidateUnit:
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            ("iso4217:USD", True),
+            ("iso4217:EUR*iso4217:USD", True),
+            ("iso4217:USD/scheme:m", True),
+            ("(iso4217:EUR*iso4217:USD)/scheme:m", True),
+            ("iso4217:USD/(scheme:m*scheme:s)", True),
+            ("(iso4217:EUR*iso4217:USD)/(scheme:m*scheme:s)", True),
+            ("iso4217:USD*iso4217:USD", True),
+            ("", False),
+            ("localOnly", False),
+            ("undef:foo", False),
+            ("scheme:m*iso4217:USD", False),
+            ("iso4217:USD/(scheme:s*iso4217:m)", False),
+            ("*iso4217:USD", False),
+            ("iso4217:USD*", False),
+            ("iso4217:USD/scheme:m/scheme:s", False),
+            ("iso4217:USD / scheme:m", False),
+            ("iso4217:EUR*iso4217:USD/scheme:m", False),
+            ("iso4217:USD/scheme:m*scheme:s", False),
+            ("/scheme:m", False),
+            ("(iso4217:USD)/scheme:m", False),
+            ("iso4217:USD ", False),
+        ],
+    )
+    def test_unit_validation(self, value: str, expected: bool) -> None:
+        assert _validator(tc_types.CORE_UNIT, _UNIT_NAMESPACES).validate(value) is expected

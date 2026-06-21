@@ -11,8 +11,8 @@ import regex
 
 from arelle.ModelValue import parseDateTimeString, validateDateComponents, validateDateTimeComponents
 from arelle.oim._tc.metadata.model import TCValueConstraint
-from arelle.oim._tc.metadata.types import CORE_ENTITY, CORE_LANGUAGE, QNAME, resolve_effective_lexical_type
-from arelle.oim.const import SQNAME_PATTERN
+from arelle.oim._tc.metadata.types import CORE_ENTITY, CORE_LANGUAGE, CORE_UNIT, QNAME, resolve_effective_lexical_type
+from arelle.oim.const import PREFIXED_QNAME_PATTERN, SQNAME_PATTERN, UNIT_PATTERN, UNIT_QNAME_SUBSTITUTION_CHAR
 from arelle.XmlValidate import lexicalPatterns, validateValueString
 
 _LEXICAL_DATE_TYPES = frozenset({"date", "dateTime"})
@@ -50,6 +50,7 @@ def _is_valid_date_lexical(baseXsdType: str, value: str) -> bool:
     except (ValueError, TypeError):
         return False
 
+
 # TC prohibits uppercase characters in core language.
 _TC_CORE_LANGUAGE_PATTERN = regex.compile(r"[a-z]{1,8}(-[a-z0-9]{1,8})*$")
 
@@ -72,6 +73,8 @@ class ValueConstraintValidator:
             return self._is_valid_sqname(value)
         if self._constraint.type == CORE_LANGUAGE:
             return self._is_valid_core_language(value)
+        if self._constraint.type == CORE_UNIT:
+            return self._is_valid_unit(value)
         return True
 
     def _is_base_xsd_type_valid(self, value: str) -> bool:
@@ -100,3 +103,25 @@ class ValueConstraintValidator:
 
     def _is_valid_core_language(self, value: str) -> bool:
         return _TC_CORE_LANGUAGE_PATTERN.fullmatch(value) is not None
+
+    def _is_valid_unit(self, value: str) -> bool:
+        qnames = PREFIXED_QNAME_PATTERN.findall(value)
+        if not qnames:
+            return False
+        substituted = PREFIXED_QNAME_PATTERN.sub(UNIT_QNAME_SUBSTITUTION_CHAR, value)
+        if UNIT_PATTERN.fullmatch(substituted) is None:
+            return False
+        for qname in qnames:
+            prefix = qname.partition(_PREFIX_SEPARATOR_CHAR)[0]
+            if prefix not in self._namespaces:
+                return False
+        numerator, _, denominator = value.partition("/")
+        return self._is_sorted_product(numerator) and self._is_sorted_product(denominator)
+
+    def _is_sorted_product(self, product: str) -> bool:
+        if not product:
+            return True
+        if product.startswith("(") and product.endswith(")"):
+            product = product[1:-1]
+        qnames = product.split("*")
+        return qnames == sorted(qnames)
