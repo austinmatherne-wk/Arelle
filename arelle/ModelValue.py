@@ -518,8 +518,14 @@ def validateDateTimeComponents(
     second: int,
     microsec: int,
 ) -> None:
+    if not 0 <= hour <= 24:
+        raise ValueError(f"hour must be in 0..24, got {hour}")
     if hour == 24 and (minute != 0 or second != 0 or microsec != 0):
         raise ValueError("hour 24 must have 0 mins and secs.")
+    if not 0 <= minute <= 59:
+        raise ValueError(f"minute must be in 0..59, got {minute}")
+    if not 0 <= second <= 59:
+        raise ValueError(f"second must be in 0..59, got {second}")
     validateDateComponents(year, month, day)
 
 
