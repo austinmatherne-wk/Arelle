@@ -296,8 +296,8 @@ def tzinfo(tz: str | None) -> datetime.timezone | None:
     else:
         return datetime.timezone(datetime.timedelta(hours=int(tz[0:3]), minutes=int(tz[0]+tz[4:6])))
 
-def tzinfoStr(dt: datetime.datetime | datetime.date) -> str:
-    if isinstance(dt, datetime.datetime):
+def tzinfoStr(dt: datetime.datetime | datetime.date | XsdDate | XsdDateTime) -> str:
+    if isinstance(dt, (datetime.datetime, XsdDate, XsdDateTime)):
         tz = str(dt.tzinfo or "")
         if tz.startswith("UTC"):
             return tz[3:] or "Z"
@@ -360,7 +360,7 @@ def dateTime(
     *,
     type: Literal[1],
     castException: type[Exception],
-) -> DateTime: ...
+) -> DateTime | XsdDate: ...
 
 @overload
 def dateTime(
@@ -370,7 +370,7 @@ def dateTime(
     *,
     type: Literal[2],
     castException: type[Exception],
-) -> DateTime: ...
+) -> DateTime | XsdDateTime: ...
 
 @overload
 def dateTime(
@@ -380,7 +380,7 @@ def dateTime(
     *,
     type: Literal[1],
     castException: None = ...,
-) -> DateTime | None: ...
+) -> DateTime | XsdDate | None: ...
 
 @overload
 def dateTime(
@@ -390,7 +390,7 @@ def dateTime(
     *,
     type: Literal[2],
     castException: None = ...,
-) -> DateTime | None: ...
+) -> DateTime | XsdDateTime | None: ...
 
 @overload
 def dateTime(
@@ -400,7 +400,7 @@ def dateTime(
     *,
     type: int | None = ...,
     castException: type[Exception],
-) -> DateTime: ...
+) -> DateTime | XsdDate | XsdDateTime: ...
 
 @overload
 def dateTime(
@@ -409,7 +409,7 @@ def dateTime(
     addOneDay: bool = ...,
     type: int | None = ...,
     castException: None = ...,
-) -> DateTime | None: ...
+) -> DateTime | XsdDate | XsdDateTime | None: ...
 
 def dateTime(
     value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
@@ -418,7 +418,7 @@ def dateTime(
     # TODO: type is a reserved name in Python, we should rename this
     type: int | None = None,
     castException: type[Exception] | None = None,
-) -> DateTime | None:
+) -> DateTime | XsdDate | XsdDateTime | None:
     if value == "MinDate":
         return DateTime(datetime.MINYEAR,1,1)
     elif value == "maxyear":
@@ -457,22 +457,29 @@ def dateTime(
         if castException:
             raise castException(f"year is outside of Arelle's datetime value range: {components.year}")
         return None
+    result: DateTime | XsdDate | XsdDateTime
     if not components.dateOnly:
         if type == DATE:
             if castException:
                 raise castException("date-only object has too many fields or contains time")
             return None
-        return DateTime(
-            y=components.year,
-            m=components.month,
-            d=components.day,
-            hr=components.hour,
-            min=components.minute,
-            sec=components.second,
-            microsec=components.microsecond,
-            tzinfo=components.tzinfo,
-            dateOnly=False,
-        )
+        if datetime.MINYEAR <= components.year <= datetime.MAXYEAR:
+            result = DateTime(
+                y=components.year,
+                m=components.month,
+                d=components.day,
+                hr=components.hour,
+                min=components.minute,
+                sec=components.second,
+                microsec=components.microsecond,
+                tzinfo=components.tzinfo,
+                dateOnly=False,
+            )
+        else:
+            validateDateTimeComponents(components.year, components.month, components.day, components.hour, components.minute, components.second, components.microsecond)
+            year, month, day, hour, minute, second, ms = _adjustDateTimeComponents(components.year, components.month, components.day, components.hour, components.minute, components.second, components.microsecond)
+            result = XsdDateTime(year, month, day, hour, minute, second, ms, components.tzinfo)
+
     else:
         if type == DATE or type == DATEUNION:
             dateOnly = True
@@ -480,14 +487,23 @@ def dateTime(
             dateOnly = False
         else:
             dateOnly = False
-        return DateTime(
-            y=components.year,
-            m=components.month,
-            d=components.day,
-            tzinfo=components.tzinfo,
-            dateOnly=dateOnly,
-            addOneDay=addOneDay,
-        )
+        if datetime.MINYEAR <= components.year <= datetime.MAXYEAR:
+            result = DateTime(
+                y=components.year,
+                m=components.month,
+                d=components.day,
+                tzinfo=components.tzinfo,
+                dateOnly=dateOnly,
+                addOneDay=addOneDay,
+            )
+        else:
+            validateDateComponents(components.year, components.month, components.day)
+            year, month, day = _adjustDateComponents(components.year, components.month, components.day, addOneDay)
+            if dateOnly:
+                result = XsdDate(year, month, day, components.tzinfo)
+            else:
+                result = XsdDateTime(year, month, day, tzinfo=components.tzinfo)
+    return result
 
 def lastDayOfMonth(year: int, month: int) -> int:
     if month in (1,3,5,7,8,10,12): return 31
@@ -628,6 +644,195 @@ class DateTime(datetime.datetime):
         if isinstance(dt, datetime.datetime):
             return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond, dt.tzinfo, self.dateOnly)
         return NotImplemented
+
+
+def _date_compare_key(d: XsdDate | DateTime) -> tuple[int, int, int]:
+    return (d.year, d.month, d.day)
+
+
+def _datetime_compare_key(d: XsdDateTime | DateTime) -> tuple[int, int, int, int, int, int, int]:
+    year, month, day = d.year, d.month, d.day
+    hour, minute, second, microsecond = d.hour, d.minute, d.second, d.microsecond
+    if d.tzinfo is not None:
+        offset = d.tzinfo.utcoffset(None)
+        if offset is not None:
+            timeSeconds = hour * 3600 + minute * 60 + second - int(offset.total_seconds())
+            dayAdjust = 0
+            if timeSeconds < 0:
+                timeSeconds += 86400
+                dayAdjust = -1
+            elif timeSeconds >= 86400:
+                timeSeconds -= 86400
+                dayAdjust = 1
+            hour = timeSeconds // 3600
+            minute = (timeSeconds % 3600) // 60
+            second = timeSeconds % 60
+            if dayAdjust:
+                day += dayAdjust
+                if day < 1:
+                    month -= 1
+                    if month < 1:
+                        year -= 1
+                        month = 12
+                    day = lastDayOfMonth(year, month)
+                elif day > lastDayOfMonth(year, month):
+                    day = 1
+                    month += 1
+                    if month > 12:
+                        year += 1
+                        month = 1
+    return (year, month, day, hour, minute, second, microsecond)
+
+
+class XsdDate:
+    """xs:date supporting years outside Python's datetime range (< 1 or > 9999)."""
+
+    def __init__(
+        self,
+        year: int,
+        month: int,
+        day: int,
+        tzinfo: datetime.tzinfo | None = None,
+    ) -> None:
+        _validateDateComponents(year, month, day)
+        self.year = year
+        self.month = month
+        self.day = day
+        self.tzinfo = tzinfo
+
+    def __copy__(self) -> XsdDate:
+        return XsdDate(self.year, self.month, self.day, self.tzinfo)
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, XsdDate) or (isinstance(other, DateTime) and other.dateOnly):
+            return (
+                self.year == other.year
+                and self.month == other.month
+                and self.day == other.day
+                and self.tzinfo == other.tzinfo
+            )
+        return NotImplemented
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, XsdDate) or (isinstance(other, DateTime) and other.dateOnly):
+            return _date_compare_key(self) < _date_compare_key(other)
+        return NotImplemented
+
+    def __le__(self, other: Any) -> bool:
+        if isinstance(other, XsdDate) or (isinstance(other, DateTime) and other.dateOnly):
+            return _date_compare_key(self) <= _date_compare_key(other)
+        return NotImplemented
+
+    def __gt__(self, other: Any) -> bool:
+        if isinstance(other, XsdDate) or (isinstance(other, DateTime) and other.dateOnly):
+            return _date_compare_key(self) > _date_compare_key(other)
+        return NotImplemented
+
+    def __ge__(self, other: Any) -> bool:
+        if isinstance(other, XsdDate) or (isinstance(other, DateTime) and other.dateOnly):
+            return _date_compare_key(self) >= _date_compare_key(other)
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash((self.year, self.month, self.day, self.tzinfo))
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"{self.year:04}-{self.month:02}-{self.day:02}{tzinfoStr(self)}"
+
+
+class XsdDateTime:
+    """xs:dateTime supporting years outside Python's datetime range (< 1 or > 9999)."""
+
+    def __init__(
+        self,
+        year: int,
+        month: int,
+        day: int,
+        hour: int = 0,
+        minute: int = 0,
+        second: int = 0,
+        microsecond: int = 0,
+        tzinfo: datetime.tzinfo | None = None,
+    ) -> None:
+        _validateDateTimeComponents(year, month, day, hour, minute, second, microsecond)
+        self.year = year
+        self.month = month
+        self.day = day
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+        self.microsecond = microsecond
+        self.tzinfo = tzinfo
+
+    def __copy__(self) -> XsdDateTime:
+        return XsdDateTime(
+            self.year,
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second,
+            self.microsecond,
+            self.tzinfo,
+        )
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, XsdDateTime) or (isinstance(other, DateTime) and not other.dateOnly):
+            return (
+                self.year == other.year
+                and self.month == other.month
+                and self.day == other.day
+                and self.hour == other.hour
+                and self.minute == other.minute
+                and self.second == other.second
+                and self.microsecond == other.microsecond
+                and self.tzinfo == other.tzinfo
+            )
+        return NotImplemented
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, XsdDateTime) or (isinstance(other, DateTime) and not other.dateOnly):
+            return _datetime_compare_key(self) < _datetime_compare_key(other)
+        return NotImplemented
+
+    def __le__(self, other: Any) -> bool:
+        if isinstance(other, XsdDateTime) or (isinstance(other, DateTime) and not other.dateOnly):
+            return _datetime_compare_key(self) <= _datetime_compare_key(other)
+        return NotImplemented
+
+    def __gt__(self, other: Any) -> bool:
+        if isinstance(other, XsdDateTime) or (isinstance(other, DateTime) and not other.dateOnly):
+            return _datetime_compare_key(self) > _datetime_compare_key(other)
+        return NotImplemented
+
+    def __ge__(self, other: Any) -> bool:
+        if isinstance(other, XsdDateTime) or (isinstance(other, DateTime) and not other.dateOnly):
+            return _datetime_compare_key(self) >= _datetime_compare_key(other)
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.year,
+                self.month,
+                self.day,
+                self.hour,
+                self.minute,
+                self.second,
+                self.microsecond,
+                self.tzinfo,
+            )
+        )
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"{self.year:04}-{self.month:02}-{self.day:02}T{self.hour:02}:{self.minute:02}:{self.second:02}{tzinfoStr(self)}"
+
 
 def dateUnionEqual(
     dateUnion1: DateTime | datetime.date,
@@ -1210,6 +1415,8 @@ TypeXValue = Union[
     datetime.time,
     Decimal,
     dict[str, 're.Pattern[str]'],
+    XsdDate,
+    XsdDateTime,
     float,
     gDay,
     gMonth,

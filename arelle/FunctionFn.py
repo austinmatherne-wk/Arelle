@@ -23,6 +23,8 @@ from arelle.ModelValue import (
     qname,
     dateTime,
     DateTime,
+    XsdDate,
+    XsdDateTime,
     DATE,
     DATETIME,
     dayTimeDuration,
@@ -829,7 +831,7 @@ def year_from_dateTime(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.year
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -845,7 +847,7 @@ def month_from_dateTime(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.month
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -861,7 +863,7 @@ def day_from_dateTime(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.day
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -877,7 +879,7 @@ def hours_from_dateTime(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDateTime)):
         return d.hour
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -893,7 +895,7 @@ def minutes_from_dateTime(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDateTime)):
         return d.minute
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -909,7 +911,7 @@ def seconds_from_dateTime(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDateTime)):
         return d.second
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -925,7 +927,7 @@ def timezone_from_dateTime(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.tzinfo
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -941,7 +943,7 @@ def year_from_date(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.year
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -957,7 +959,7 @@ def month_from_date(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.month
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -973,7 +975,7 @@ def day_from_date(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.day
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -989,7 +991,7 @@ def timezone_from_date(
     d = anytypeArg(xc, args, 0, "dateTime", missingArgFallback=())
     if d == ():
         return d
-    if isinstance(d, DateTime):
+    if isinstance(d, (DateTime, XsdDate, XsdDateTime)):
         return d.tzinfo
     raise XPathContext.FunctionArgType(1, "xs:dateTime")
 
@@ -1692,7 +1694,7 @@ def current_dateTime(
     p: OperationDef,
     contextItem: XPathContext.ContextItem,
     args: XPathContext.ResultStack,
-) -> DateTime | None:
+) -> DateTime | XsdDateTime | None:
     return dateTime(dt.datetime.now(), type=DATETIME)
 
 
@@ -1701,7 +1703,7 @@ def current_date(
     p: OperationDef,
     contextItem: XPathContext.ContextItem,
     args: XPathContext.ResultStack,
-) -> DateTime | None:
+) -> DateTime | XsdDate | None:
     return dateTime(dt.date.today(), type=DATE)
 
 

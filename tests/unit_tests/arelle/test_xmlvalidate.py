@@ -10,7 +10,19 @@ from unittest.mock import Mock
 import pytest
 import regex
 
-from arelle.ModelValue import DateTime, QName, Time, gDay, gMonth, gMonthDay, gYear, gYearMonth, isoDuration
+from arelle.ModelValue import (
+    DateTime,
+    QName,
+    Time,
+    XsdDate,
+    XsdDateTime,
+    gDay,
+    gMonth,
+    gMonthDay,
+    gYear,
+    gYearMonth,
+    isoDuration,
+)
 from arelle.XmlValidate import (
     NCNamePattern,
     NMTOKENPattern,
@@ -108,6 +120,8 @@ BASE_XSD_TYPES = {
         {"value": "*invalid", "expected": ("=", None, INVALID)},
         {"value": "01/02/2025", "expected": ("=", None, INVALID)},
         {"value": "0000-01-02", "expected": ("=", None, INVALID)},
+        {"value": "12025-01-02", "expected": ("=", XsdDate(12025, 1, 2), VALID)},
+        {"value": "-0001-01-02", "expected": ("=", XsdDate(-1, 1, 2), VALID)},
     ],
     "dateTime": [
         {"value": "2025-01-02T03:04:05", "expected": ("=", DateTime(2025, 1, 2, 3, 4, 5), VALID)},
@@ -121,6 +135,8 @@ BASE_XSD_TYPES = {
         {"value": "*invalid", "expected": ("=", None, INVALID)},
         {"value": "01/02/2025", "expected": ("=", None, INVALID)},
         {"value": "0000-01-02T03:04:05", "expected": ("=", None, INVALID)},
+        {"value": "12025-01-02T03:04:05", "expected": ("=", XsdDateTime(12025, 1, 2, 3, 4, 5), VALID)},
+        {"value": "-0001-01-02T03:04:05", "expected": ("=", XsdDateTime(-1, 1, 2, 3, 4, 5), VALID)},
     ],
     "decimal": NON_ZERO_DECIMAL_CASES + [
         {"value": "0", "expected": (0, Decimal(0), VALID)},
