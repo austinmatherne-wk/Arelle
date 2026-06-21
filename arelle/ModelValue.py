@@ -4,6 +4,7 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 import datetime, isodate
 from collections.abc import Mapping
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast, overload, Optional, Union
 from fractions import Fraction
@@ -302,6 +303,55 @@ def tzinfoStr(dt: datetime.datetime | datetime.date) -> str:
             return tz[3:] or "Z"
     return ""
 
+
+@dataclass(frozen=True)
+class DateTimeComponents:
+    year: int
+    month: int
+    day: int
+    hour: int
+    minute: int
+    second: int
+    microsecond: int
+    tzinfo: datetime.timezone | None
+    dateOnly: bool
+
+
+def parseDateTimeComponents(value: str) -> DateTimeComponents | None:
+    match = datetimePattern.match(value.strip())
+    if match is None:
+        return None
+    assert match.lastindex is not None
+    if 6 <= match.lastindex <= 8:
+        ms = 0
+        fracSec = match.group(7)
+        if fracSec and fracSec[0] == ".":
+            ms = int(fracSec[1:7].ljust(6, "0"))
+        return DateTimeComponents(
+            year=int(match.group(1)),
+            month=int(match.group(2)),
+            day=int(match.group(3)),
+            hour=int(match.group(4)),
+            minute=int(match.group(5)),
+            second=int(match.group(6)),
+            microsecond=ms,
+            tzinfo=tzinfo(match.group(8)),
+            dateOnly=False,
+        )
+    else:
+        return DateTimeComponents(
+            year=int(match.group(9)),
+            month=int(match.group(10)),
+            day=int(match.group(11)),
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0,
+            tzinfo=tzinfo(match.group(12)),
+            dateOnly=True,
+        )
+
+
 def dateTime(
     value: str | ModelObject | DateTime | datetime.datetime | datetime.date | None,
     time: Any = None,
@@ -334,22 +384,27 @@ def dateTime(
         raise castException("not a string value")
     if value is None:
         return None
-    match = datetimePattern.match(value.strip())
-    if match is None:
+    components = parseDateTimeComponents(value)
+    if components is None:
         if castException:
             raise castException("lexical pattern mismatch")
         return None
-    assert match.lastindex is not None
-    if 6 <= match.lastindex <= 8:
+    if not components.dateOnly:
         if type == DATE:
             if castException:
                 raise castException("date-only object has too many fields or contains time")
             return None
-        ms = 0
-        fracSec = match.group(7)
-        if fracSec and fracSec[0] == ".":
-            ms = int(fracSec[1:7].ljust(6,'0'))
-        result = DateTime(int(match.group(1)),int(match.group(2)),int(match.group(3)),int(match.group(4)),int(match.group(5)),int(match.group(6)),ms,tzinfo(match.group(8)), dateOnly=False)
+        return DateTime(
+            y=components.year,
+            m=components.month,
+            d=components.day,
+            hr=components.hour,
+            min=components.minute,
+            sec=components.second,
+            microsec=components.microsecond,
+            tzinfo=components.tzinfo,
+            dateOnly=False,
+        )
     else:
         if type == DATE or type == DATEUNION:
             dateOnly = True
@@ -357,8 +412,14 @@ def dateTime(
             dateOnly = False
         else:
             dateOnly = False
-        result = DateTime(int(match.group(9)),int(match.group(10)),int(match.group(11)),tzinfo=tzinfo(match.group(12)),dateOnly=dateOnly,addOneDay=addOneDay)
-    return result
+        return DateTime(
+            y=components.year,
+            m=components.month,
+            d=components.day,
+            tzinfo=components.tzinfo,
+            dateOnly=dateOnly,
+            addOneDay=addOneDay,
+        )
 
 def lastDayOfMonth(year: int, month: int) -> int:
     if month in (1,3,5,7,8,10,12): return 31
