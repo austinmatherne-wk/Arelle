@@ -44,6 +44,9 @@ buildRenameX86.bat
 conf-*
 dist
 docs/_build
+docs/arelle.org/.hugo_build.lock
+docs/arelle.org/node_modules/
+docs/arelle.org/public/
 docs/source/apidocs
 obj/
 runtime_options.json

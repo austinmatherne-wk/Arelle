@@ -1,0 +1,7 @@
+{
+  "name": "arelle.org",
+  "private": true,
+  "devDependencies": {
+    "@picocss/pico": "^2.1.1"
+  }
+}
