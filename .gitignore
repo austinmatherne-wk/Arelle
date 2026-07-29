@@ -47,6 +47,7 @@ docs/_build
 docs/arelle.org/.hugo_build.lock
 docs/arelle.org/node_modules/
 docs/arelle.org/public/
+docs/arelle.org/resources/
 docs/source/apidocs
 obj/
 runtime_options.json

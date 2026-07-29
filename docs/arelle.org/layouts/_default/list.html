@@ -1,0 +1,11 @@
+{{ define "main" }}
+  {{ if not .IsHome }}<h1>{{ .Title }}</h1>{{ end }}
+  {{ .Content }}
+  {{ if not .IsHome }}
+    <ul>
+      {{ range .Pages }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{ end }}
+    </ul>
+  {{ end }}
+{{ end }}

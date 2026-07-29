@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="{{ .Site.Language.Lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
+  {{ with .Description }}<meta name="description" content="{{ . }}">{{ end }}
+  {{ with .OutputFormats.Get "rss" }}
+    <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
+  {{ end }}
+  {{ $css := resources.Get "css/main.css" | css.Build (dict "outputStyle" "compressed") }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+  {{ with resources.Get "images/arelle-logo-5.png" }}
+    {{ with .Fill "82x82 left" }}
+      <link rel="icon" type="image/png" href="{{ .RelPermalink }}">
+    {{ end }}
+  {{ end }}
+</head>
+<body>
+<header>
+  <nav>
+    <ul>
+      <li>
+        <a href="/">
+          {{ with resources.Get "images/arelle-logo-5.png" }}
+            {{ with .Resize "258x" }}
+              <img class="site-logo" src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="Arelle">
+            {{ end }}
+          {{ end }}
+        </a>
+      </li>
+    </ul>
+    <ul>
+      {{ range .Site.Menus.main }}
+        <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+      {{ end }}
+    </ul>
+  </nav>
+</header>
+<main>
+  {{ block "main" . }}{{ end }}
+</main>
+<footer>
+  <small>&copy; {{ now.Format "2006" }} Workiva Inc. · <a href="https://www.workiva.com/privacy-policy">Privacy Policy</a></small>
+</footer>
+</body>
+</html>

@@ -1,0 +1,22 @@
+@import "@picocss/pico/css/pico.classless.cyan.min.css";
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  list-style: none;
+}
+
+.site-logo {
+  height: auto;
+}

@@ -1,0 +1,6 @@
+{{ $img := resources.Get (printf "images/%s" (.Get "src")) }}
+{{ $alt := .Get "alt" }}
+{{ $link := .Get "link" }}
+{{ if $link }}<a href="{{ $link }}">{{ end }}
+<img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ $alt }}">
+{{ if $link }}</a>{{ end }}
