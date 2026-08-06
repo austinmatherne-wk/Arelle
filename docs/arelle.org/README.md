@@ -57,6 +57,26 @@ covered by the performance and accessibility budgets.
 request that touches `docs/arelle.org/`. Run them locally the same way before
 opening one.
 
+### Legacy URLs
+
+Every URL the old WordPress site served must still land somewhere in the build.
+This is the check that matters most — three of the paths are linked from SEC
+filings and cannot break:
+
+```shell
+hugo --minify
+npm run check:legacy-urls
+```
+
+The in-scope URLs live in `legacy-urls/legacy-urls.json`, captured from the live
+WordPress site before it was retired. It cannot be recaptured, so treat it as
+fixed: if the check fails, the site is wrong, not the fixture. Most entries pass
+on an `aliases` redirect stub; the four `verbatim` assets must match their
+`static/` copies byte for byte, because an XML parser and a browser download
+will not follow a meta refresh. The `expected404` entries must stay unserved.
+
+`legacy-urls/check.test.mjs` covers the checker itself; run it with `npm test`.
+
 ### htmltest
 
 Checks links, mailto addresses, the favicon, and the doctype against the build

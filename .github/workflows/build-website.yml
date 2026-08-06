@@ -38,3 +38,16 @@ jobs:
           - name: Check performance and accessibility with Lighthouse CI
             working-directory: docs/arelle.org
             run: npx lhci autorun
+          # Unlike its neighbours, a failure here is not a quality regression:
+          # it means a URL the outside world still links to has no target in
+          # the build. It belongs here rather than in publish-website.yml
+          # because the release caller gates publishing on this workflow, so a
+          # broken URL blocks deployment without the publishing workflow owning
+          # any tests. Running in parallel with the others means a link or
+          # performance regression cannot mask it.
+          - name: Test the legacy URL checker
+            working-directory: docs/arelle.org
+            run: npm test
+          - name: Check legacy URLs still resolve
+            working-directory: docs/arelle.org
+            run: npm run check:legacy-urls

@@ -31,8 +31,9 @@ jobs:
         uses: actions/configure-pages@v6.0.0
       - name: Build website
         uses: ./.github/actions/build_website
-        # This workflow owns no checks. build-website.yml runs htmltest and
-        # Lighthouse, and release.yml gates this job on it. Manual dispatch is
+        # This workflow owns no checks. build-website.yml runs the legacy URL
+        # check, htmltest, and Lighthouse, and release.yml will gate this job
+        # on it once it calls both. Manual dispatch is
         # an explicit maintainer action for content corrections between
         # releases, like publish-documentation.yml.
         with:
