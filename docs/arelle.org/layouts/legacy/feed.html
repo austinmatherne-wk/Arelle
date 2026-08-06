@@ -1,0 +1,15 @@
+{{/* The legacy feed page's HTML output is nothing but a redirect to the blog:
+     GitHub Pages can only serve HTML at a slash-terminated path. Selected by
+     `layout: feed`, so no other page in this section can pick it up. */}}
+<!doctype html>
+<html lang="{{ .Site.Language.Lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=/blog/">
+  <link rel="canonical" href="{{ "/blog/" | absURL }}">
+  <title>{{ .Title }}</title>
+</head>
+<body>
+  <p>This feed has moved to <a href="/blog/">the Arelle blog</a>.</p>
+</body>
+</html>
