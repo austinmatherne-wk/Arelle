@@ -51,8 +51,8 @@ html_theme_options = {
     },
 }
 html_title = "Arelle <release>"
-html_favicon = "../../arelle/images/favicon.ico"
-html_logo = "../../arelle/images/arelle-rtd.png"
+html_favicon = "../arelle.org/assets/images/favicon.svg"
+html_logo = "../arelle.org/assets/images/favicon.svg"
 
 myst_enable_extensions = [
     "colon_fence",
