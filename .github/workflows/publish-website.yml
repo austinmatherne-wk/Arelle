@@ -1,0 +1,45 @@
+name: Publish Website
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions: {}
+
+# Serialize deployments and let queued runs finish rather than cancelling them,
+# so a release deployment is never dropped by a manual correction dispatched
+# behind it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish-website:
+    environment: github-pages
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          # Full history so enableGitInfo can resolve .Lastmod and .GitInfo.
+          fetch-depth: 0
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v6.0.0
+      - name: Build website
+        uses: ./.github/actions/build_website
+        # This workflow owns no checks. build-website.yml runs htmltest and
+        # Lighthouse, and release.yml gates this job on it. Manual dispatch is
+        # an explicit maintainer action for content corrections between
+        # releases, like publish-documentation.yml.
+        with:
+          base_url: ${{ steps.pages.outputs.base_url }}
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: docs/arelle.org/public
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v5.0.0

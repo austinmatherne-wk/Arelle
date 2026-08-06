@@ -1,0 +1,38 @@
+name: Build Website
+description: Installs Hugo and Node, then builds the minified arelle.org site into docs/arelle.org/public.
+inputs:
+  base_url:
+    default: '/'
+    description: Base URL to build the site against
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Install Hugo
+      shell: bash
+      env:
+        HUGO_VERSION: '0.164.0'
+      run: |
+        wget -O "${{ runner.temp }}/hugo.deb" \
+          "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+        sudo dpkg -i "${{ runner.temp }}/hugo.deb"
+    - name: Install Node
+      uses: actions/setup-node@v7.0.0
+      with:
+        cache: 'npm'
+        cache-dependency-path: docs/arelle.org/package-lock.json
+        check-latest: true
+        node-version: '26'
+    - name: Install dependencies
+      shell: bash
+      working-directory: docs/arelle.org
+      # Required before any build: the stylesheet is assembled out of
+      # node_modules by Hugo's asset pipeline.
+      run: npm ci
+    - name: Build website
+      shell: bash
+      working-directory: docs/arelle.org
+      env:
+        BASE_URL: ${{ inputs.base_url }}
+      run: hugo --minify --baseURL "$BASE_URL"

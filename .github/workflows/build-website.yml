@@ -1,0 +1,40 @@
+name: Build Website
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'docs/arelle.org/**'
+  workflow_call:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build-website:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          # Full history so enableGitInfo can resolve .Lastmod and .GitInfo.
+          fetch-depth: 0
+      - name: Build website
+        uses: ./.github/actions/build_website
+        # The default base URL of / is what the site is served from after DNS
+        # cutover. configure-pages, which publish-website.yml uses to get the
+        # temporary /Arelle/ project-site prefix, must not run here: it needs
+        # pages: write and fails outright until a repo admin enables Pages,
+        # which would turn every website PR red — permanently so for fork PRs,
+        # whose token is read-only.
+      - parallel:
+          - name: Check links with htmltest
+            uses: wjdp/htmltest-action@v0.13.0-rc1
+            with:
+              config: docs/arelle.org/.htmltest.yml
+              # The config's DirectoryPath is relative to htmltest's working
+              # directory; this action runs from the repository root.
+              path: docs/arelle.org/public
+          - name: Check performance and accessibility with Lighthouse CI
+            working-directory: docs/arelle.org
+            run: npx lhci autorun

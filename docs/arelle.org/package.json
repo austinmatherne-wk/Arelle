@@ -2,6 +2,7 @@
   "name": "arelle.org",
   "private": true,
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@picocss/pico": "^2.1.1"
   }
 }

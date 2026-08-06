@@ -1,0 +1,55 @@
+# Lighthouse CI configuration for arelle.org.
+#
+# Run locally with `hugo --minify && npx lhci autorun`. The `--minify` matters:
+# the budgets below are calibrated against the minified output CI publishes, and
+# `hugo server` output is neither minified nor fingerprinted.
+#
+# No `upload` section is configured, so `lhci autorun` collects and asserts
+# locally and never uploads a report anywhere.
+ci:
+  collect:
+    # Static output of `hugo --minify`, served by lhci's own file server. Not a
+    # dev server: the assertions are about what actually ships.
+    staticDistDir: ./public
+    url:
+      - /
+      - /download/
+      - /documentation/
+      - /participate/
+      - /blog/
+      - /blog/2026/06/26/june-2026-update/
+      # The three legacy EDGAR pages are permanently excluded from this list:
+      #   /arelle/pub/applications/
+      #   /arelle/pub/edgar-renderer-installation/
+      #   /arelle/documentation/edgar-renderer-technical-operation/
+      # They are unlisted compatibility content kept alive for inbound links
+      # rather than part of the site's active information architecture, and
+      # their screenshots put them well over the page-weight and request
+      # budgets below. The exclusion is deliberate, not an oversight.
+  assert:
+    assertions:
+      # Category scores.
+      'categories:performance': ['error', {minScore: 0.95}]
+      'categories:accessibility': ['error', {minScore: 1}]
+      'categories:best-practices': ['error', {minScore: 1}]
+      'categories:seo': ['error', {minScore: 1}]
+
+      # Page weight and request budgets.
+      'resource-summary:total:size': ['error', {maxNumericValue: 204800}]
+      'resource-summary:total:count': ['error', {maxNumericValue: 10}]
+
+      # Zero JavaScript, zero third-party requests.
+      'resource-summary:script:count': ['error', {maxNumericValue: 0}]
+      'resource-summary:script:size': ['error', {maxNumericValue: 0}]
+      'resource-summary:third-party:count': ['error', {maxNumericValue: 0}]
+
+      # Per-resource ceiling. Lighthouse reports transfer size by resource type
+      # rather than per file, so these cap each type at 100KB; with zero scripts
+      # and one stylesheet, a type total over 100KB means a single oversized
+      # asset every time except for images.
+      'resource-summary:document:size': ['error', {maxNumericValue: 102400}]
+      'resource-summary:stylesheet:size': ['error', {maxNumericValue: 102400}]
+      'resource-summary:image:size': ['error', {maxNumericValue: 102400}]
+      'resource-summary:font:size': ['error', {maxNumericValue: 102400}]
+      'resource-summary:media:size': ['error', {maxNumericValue: 102400}]
+      'resource-summary:other:size': ['error', {maxNumericValue: 102400}]
