@@ -1,5 +1,5 @@
 ---
-title: "November 2024 Update"
+title: November 2024 Update
 date: 2024-11-29T12:34:00
 aliases:
   - /arelle/2024/11/29/november-2024-update/

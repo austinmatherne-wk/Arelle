@@ -5,11 +5,12 @@
 <html lang="{{ .Site.Language.Lang }}">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=/blog/">
-  <link rel="canonical" href="{{ "/blog/" | absURL }}">
+  {{ $blog := (site.GetPage "/blog").RelPermalink }}
+  <meta http-equiv="refresh" content="0; url={{ $blog }}">
+  <link rel="canonical" href="{{ (site.GetPage "/blog").Permalink }}">
   <title>{{ .Title }}</title>
 </head>
 <body>
-  <p>This feed has moved to <a href="/blog/">the Arelle blog</a>.</p>
+  <p>This feed has moved to <a href="{{ $blog }}">the Arelle blog</a>.</p>
 </body>
 </html>

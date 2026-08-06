@@ -4,7 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
-  {{ with .Description }}<meta name="description" content="{{ . }}">{{ end }}
+  {{/* Blog posts state no description of their own; their opening lines are a
+       better one than anything a migration could have invented for them. */}}
+  {{ with or .Description (.Summary | plainify | chomp | truncate 160) }}
+    <meta name="description" content="{{ . }}">
+  {{ end }}
   {{ with .OutputFormats.Get "rss" }}
     <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
   {{ end }}
