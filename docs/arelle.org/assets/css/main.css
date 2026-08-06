@@ -17,6 +17,38 @@ nav ul {
   list-style: none;
 }
 
-.site-logo {
-  height: auto;
+header svg {
+  display: block;
+  height: 2.75rem;
+  width: auto;
+}
+
+/* The light scheme needs nothing: the wordmark is drawn for a white page. Dark
+   breaks it twice — the print magenta drops to 2.74:1 on Pico's dark canvas,
+   and the white keyline between the two wing layers reads as a halo rather than
+   a gap at header size. Recolouring here is why the SVG is inlined rather than
+   an <img>. The first two rules mirror favicon.svg's own embedded style; the
+   keyline is ours alone, since an icon on unknown browser chrome cannot assume
+   a background colour but a page can. It is declared on the header rather than
+   further down because Pico zeroes --pico-background-color on the <a>. */
+@media (prefers-color-scheme: dark) {
+  header {
+    --wordmark-keyline: var(--pico-background-color);
+  }
+
+  /* .wordmark-letters is stroke-only — it carries fill="none", so it must not
+     be given a fill or the letter outlines flood. */
+  header .wordmark-letters {
+    stroke: #d64fb0;
+  }
+
+  header .wordmark-trademark,
+  header .wordmark-wing-back {
+    fill: #d64fb0;
+  }
+
+  header .wordmark-wing-back,
+  header .wordmark-wing-front {
+    stroke: var(--wordmark-keyline);
+  }
 }

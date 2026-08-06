@@ -10,9 +10,13 @@
   {{ end }}
   {{ $css := resources.Get "css/main.css" | css.Build (dict "minify" true) }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}">
-  {{ $logo := resources.Get "images/arelle-logo-5.png" }}
-  {{ with $logo.Fill "82x82 left" }}
-    <link rel="icon" type="image/png" href="{{ .RelPermalink }}">
+  {{/* The ICO is served from static/ at the root path browsers request on their
+       own, and is the fallback for Safari before 17, which ignores SVG icons.
+       Browsers that understand the SVG prefer it: it is sharp at every size and
+       carries its own dark-scheme style, which a raster icon cannot. */}}
+  <link rel="icon" href="{{ relURL "favicon.ico" }}" sizes="32x32">
+  {{ with resources.Get "images/favicon.svg" }}
+    <link rel="icon" type="image/svg+xml" href="{{ .RelPermalink }}">
   {{ end }}
 </head>
 <body>
@@ -20,11 +24,9 @@
   <nav>
     <ul>
       <li>
-        <a href="/">
-          {{ with $logo.Resize "258x" }}
-            <img class="site-logo" src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="Arelle">
-          {{ end }}
-        </a>
+        {{/* Inlined rather than <img> so main.css can recolour it per scheme.
+             Names the link via the wordmark's own <title>. */}}
+        <a href="/">{{ (resources.Get "images/arelle-wordmark.svg").Content | safeHTML }}</a>
       </li>
     </ul>
     <ul>
