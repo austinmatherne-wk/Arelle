@@ -4,7 +4,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/arelle-release)](https://pypi.org/project/arelle-release/)
 [![Read the Docs](https://img.shields.io/readthedocs/arelle)](https://arelle.readthedocs.io/)
 
-[![Arelle Banner](https://raw.githubusercontent.com/Arelle/Arelle/master/docs/arelle.org/static/arelle/wp-content/themes/platform/images/logo-platform.png)](https://arelle.org/)
+[![Arelle Banner](https://raw.githubusercontent.com/Arelle/Arelle/master/docs/arelle.org/assets/images/arelle-wordmark.svg)](https://arelle.org/)
 
 ## Table of Contents
 
