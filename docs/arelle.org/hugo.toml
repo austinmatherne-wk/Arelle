@@ -13,25 +13,3 @@ enableGitInfo = true
   section = ['HTML']
   taxonomy = ['HTML']
   term = ['HTML']
-
-[menus]
-  [[menus.main]]
-    name = 'Home'
-    url = '/'
-    weight = 1
-  [[menus.main]]
-    name = 'Download'
-    url = '/download/'
-    weight = 2
-  [[menus.main]]
-    name = 'Documentation'
-    url = '/documentation/'
-    weight = 3
-  [[menus.main]]
-    name = 'Participate'
-    url = '/participate/'
-    weight = 4
-  [[menus.main]]
-    name = 'Blog'
-    url = '/blog/'
-    weight = 5

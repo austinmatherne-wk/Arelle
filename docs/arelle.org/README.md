@@ -93,8 +93,9 @@ Broken *external* links are logged but do not fail the run — see the comments 
 
 ### Lighthouse CI
 
-Asserts category scores and page-weight, request-count, and zero-JavaScript
-budgets against the minified output:
+Asserts category scores and page-weight, request-count, and third-party-request
+budgets against the minified output. The Node tests separately enforce that the
+inline theme controller is the only normal-site script and remains below 1 KB:
 
 ```shell
 hugo --minify

@@ -1,54 +1,328 @@
-@import "@picocss/pico/css/pico.classless.cyan.min.css";
+@import "@picocss/pico/css/pico.classless.min.css";
+
+:root {
+  --measure: 42rem;
+  --frame: 52rem;
+  --wordmark-ink: var(--accent);
+  /* The keyline between the wing layers reads as a halo unless it matches the
+     page it sits on, so it tracks the canvas in both schemes. */
+  --wordmark-keyline: var(--pico-background-color);
+}
+
+/* Match Pico's light selector specificity so these values override its
+   defaults. The dark media block below wins later in the cascade when no
+   explicit choice has been made. */
+:root:not([data-theme="dark"]) {
+  color-scheme: light;
+  --ink: #373c44;
+  --muted-ink: #646b79;
+  --divider: #cfd5e2;
+  --surface: #f8f9fc;
+  --accent: #aa118e;
+  --accent-hover: #8a0e74;
+  --signal: #007d87;
+  --pico-background-color: #ffffff;
+  --pico-color: var(--ink);
+  --pico-muted-color: var(--muted-ink);
+  --pico-muted-border-color: var(--divider);
+  --pico-primary: var(--accent);
+  --pico-primary-hover: var(--accent-hover);
+  --pico-primary-focus: rgb(170 17 142 / 25%);
+  --pico-card-background-color: var(--surface);
+  --pico-code-background-color: #f3f5f8;
+}
+
+/* The dark palette is declared twice on purpose. Pico ships its own dark values
+   against both `[data-theme=dark]` and a `prefers-color-scheme` block, so
+   overriding them takes a matching selector in each context — a single hoisted
+   declaration loses to Pico's. Keep the two blocks in sync. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #c2c7d0;
+  --muted-ink: #8891a4;
+  --divider: #2a3140;
+  --surface: #1b202b;
+  --accent: #d64fb0;
+  --accent-hover: #e378c4;
+  --signal: #5ecbd2;
+  --pico-background-color: #13171f;
+  --pico-color: var(--ink);
+  --pico-muted-color: var(--muted-ink);
+  --pico-muted-border-color: var(--divider);
+  --pico-primary: var(--accent);
+  --pico-primary-hover: var(--accent-hover);
+  --pico-primary-focus: rgb(214 79 176 / 25%);
+  --pico-card-background-color: var(--surface);
+  --pico-code-background-color: var(--surface);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ink: #c2c7d0;
+    --muted-ink: #8891a4;
+    --divider: #2a3140;
+    --surface: #1b202b;
+    --accent: #d64fb0;
+    --accent-hover: #e378c4;
+    --signal: #5ecbd2;
+    --pico-background-color: #13171f;
+    --pico-color: var(--ink);
+    --pico-muted-color: var(--muted-ink);
+    --pico-muted-border-color: var(--divider);
+    --pico-primary: var(--accent);
+    --pico-primary-hover: var(--accent-hover);
+    --pico-primary-focus: rgb(214 79 176 / 25%);
+    --pico-card-background-color: var(--surface);
+    --pico-code-background-color: var(--surface);
+  }
+}
 
 body {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
+  flex-direction: column;
+  background: var(--pico-background-color);
+  color: var(--ink);
 }
 
-main {
+body > header,
+body > main,
+body > footer {
+  width: 100%;
+  padding-inline: var(--pico-spacing);
+}
+
+body > header,
+body > footer {
+  max-width: var(--frame);
+  margin-inline: auto;
+}
+
+body > main {
+  max-width: var(--measure);
   flex: 1;
+  margin-inline: auto;
 }
 
-nav ul {
+a {
+  color: inherit;
+  text-underline-offset: 0.16em;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+.primary-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pico-spacing);
+}
+
+.primary-navigation ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: flex-end;
+  gap: calc(var(--pico-spacing) * 0.85);
+  margin: 0;
+  padding: 0;
+}
+
+.primary-navigation li {
   list-style: none;
 }
 
-header svg {
-  display: block;
-  height: 2.75rem;
-  width: auto;
+.wordmark {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  padding-bottom: 0.45rem;
+  text-decoration: none;
 }
 
-/* The light scheme needs nothing: the wordmark is drawn for a white page. Dark
-   breaks it twice — the print magenta drops to 2.74:1 on Pico's dark canvas,
-   and the white keyline between the two wing layers reads as a halo rather than
-   a gap at header size. Recolouring here is why the SVG is inlined rather than
-   an <img>. The first two rules mirror favicon.svg's own embedded style; the
-   keyline is ours alone, since an icon on unknown browser chrome cannot assume
-   a background colour but a page can. It is declared on the header rather than
-   further down because Pico zeroes --pico-background-color on the <a>. */
+.wordmark svg {
+  display: block;
+  width: auto;
+  height: 2.75rem;
+}
+
+/* .wordmark-letters is stroke-only — it carries fill="none", so it must not be
+   given a fill or the letter outlines flood. */
+.wordmark .wordmark-letters {
+  stroke: var(--wordmark-ink);
+}
+
+.wordmark .wordmark-trademark,
+.wordmark .wordmark-wing-back {
+  fill: var(--wordmark-ink);
+}
+
+.wordmark .wordmark-wing-back,
+.wordmark .wordmark-wing-front {
+  stroke: var(--wordmark-keyline);
+}
+
+.primary-navigation li a,
+.theme-toggle,
+.footer-navigation a {
+  position: relative;
+  display: inline-block;
+  padding: 0.45rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-decoration: none;
+}
+
+.wordmark::after,
+.primary-navigation li a::after,
+.theme-toggle::after,
+.footer-navigation a::after {
+  position: absolute;
+  right: 50%;
+  bottom: 0;
+  left: 50%;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--signal);
+  content: "";
+  transition: right 140ms ease, left 140ms ease;
+}
+
+.primary-navigation li a:hover,
+.primary-navigation li a:focus-visible,
+.theme-toggle:hover,
+.theme-toggle:focus-visible,
+.footer-navigation a:hover,
+.footer-navigation a:focus-visible {
+  color: inherit;
+}
+
+.wordmark:hover::after,
+.wordmark:focus-visible::after,
+.wordmark[aria-current="page"]::after,
+.primary-navigation li a:hover::after,
+.primary-navigation li a:focus-visible::after,
+.primary-navigation li a[aria-current="page"]::after,
+.theme-toggle:hover::after,
+.theme-toggle:focus-visible::after,
+.footer-navigation a:hover::after,
+.footer-navigation a:focus-visible::after,
+.footer-navigation a[aria-current="page"]::after {
+  right: 0;
+  left: 0;
+}
+
+.wordmark[aria-current="page"],
+.primary-navigation li a[aria-current="page"],
+.footer-navigation a[aria-current="page"] {
+  font-weight: 700;
+}
+
+.wordmark:focus-visible,
+.primary-navigation li a:focus-visible,
+.theme-toggle:focus-visible,
+.footer-navigation a:focus-visible {
+  outline: 0.16rem solid var(--signal);
+  outline-offset: 0.18rem;
+}
+
+.theme-toggle {
+  width: 1.35rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.theme-icon {
+  display: block;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: auto;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.theme-icon-moon {
+  fill: currentcolor;
+  stroke: none;
+}
+
+.theme-icon-sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-icon-moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-icon-sun {
+  display: block;
+}
+
 @media (prefers-color-scheme: dark) {
-  header {
-    --wordmark-keyline: var(--pico-background-color);
+  :root:not([data-theme="light"]) .theme-icon-moon {
+    display: none;
   }
 
-  /* .wordmark-letters is stroke-only — it carries fill="none", so it must not
-     be given a fill or the letter outlines flood. */
-  header .wordmark-letters {
-    stroke: #d64fb0;
+  :root:not([data-theme="light"]) .theme-icon-sun {
+    display: block;
+  }
+}
+
+.site-footer {
+  display: grid;
+  gap: 0.85rem;
+  padding-block: calc(var(--pico-spacing) * 1.5) calc(var(--pico-spacing) * 2);
+  border-top: 1px solid var(--divider);
+  color: var(--muted-ink);
+}
+
+.footer-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+
+.footer-legal,
+.footer-trademark {
+  margin: 0;
+}
+
+.footer-legal {
+  font-size: 0.875rem;
+}
+
+.footer-trademark {
+  max-width: var(--measure);
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--divider);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 40rem) {
+  .primary-navigation {
+    align-items: flex-start;
   }
 
-  header .wordmark-trademark,
-  header .wordmark-wing-back {
-    fill: #d64fb0;
+  .primary-navigation ul {
+    gap: 0.15rem 0.5rem;
   }
+}
 
-  header .wordmark-wing-back,
-  header .wordmark-wing-front {
-    stroke: var(--wordmark-keyline);
+@media (prefers-reduced-motion: reduce) {
+  .wordmark::after,
+  .primary-navigation li a::after,
+  .theme-toggle::after,
+  .footer-navigation a::after {
+    transition: none;
   }
 }

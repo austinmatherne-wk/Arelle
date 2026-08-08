@@ -15,7 +15,7 @@ ci:
       - /
       - /download/
       - /documentation/
-      - /participate/
+      - /about/
       - /blog/
       - /blog/2026/06/26/june-2026-update/
       # The three legacy EDGAR pages are permanently excluded from this list:
@@ -38,9 +38,9 @@ ci:
       'resource-summary:total:size': ['error', {maxNumericValue: 204800}]
       'resource-summary:total:count': ['error', {maxNumericValue: 10}]
 
-      # Zero JavaScript, zero third-party requests.
-      'resource-summary:script:count': ['error', {maxNumericValue: 0}]
-      'resource-summary:script:size': ['error', {maxNumericValue: 0}]
+      # The only normal-site JavaScript is the measured inline theme controller;
+      # site-contract.test.mjs enforces both its exclusivity and 1 KB source cap.
+      # It creates no fetched script resource for Lighthouse to budget.
       'resource-summary:third-party:count': ['error', {maxNumericValue: 0}]
 
       # Per-resource ceiling. Lighthouse reports transfer size by resource type

@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "check:legacy-urls": "node legacy-urls/check.mjs public",
-    "test": "node --test legacy-urls/*.test.mjs"
+    "test": "node --test *.test.mjs legacy-urls/*.test.mjs"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
