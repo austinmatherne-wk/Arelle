@@ -179,9 +179,16 @@ a:hover {
   text-decoration: none;
 }
 
+.external-link-marker {
+  margin-left: 0.2em;
+  color: var(--muted-ink);
+  font-size: 0.65em;
+  line-height: 0;
+  vertical-align: super;
+}
+
 .wordmark::after,
 .primary-navigation li a::after,
-.theme-toggle::after,
 .footer-navigation a::after {
   position: absolute;
   right: 50%;
@@ -196,8 +203,6 @@ a:hover {
 
 .primary-navigation li a:hover,
 .primary-navigation li a:focus-visible,
-.theme-toggle:hover,
-.theme-toggle:focus-visible,
 .footer-navigation a:hover,
 .footer-navigation a:focus-visible {
   color: inherit;
@@ -205,12 +210,9 @@ a:hover {
 
 .wordmark:hover::after,
 .wordmark:focus-visible::after,
-.wordmark[aria-current="page"]::after,
 .primary-navigation li a:hover::after,
 .primary-navigation li a:focus-visible::after,
 .primary-navigation li a[aria-current="page"]::after,
-.theme-toggle:hover::after,
-.theme-toggle:focus-visible::after,
 .footer-navigation a:hover::after,
 .footer-navigation a:focus-visible::after,
 .footer-navigation a[aria-current="page"]::after {
@@ -218,7 +220,6 @@ a:hover {
   left: 0;
 }
 
-.wordmark[aria-current="page"],
 .primary-navigation li a[aria-current="page"],
 .footer-navigation a[aria-current="page"] {
   font-weight: 700;
@@ -226,9 +227,13 @@ a:hover {
 
 .wordmark:focus-visible,
 .primary-navigation li a:focus-visible,
-.theme-toggle:focus-visible,
 .footer-navigation a:focus-visible {
   outline: 0.16rem solid var(--signal);
+  outline-offset: 0.18rem;
+}
+
+.theme-toggle:focus-visible {
+  outline: 0.16rem solid var(--accent);
   outline-offset: 0.18rem;
 }
 
@@ -236,6 +241,15 @@ a:hover {
   width: 1.35rem;
   margin: 0;
   cursor: pointer;
+  transition: color 140ms ease;
+}
+
+.theme-toggle:hover {
+  color: var(--accent-hover);
+}
+
+.theme-toggle:focus {
+  box-shadow: none;
 }
 
 .theme-icon {
@@ -321,8 +335,8 @@ a:hover {
 @media (prefers-reduced-motion: reduce) {
   .wordmark::after,
   .primary-navigation li a::after,
-  .theme-toggle::after,
-  .footer-navigation a::after {
+  .footer-navigation a::after,
+  .theme-toggle {
     transition: none;
   }
 }

@@ -34,9 +34,9 @@
     </a>
     <ul>
       <li><a href="{{ relURL "download/" }}"{{ if eq .RelPermalink (relURL "download/") }} aria-current="page"{{ end }}>Download</a></li>
-      <li><a href="https://arelle.readthedocs.io/">Docs</a></li>
       <li><a href="{{ relURL "blog/" }}"{{ if eq .RelPermalink (relURL "blog/") }} aria-current="page"{{ end }}>Updates</a></li>
-      <li><a href="https://github.com/Arelle/Arelle">GitHub</a></li>
+      <li><a href="https://arelle.readthedocs.io/">Docs<span class="external-link-marker" aria-hidden="true">↗</span></a></li>
+      <li><a href="https://github.com/Arelle/Arelle">GitHub<span class="external-link-marker" aria-hidden="true">↗</span></a></li>
       <li>
         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark" title="Switch to dark">
           <svg class="theme-icon theme-icon-moon" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
@@ -57,9 +57,9 @@
 <footer class="site-footer">
   <nav class="footer-navigation" aria-label="Community">
     <a href="{{ relURL "about/" }}"{{ if eq .RelPermalink (relURL "about/") }} aria-current="page"{{ end }}>About</a>
-    <a href="https://groups.google.com/d/forum/arelle-users">Google Group</a>
-    <a href="https://arelle.readthedocs.io/en/latest/contributor_guides/contributing.html">Contributing</a>
-    <a href="mailto:support@arelle.org">Monthly standup</a>
+    <a href="https://groups.google.com/d/forum/arelle-users">Community<span class="external-link-marker" aria-hidden="true">↗</span></a>
+    <a href="https://arelle.readthedocs.io/en/latest/contributor_guides/contributing.html">Contribute<span class="external-link-marker" aria-hidden="true">↗</span></a>
+    <a href="mailto:support@arelle.org">Contact</a>
   </nav>
   <p class="footer-legal">&copy; {{ now.Format "2006" }} Workiva Inc. · <a href="https://www.workiva.com/privacy-policy">Privacy Policy</a></p>
   <p class="footer-trademark">XBRL™ is a trademark of XBRL International, Inc. All rights reserved. The XBRL™ standards are open and freely licensed by way of the XBRL International License Agreement. Our use of these trademarks is permitted by XBRL International in accordance with the XBRL International Trademark Policy.</p>

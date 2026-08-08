@@ -3,6 +3,7 @@ import { readFile, readdir, stat } from 'node:fs/promises'
 import { test } from 'node:test'
 
 const output = new URL('./public/', import.meta.url)
+const externalMarker = /<span class=(?:"external-link-marker"|external-link-marker) aria-hidden=(?:"true"|true)>↗<\/span>/
 
 async function page(path) {
   return readFile(new URL(path, output), 'utf8')
@@ -17,8 +18,12 @@ function element(html, tag, className) {
 function links(html) {
   return [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map((match) => ({
     attributes: match[1],
+    content: match[2],
     href: match[1].match(/\bhref=(?:"([^"]+)"|([^\s>]+))/)?.slice(1).find(Boolean),
-    text: match[2].replace(/<[^>]+>/g, '').trim(),
+    text: match[2]
+      .replace(/<span[^>]*aria-hidden=(?:"true"|true)[^>]*>[\s\S]*?<\/span>/g, '')
+      .replace(/<[^>]+>/g, '')
+      .trim(),
   }))
 }
 
@@ -34,12 +39,16 @@ test('primary navigation exposes direct destinations in the settled order', asyn
     [
       ['Arelle', '/'],
       ['Download', '/download/'],
-      ['Docs', 'https://arelle.readthedocs.io/'],
       ['Updates', '/blog/'],
+      ['Docs', 'https://arelle.readthedocs.io/'],
       ['GitHub', 'https://github.com/Arelle/Arelle'],
     ],
   )
-  assert.doesNotMatch(primary, /external|<img/i)
+  assert.deepEqual(
+    links(primary).filter(({ content }) => externalMarker.test(content)).map(({ text }) => text),
+    ['Docs', 'GitHub'],
+  )
+  assert.doesNotMatch(primary, /<img/i)
 })
 
 test('current internal navigation destinations identify the page', async () => {
@@ -80,8 +89,12 @@ test('footer contains community, legal, and verbatim trademark content', async (
       ['About', '/about/'],
       ['Google Group', 'https://groups.google.com/d/forum/arelle-users'],
       ['Contributing', 'https://arelle.readthedocs.io/en/latest/contributor_guides/contributing.html'],
-      ['Monthly standup', 'mailto:support@arelle.org'],
+      ['Contact', 'mailto:support@arelle.org'],
     ],
+  )
+  assert.deepEqual(
+    links(footer).filter(({ content }) => externalMarker.test(content)).map(({ text }) => text),
+    ['Google Group', 'Contributing'],
   )
   assert.match(footer, /(?:©|&copy;) \d{4} Workiva Inc\./)
   assert.match(footer, /https:\/\/www\.workiva\.com\/privacy-policy/)
