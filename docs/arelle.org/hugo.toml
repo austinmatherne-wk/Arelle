@@ -2,6 +2,9 @@ locale = 'en-US'
 title = 'Arelle'
 enableGitInfo = true
 
+[params]
+  projectStartYear = 2010
+
 [taxonomies]
 
 [permalinks]

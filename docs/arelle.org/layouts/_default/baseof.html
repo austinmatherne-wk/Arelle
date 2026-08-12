@@ -64,7 +64,7 @@
     </ul>
   </nav>
 </header>
-<main>
+<main{{ if .IsHome }} class="homepage"{{ end }}>
   {{ block "main" . }}{{ end }}
 </main>
 <footer class="site-footer">

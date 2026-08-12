@@ -1,55 +1,108 @@
 {{ define "main" }}
-<section class="website-examples" aria-labelledby="website-examples-title">
-  <header>
+{{ $projectStartYear := site.Params.projectStartYear }}
+<section class="homepage-opening" aria-labelledby="homepage-title">
+  <div class="homepage-introduction">
     <p class="homepage-positioning">Free and open source XBRL platform</p>
-    <h1 id="website-examples-title">Verify the same report four ways.</h1>
-    <p class="homepage-tagline">These examples use one committed filing. The website displays the committed commands and transcripts, while offline integration checks execute the CLI, Python, and plugin paths independently.</p>
-  </header>
+    <h1 id="homepage-title">Validate, explore and extract <span class="homepage-accent">XBRL</span> data.</h1>
+    <p class="homepage-tagline">Arelle checks filings against supported XBRL specifications and regulator filing rules — and gives the same answer from the app, the command line, your own code or a container.</p>
+    <p class="homepage-adoption">Used by a global community of over 50 regulators, banks and technology companies that depend on it for data quality and comparison.</p>
+    <div class="homepage-actions">
+      <a class="homepage-action-primary" href="{{ relURL "demo/ixbrl-viewer/viewer.htm" }}">Explore a real interactive iXBRL filing <span aria-hidden="true">&rarr;</span></a>
+      <a class="homepage-action-secondary" href="{{ relURL "download/" }}">Download Arelle</a>
+    </div>
+  </div>
+  <dl class="homepage-proof" aria-label="Project facts">
+    <div>
+      <dt>50+</dt>
+      <dd>Regulators, banks and technology companies rely on Arelle.</dd>
+    </div>
+    <div>
+      <dt>{{ sub now.Year $projectStartYear }} yrs</dt>
+      <dd>Maintained in the open since {{ $projectStartYear }} under Apache 2.0.</dd>
+    </div>
+    <div class="homepage-certification">
+      <dt class="visually-hidden">Certification</dt>
+      <dd>
+        {{ $badge := resources.Get "images/xbrl-certified-software-logo.png" }}
+        <a href="https://software.xbrl.org/processor/arelle-arelle">
+          <img src="{{ $badge.RelPermalink }}" width="{{ $badge.Width }}" height="{{ $badge.Height }}" alt="XBRL Certified Software">
+          <span class="homepage-certification-copy">XBRL International certified Validating Processor.</span>
+        </a>
+      </dd>
+    </div>
+  </dl>
+</section>
 
-  <div class="website-example-grid">
-    <article id="example-cli">
-      <h2>Command line</h2>
+<section class="homepage-capabilities" aria-labelledby="capabilities-title">
+  <header>
+    <p class="homepage-eyebrow">One engine, many uses</p>
+    <h2 id="capabilities-title">Use and extend Arelle</h2>
+    <p class="homepage-section-intro">The same engine, five ways in — an app for analysts, a command for pipelines, a library for products, a container for anywhere, and a plugin system for rules of your own.</p>
+  </header>
+  <div class="product-comparison">
+    <div class="product-tabs" role="tablist" aria-label="Arelle interfaces">
+      <button type="button" role="tab" id="tab-gui" data-panel="panel-gui" aria-controls="panel-gui" aria-selected="true" tabindex="0"><span aria-hidden="true">01</span> Desktop app</button>
+      <button type="button" role="tab" id="tab-cli" data-panel="panel-cli" aria-controls="panel-cli" aria-selected="false" tabindex="-1"><span aria-hidden="true">02</span> Command line</button>
+      <button type="button" role="tab" id="tab-python" data-panel="panel-python" aria-controls="panel-python" aria-selected="false" tabindex="-1"><span aria-hidden="true">03</span> Python API</button>
+      <button type="button" role="tab" id="tab-docker" data-panel="panel-docker" aria-controls="panel-docker" aria-selected="false" tabindex="-1"><span aria-hidden="true">04</span> Docker</button>
+      <button type="button" role="tab" id="tab-plugin" data-panel="panel-plugin" aria-controls="panel-plugin" aria-selected="false" tabindex="-1"><span aria-hidden="true">05</span> Plugin system</button>
+    </div>
+
+    <div class="product-panel" id="panel-gui" role="tabpanel" aria-labelledby="tab-gui">
       {{ partial "product-setup.html" (dict
-        "label" "Run Arelle in a pipeline"
-        "copy" "Validate a filing with the installed command-line application."
+        "label" "Get the desktop app"
+        "copy" "Installers are available for Windows, macOS and Linux."
+        "href" (relURL "download/")
+        "action" "Download Arelle"
+      ) }}
+      <figure class="product-shot">
+        {{ partial "desktop-capture.html" (dict "name" "gui-light" "class" "shot-light" "alt" "The Arelle desktop app showing the fact table of a validated Form 10-K, with the table index on the left and a messages pane below.") }}
+        {{ partial "desktop-capture.html" (dict "name" "gui-dark" "class" "shot-dark" "alt" "The Arelle desktop app in dark mode showing the fact table of a validated Form 10-K.") }}
+        <figcaption>Windows, macOS and Linux. Browse the report by table, inspect any fact, and read the validation messages in the pane below.</figcaption>
+      </figure>
+    </div>
+
+    <div class="product-panel" id="panel-cli" role="tabpanel" aria-labelledby="tab-cli">
+      {{ partial "product-setup.html" (dict
+        "label" "Get the command line"
+        "copy" "Use the Windows, macOS or Linux installer, or run Arelle from Python source."
         "href" (relURL "download/")
         "action" "Download Arelle"
       ) }}
       {{ partial "cli-example.html" . }}
-    </article>
+    </div>
 
-    <article id="example-python">
-      <h2>Python API</h2>
+    <div class="product-panel" id="panel-python" role="tabpanel" aria-labelledby="tab-python">
       {{ partial "product-setup.html" (dict
-        "label" "Read the report from Python"
-        "copy" "Install the package and use the same model from your application."
+        "label" "Use the Python API"
+        "copy" "Install the package with"
+        "command" "pip install arelle-release"
         "href" "https://arelle.readthedocs.io/en/latest/python_api/python_api.html"
         "action" "Read the Python API documentation"
       ) }}
       {{ partial "python-example.html" . }}
-    </article>
+    </div>
 
-    <article id="example-docker">
-      <h2>Docker</h2>
+    <div class="product-panel" id="panel-docker" role="tabpanel" aria-labelledby="tab-docker">
       {{ partial "product-setup.html" (dict
-        "label" "Run Arelle in a container"
-        "copy" "Use the published image with the same validation arguments."
+        "label" "Use Docker"
+        "copy" "Pull the published image with"
+        "command" "docker pull arelleproject/arelle"
         "href" "https://hub.docker.com/r/arelleproject/arelle"
         "action" "Open Docker Hub"
       ) }}
       {{ partial "docker-example.html" . }}
-    </article>
+    </div>
 
-    <article id="example-plugin">
-      <h2>Plugin system</h2>
+    <div class="product-panel" id="panel-plugin" role="tabpanel" aria-labelledby="tab-plugin">
       {{ partial "product-setup.html" (dict
-        "label" "Add a house rule"
-        "copy" "Extend validation with the maintained plugin scaffolding."
+        "label" "Build a plugin"
+        "copy" "Use the maintained plugin scaffolding rather than mounting raw validation hooks by hand. Plugins extend validation, loading, UI, export, and other behavior."
         "href" "https://arelle.readthedocs.io/en/latest/plugins/development/development.html"
         "action" "Read the plugin development guide"
       ) }}
       {{ partial "plugin-example.html" . }}
-    </article>
+    </div>
   </div>
 </section>
 {{ end }}

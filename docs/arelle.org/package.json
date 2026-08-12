@@ -3,12 +3,13 @@
   "private": true,
   "scripts": {
     "check:legacy-urls": "node legacy-urls/check.mjs public",
-    "test": "node --test legacy-urls/*.test.mjs project-updates.test.mjs website-examples.test.mjs"
+    "test": "node --test homepage-product.test.mjs legacy-urls/*.test.mjs project-updates.test.mjs website-examples.test.mjs"
   },
   "devDependencies": {
     "@fontsource-variable/instrument-sans": "^5.3.0",
     "@fontsource/dm-mono": "^5.3.0",
     "@fontsource/martian-mono": "^5.3.0",
-    "@picocss/pico": "^2.1.1"
+    "@picocss/pico": "^2.1.1",
+    "puppeteer-core": "^25.6.0"
   }
 }
