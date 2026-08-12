@@ -1,0 +1,16 @@
+{{- $source := replaceRE "\r\n?" "\n" (readFile "examples/revenue.py") -}}
+{{- $source = strings.TrimSpace $source -}}
+{{- $transcript := partial "example-transcript.html" (dict "path" "examples/python-api.txt") -}}
+<figure class="product-python">
+  <div class="python-example-frame">
+    <div class="python-example-source">
+      <div class="python-example-heading">revenue.py <span>source</span></div>
+      <pre><code>{{ $source }}</code></pre>
+    </div>
+    <div class="python-example-output">
+      <div class="python-example-heading">{{ $transcript.command }}</div>
+      <pre><code>{{ $transcript.output }}</code></pre>
+    </div>
+  </div>
+  <figcaption>The Python API example reads the committed filing through Arelle's object model and prints the Revenue facts for three years.</figcaption>
+</figure>

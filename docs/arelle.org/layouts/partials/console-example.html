@@ -1,0 +1,12 @@
+{{- $transcript := partial "example-transcript.html" (dict "path" .path) -}}
+{{- $command := default $transcript.command .command -}}
+<figure class="product-console">
+  <div class="console-frame">
+    <div class="console-bar"><span aria-hidden="true">● ● ●</span> {{ .title }} <span class="console-example">example</span></div>
+    <div class="console-body">
+      <pre><code>{{ $command }}</code></pre>
+      <pre><code>{{ $transcript.output }}</code></pre>
+    </div>
+  </div>
+  <figcaption>{{ .caption | safeHTML }}</figcaption>
+</figure>

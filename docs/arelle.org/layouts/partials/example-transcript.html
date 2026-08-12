@@ -1,0 +1,7 @@
+{{- $contents := readFile .path -}}
+{{- $contents = replaceRE "\r\n?" "\n" $contents -}}
+{{- $transcript := split (strings.TrimSpace $contents) "\n" -}}
+{{- return (dict
+  "command" (index $transcript 0)
+  "output" (delimit (after 1 $transcript) "\n")
+) -}}

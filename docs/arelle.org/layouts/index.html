@@ -1,0 +1,55 @@
+{{ define "main" }}
+<section class="website-examples" aria-labelledby="website-examples-title">
+  <header>
+    <p class="homepage-positioning">Free and open source XBRL platform</p>
+    <h1 id="website-examples-title">Verify the same report four ways.</h1>
+    <p class="homepage-tagline">These examples use one committed filing. The website displays the committed commands and transcripts, while offline integration checks execute the CLI, Python, and plugin paths independently.</p>
+  </header>
+
+  <div class="website-example-grid">
+    <article id="example-cli">
+      <h2>Command line</h2>
+      {{ partial "product-setup.html" (dict
+        "label" "Run Arelle in a pipeline"
+        "copy" "Validate a filing with the installed command-line application."
+        "href" (relURL "download/")
+        "action" "Download Arelle"
+      ) }}
+      {{ partial "cli-example.html" . }}
+    </article>
+
+    <article id="example-python">
+      <h2>Python API</h2>
+      {{ partial "product-setup.html" (dict
+        "label" "Read the report from Python"
+        "copy" "Install the package and use the same model from your application."
+        "href" "https://arelle.readthedocs.io/en/latest/python_api/python_api.html"
+        "action" "Read the Python API documentation"
+      ) }}
+      {{ partial "python-example.html" . }}
+    </article>
+
+    <article id="example-docker">
+      <h2>Docker</h2>
+      {{ partial "product-setup.html" (dict
+        "label" "Run Arelle in a container"
+        "copy" "Use the published image with the same validation arguments."
+        "href" "https://hub.docker.com/r/arelleproject/arelle"
+        "action" "Open Docker Hub"
+      ) }}
+      {{ partial "docker-example.html" . }}
+    </article>
+
+    <article id="example-plugin">
+      <h2>Plugin system</h2>
+      {{ partial "product-setup.html" (dict
+        "label" "Add a house rule"
+        "copy" "Extend validation with the maintained plugin scaffolding."
+        "href" "https://arelle.readthedocs.io/en/latest/plugins/development/development.html"
+        "action" "Read the plugin development guide"
+      ) }}
+      {{ partial "plugin-example.html" . }}
+    </article>
+  </div>
+</section>
+{{ end }}

@@ -1,0 +1,18 @@
+{{- $source := replaceRE "\r\n?" "\n" (readFile "examples/house_rules/rules.py") -}}
+{{- $markedRegion := index (findRE `(?s)# include start\n.*?\n# include end` $source 1) 0 -}}
+{{- $rule := strings.TrimSpace (replaceRE `(?s)^# include start\n(.*)\n# include end$` "$1" $markedRegion) -}}
+{{- $transcript := partial "example-transcript.html" (dict "path" "examples/plugin.txt") -}}
+<figure class="product-plugin">
+  <div class="plugin-example-frame">
+    <div class="plugin-example-source">
+      <div class="plugin-example-heading">rules.py <span>marked rule</span></div>
+      <pre><code>{{ $rule }}</code></pre>
+    </div>
+    <div class="plugin-example-output">
+      <div class="plugin-example-heading">verified command and output</div>
+      <pre><code>{{ $transcript.command }}</code></pre>
+      <pre><code>{{ $transcript.output }}</code></pre>
+    </div>
+  </div>
+  <figcaption>Plugins extend Arelle with custom validation rules. The example uses the maintained validation-plugin scaffolding and keeps the rule, command, and output in committed artifacts.</figcaption>
+</figure>

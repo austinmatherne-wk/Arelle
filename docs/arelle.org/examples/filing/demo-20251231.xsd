@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A deliberately small example taxonomy for the arelle.org homepage examples.
+
+  It resolves entirely offline: the only import is the XBRL 2.1 instance
+  schema, which Arelle resolves locally, so the examples need no taxonomy
+  package and no network access.
+
+  The reported gross profit for 2025 does not foot, and operating expenses for
+  2025 are negative. Both are intentional: the first gives the command line
+  example a real Calculations v1.1 inconsistency to report, and the second is
+  valid XBRL that only the example house rule objects to.
+-->
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xbrli="http://www.xbrl.org/2003/instance"
+    xmlns:link="http://www.xbrl.org/2003/linkbase"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:demo="https://example.com/demo"
+    targetNamespace="https://example.com/demo"
+    elementFormDefault="qualified">
+
+  <xs:import namespace="http://www.xbrl.org/2003/instance"
+             schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd"/>
+
+  <xs:element name="Revenue" id="demo_Revenue" type="xbrli:monetaryItemType"
+              substitutionGroup="xbrli:item" xbrli:periodType="duration"
+              xbrli:balance="credit" nillable="true"/>
+  <xs:element name="CostOfSales" id="demo_CostOfSales" type="xbrli:monetaryItemType"
+              substitutionGroup="xbrli:item" xbrli:periodType="duration"
+              xbrli:balance="debit" nillable="true"/>
+  <xs:element name="GrossProfit" id="demo_GrossProfit" type="xbrli:monetaryItemType"
+              substitutionGroup="xbrli:item" xbrli:periodType="duration"
+              xbrli:balance="credit" nillable="true"/>
+  <xs:element name="OperatingExpenses" id="demo_OperatingExpenses" type="xbrli:monetaryItemType"
+              substitutionGroup="xbrli:item" xbrli:periodType="duration"
+              xbrli:balance="debit" nillable="true"/>
+
+  <xs:annotation>
+    <xs:appinfo>
+      <link:linkbase>
+        <link:calculationLink xlink:type="extended"
+                              xlink:role="http://www.xbrl.org/2003/role/link">
+          <link:loc xlink:type="locator" xlink:href="#demo_GrossProfit" xlink:label="GrossProfit"/>
+          <link:loc xlink:type="locator" xlink:href="#demo_Revenue" xlink:label="Revenue"/>
+          <link:loc xlink:type="locator" xlink:href="#demo_CostOfSales" xlink:label="CostOfSales"/>
+          <link:calculationArc xlink:type="arc"
+                               xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item"
+                               xlink:from="GrossProfit" xlink:to="Revenue"
+                               order="1" weight="1"/>
+          <link:calculationArc xlink:type="arc"
+                               xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item"
+                               xlink:from="GrossProfit" xlink:to="CostOfSales"
+                               order="2" weight="-1"/>
+        </link:calculationLink>
+      </link:linkbase>
+    </xs:appinfo>
+  </xs:annotation>
+
+</xs:schema>

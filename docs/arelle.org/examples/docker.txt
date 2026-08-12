@@ -1,0 +1,1 @@
+$ docker run --rm -v "$PWD:/data" arelleproject/arelle:latest python arelleCmdLine.py --file /data/demo-20251231.xbrl --validate --calc round-to-nearest --logLevel warning

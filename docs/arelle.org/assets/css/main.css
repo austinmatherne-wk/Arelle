@@ -523,3 +523,135 @@ a:hover {
     transition: none;
   }
 }
+
+.website-examples {
+  padding-block: calc(var(--pico-spacing) * 2) calc(var(--pico-spacing) * 4);
+}
+
+.website-examples > header {
+  margin-bottom: calc(var(--pico-spacing) * 2);
+}
+
+.website-examples > header h1 {
+  max-width: 28rem;
+  margin-block: 0.5rem;
+}
+
+.website-examples > header p:last-child {
+  max-width: var(--measure);
+  color: var(--dim);
+}
+
+.website-example-grid {
+  display: grid;
+  gap: calc(var(--pico-spacing) * 2);
+}
+
+.website-example-grid article {
+  min-width: 0;
+  margin: 0;
+  padding: calc(var(--pico-spacing) * 1.25);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  box-shadow: none;
+}
+
+.website-example-grid article > h2 {
+  margin-top: 0;
+}
+
+.product-setup {
+  display: grid;
+  gap: var(--pico-spacing);
+  margin-bottom: calc(var(--pico-spacing) * 1.5);
+  padding-bottom: var(--pico-spacing);
+  border-bottom: 1px solid var(--line);
+}
+
+.product-setup-label {
+  color: var(--bright);
+  font-weight: 700;
+}
+
+.product-setup p {
+  margin: 0.25rem 0 0;
+  color: var(--dim);
+}
+
+.product-setup a {
+  width: fit-content;
+}
+
+.product-console,
+.product-python,
+.product-plugin {
+  margin: 0;
+}
+
+.console-frame,
+.python-example-frame,
+.plugin-example-frame {
+  overflow: hidden;
+  border: 1px solid var(--line-bright);
+  background: var(--panel-2);
+}
+
+.console-bar,
+.python-example-heading,
+.plugin-example-heading {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.console-example,
+.python-example-heading span,
+.plugin-example-heading span {
+  color: var(--cyan);
+}
+
+.console-body pre,
+.python-example-frame pre,
+.plugin-example-frame pre {
+  max-height: 20rem;
+  margin: 0;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.console-body pre + pre,
+.python-example-output,
+.plugin-example-output {
+  border-top: 1px solid var(--line);
+}
+
+.python-example-frame,
+.plugin-example-frame {
+  display: grid;
+}
+
+.python-example-source,
+.python-example-output,
+.plugin-example-source,
+.plugin-example-output {
+  min-width: 0;
+}
+
+.product-console figcaption,
+.product-python figcaption,
+.product-plugin figcaption {
+  margin-top: 0.75rem;
+  color: var(--dim);
+  font-size: 0.875rem;
+}
+
+@media (min-width: 60rem) {
+  .website-example-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
