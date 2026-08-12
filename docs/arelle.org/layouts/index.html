@@ -105,4 +105,37 @@
     </div>
   </div>
 </section>
+
+<section class="homepage-support" aria-labelledby="support-title">
+  <header class="support-heading">
+    <p class="homepage-eyebrow">Conformance</p>
+    <h2 id="support-title">Specification and jurisdiction support</h2>
+    <p class="homepage-section-intro">Maintained as specifications and filing rules evolve.</p>
+  </header>
+  <table class="support-table">
+    <thead>
+      <tr>
+        <th scope="col">Group</th>
+        <th scope="col">Supported</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range hugo.Data.support.groups }}
+        <tr>
+          <th scope="row">
+            <h3>{{ .title }}</h3>
+            <p>{{ .summary }}</p>
+          </th>
+          <td>
+            <ul class="support-items">
+              {{ range .items }}
+                <li><span aria-hidden="true">✓</span>{{ . }}</li>
+              {{ end }}
+            </ul>
+          </td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</section>
 {{ end }}

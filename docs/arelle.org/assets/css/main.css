@@ -1123,6 +1123,96 @@ html:not(.js) .product-tabs {
   color: var(--magenta);
 }
 
+.homepage-support {
+  max-width: var(--measure);
+  margin: 0 auto clamp(4rem, 10vw, 7rem);
+}
+
+.support-heading {
+  max-width: 56ch;
+  margin-bottom: clamp(2rem, 6vw, 4rem);
+}
+
+.support-heading h2 {
+  margin: 0;
+}
+
+.support-table {
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-collapse: collapse;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.support-table th,
+.support-table td {
+  padding: 1.1rem 1.25rem;
+  border-color: var(--line);
+  vertical-align: top;
+}
+
+.support-table thead th {
+  background: var(--panel-2);
+  color: var(--bright);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.support-table tbody th {
+  width: 32%;
+  background: var(--panel);
+  text-align: left;
+}
+
+.support-table tbody tr:nth-child(even) th,
+.support-table tbody tr:nth-child(even) td {
+  background: var(--panel-2);
+}
+
+.support-table h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.support-table p {
+  margin: 0.5rem 0 0;
+  color: var(--text);
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+}
+
+.support-items {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.support-items li {
+  display: grid;
+  align-items: baseline;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.support-items li span {
+  display: inline-block;
+  color: var(--cyan);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 @media (max-width: 62rem) {
   .homepage-opening {
     grid-template-columns: 1fr;
@@ -1155,5 +1245,41 @@ html:not(.js) .product-tabs {
   .python-example-frame,
   .plugin-example-frame {
     grid-template-columns: 1fr;
+  }
+
+  .support-table,
+  .support-table thead,
+  .support-table tbody,
+  .support-table tr,
+  .support-table th,
+  .support-table td {
+    display: block;
+  }
+
+  .support-table thead tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .support-table tbody tr {
+    border-top: 1px solid var(--line);
+  }
+
+  .support-table tbody tr:first-child {
+    border-top: 0;
+  }
+
+  .support-table tbody th,
+  .support-table tbody td {
+    width: auto;
+    border: 0;
+  }
+
+  .support-table tbody th {
+    padding-bottom: 0.45rem;
+  }
+
+  .support-table tbody td {
+    padding-top: 0.45rem;
   }
 }

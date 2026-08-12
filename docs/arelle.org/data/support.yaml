@@ -1,0 +1,51 @@
+# Capabilities highlighted on the homepage, grouped for presentation. Each
+# group supplies its own title, summary, and maintained list of supported items.
+#
+# Specification groups were seeded from
+# https://software.xbrl.org/processor/arelle-arelle and are updated by hand
+# when XBRL International retests Arelle or support changes. The website build
+# never fetches the certification roster.
+groups:
+  - title: Core
+    summary: The foundation for defining XBRL reports, concepts, relationships, and calculations.
+    items:
+      - Core (XBRL v2.1 & Dimensions v1.0)
+      - Calculations v1.1
+
+  - title: Report formats
+    summary: Formats for publishing and exchanging structured reports beyond the base XML syntax.
+    items:
+      - Inline XBRL v1.1
+      - xBRL-JSON v1.0
+      - xBRL-CSV v1.0
+
+  - title: Taxonomy features
+    summary: Specifications for expressing validation rules, enumerated values, and report presentation.
+    items:
+      - Formula v1.0
+      - Extensible Enumerations v1.0
+      - Extensible Enumerations v2.0
+      - Table Linkbase v1.0
+
+  - title: Registries and packages
+    summary: Shared registries and packaging conventions that keep reports and taxonomies portable.
+    items:
+      - Inline XBRL - Transformation Rules Registry v3
+      - Inline XBRL - Transformation Rules Registry v4
+      - Inline XBRL - Transformation Rules Registry v5
+      - Units Registry v1.0
+      - Report and Taxonomy Packages v1.0
+
+  - title: Jurisdiction rules
+    summary: Arelle validates any XBRL report or taxonomy. For these jurisdictions it also enforces the filing rules that exist only as prose in the regulator's manual.
+    items:
+      - SEC
+      - ESMA
+      - HMRC
+      - CIPC
+      - Danish Business Authority
+      - EBA
+      - EDINET
+      - FERC
+      - Dutch SBR
+      - Irish Revenue
