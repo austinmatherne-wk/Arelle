@@ -1,6 +1,10 @@
 {
   "name": "arelle.org",
   "private": true,
+  "scripts": {
+    "check:static-pages": "node static-pages/check.mjs public",
+    "test": "node --test static-pages/*.test.mjs"
+  },
   "devDependencies": {
     "@fontsource-variable/instrument-sans": "^5.3.0",
     "@fontsource/dm-mono": "^5.3.0",

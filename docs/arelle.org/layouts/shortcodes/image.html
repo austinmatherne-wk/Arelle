@@ -1,4 +1,9 @@
 {{ $img := resources.Get (printf "images/%s" (.Get "src")) }}
+{{/* Omit `width` for images already at display size, such as the 16x16 toolbar
+     icons. Screenshots pass one, so the bytes served match the pixels shown. */}}
+{{ with .Get "width" }}
+  {{ $img = $img.Resize (printf "%sx" .) }}
+{{ end }}
 {{ $alt := .Get "alt" }}
 {{ $link := .Get "link" }}
 {{ if $link }}<a href="{{ $link }}">{{ end }}
