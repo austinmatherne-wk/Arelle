@@ -1,0 +1,59 @@
+{
+  "artifact": {
+    "filename": "arelle-viewer-demo.zip",
+    "publicUrl": "https://arelle-public.s3.us-east-1.amazonaws.com/ci/packages/arelle-viewer-demo.zip",
+    "sha256": "19f9f248d6537cda11eb820a188aa47f174b6452d17605beb3970ee1121e9041",
+    "root": "arelle-viewer-demo",
+    "identifier": "https://arelle.org/taxonomy-packages/viewer-demo-2025",
+    "name": "Arelle Viewer demo taxonomy package",
+    "description": "The narrowly scoped taxonomy package used to generate the Workiva FY2025 Form 10-K demo on arelle.org.",
+    "version": "2025",
+    "publisher": "Arelle"
+  },
+  "sources": [
+    {
+      "id": "us-gaap",
+      "url": "https://xbrl.fasb.org/us-gaap/2025/us-gaap-2025.zip",
+      "sha256": "a3b835925ad74030eb5be865a26d7dfe44013081c4ab7204b6122316a685fff4",
+      "sourceRoot": "us-gaap-2025/",
+      "targetRoot": "us-gaap/2025/"
+    },
+    {
+      "id": "srt",
+      "url": "https://xbrl.fasb.org/srt/2025/srt-2025.zip",
+      "sha256": "aad1daeb4bdfe3057f4ed81482c06130f873a59fa7fce5193c5731f93b1fef88",
+      "sourceRoot": "srt-2025/",
+      "targetRoot": "srt/2025/"
+    },
+    {
+      "id": "sec",
+      "url": "https://xbrl.sec.gov/2025.zip",
+      "sha256": "6a963051af02ff458e02669549bd55f9d547281724f3b4e053cb0157be8121e4",
+      "sourceRoot": "2025/",
+      "targetRoot": "sec/",
+      "files": [
+        "xbrl.sec.gov/country/2025/country-2025.xsd",
+        "xbrl.sec.gov/cyd/2025/cyd-2025.xsd",
+        "xbrl.sec.gov/cyd/2025/cyd-af-2025.xsd",
+        "xbrl.sec.gov/cyd/2025/cyd-af-sub-2025.xsd",
+        "xbrl.sec.gov/dei/2025/dei-2025.xsd",
+        "xbrl.sec.gov/ecd/2025/ecd-2025.xsd",
+        "xbrl.sec.gov/stpr/2025/stpr-2025.xsd"
+      ]
+    }
+  ],
+  "catalog": [
+    {
+      "uriStartString": "https://xbrl.fasb.org/us-gaap/2025/",
+      "rewritePrefix": "../us-gaap/2025/"
+    },
+    {
+      "uriStartString": "https://xbrl.fasb.org/srt/2025/",
+      "rewritePrefix": "../srt/2025/"
+    },
+    {
+      "uriStartString": "https://xbrl.sec.gov/",
+      "rewritePrefix": "../sec/xbrl.sec.gov/"
+    }
+  ]
+}

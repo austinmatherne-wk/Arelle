@@ -25,6 +25,40 @@ local development server with:
 hugo server
 ```
 
+## Viewer demo
+
+The production Viewer demo uses the narrowly scoped taxonomy package described
+by `demo/taxonomy-package.json`. Rebuild that package from its pinned upstream
+archives from the repository root:
+
+```shell
+python scripts/build_viewer_demo_taxonomy_package.py \
+  docs/arelle.org/demo/taxonomy-package.json \
+  arelle-viewer-demo.zip
+```
+
+The builder verifies every upstream archive and the final artifact digest. The
+generator downloads the published artifact, verifies its identity, and then
+runs Arelle with network access disabled:
+
+```shell
+python -m pip install -e . "ixbrl-viewer==1.5.1"
+git clone https://github.com/Arelle/EDGAR.git /tmp/arelle-edgar
+git -C /tmp/arelle-edgar checkout 72033f579e89ab47e882437b5d4ceed9c7656ed5
+(cd docs/arelle.org && hugo --minify)
+python scripts/generate_viewer_demo.py docs/arelle.org /tmp/arelle-edgar --base-url /
+```
+
+Generation rejects unexpected log messages, invalid transformations, and
+implausibly incomplete Viewer output. The generated demo is written under
+`public/demo/ixbrl-viewer/` and is served over HTTP rather than `file:`.
+The EDGAR transform checkout is pinned to the revision shown above.
+After generation, run its focused rendered-artifact check from this directory:
+
+```shell
+node --test viewer-demo.test.mjs
+```
+
 ## Project updates
 
 Updates live in `content/blog/YYYY/`, with one `_index.md` year section per
