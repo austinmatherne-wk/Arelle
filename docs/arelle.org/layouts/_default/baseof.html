@@ -16,11 +16,22 @@
   <style data-fonts>{{ $fonts.Content | safeCSS }}</style>
   {{ $css := resources.Get "css/main.css" | css.Build (dict "minify" true) }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+  {{/* The ICO is served from static/ at the root path browsers request on their
+       own, and is the fallback for Safari before 17, which ignores SVG icons.
+       Browsers that understand the SVG prefer it: it is sharp at every size and
+       carries its own dark-scheme style, which a raster icon cannot. */}}
+  <link rel="icon" href="{{ relURL "favicon.ico" }}" sizes="32x32">
+  {{ with resources.Get "images/favicon.svg" }}
+    <link rel="icon" type="image/svg+xml" href="{{ .RelPermalink }}">
+  {{ end }}
 </head>
 <body>
 <header class="site-header">
   <nav class="primary-navigation" aria-label="Primary">
-    <a class="wordmark" href="{{ relURL "" }}"{{ if .IsHome }} aria-current="page"{{ end }}>{{ .Site.Title }}</a>
+    {{/* Inlined rather than <img> so main.css can recolour it per scheme. */}}
+    <a class="wordmark" href="{{ relURL "" }}"{{ if .IsHome }} aria-current="page"{{ end }}>
+      {{ (resources.Get "images/arelle.svg").Content | safeHTML }}
+    </a>
     <ul>
       <li><a href="{{ relURL "download/" }}"{{ if eq .RelPermalink (relURL "download/") }} aria-current="page"{{ end }}>Download</a></li>
       <li><a href="{{ relURL "blog/" }}"{{ if eq .Section "blog" }} aria-current="page"{{ end }}>Updates</a></li>

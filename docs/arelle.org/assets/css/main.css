@@ -202,12 +202,49 @@ a:hover {
 .wordmark {
   display: inline-block;
   flex: 0 0 auto;
-  color: var(--magenta);
-  font-family: var(--mono);
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.08em;
+  --wordmark-ink: #aa118e;
+  --wordmark-keyline: #ffffff;
   text-decoration: none;
+}
+
+.wordmark svg {
+  display: block;
+  height: 2.75rem;
+  width: auto;
+}
+
+/* The light scheme needs nothing: the wordmark is drawn for a white page. Dark
+   breaks it twice — the print magenta drops to 2.74:1 on Pico's dark canvas,
+   and the white keyline between the two wing layers reads as a halo rather than
+   a gap at header size. Recolouring here is why the SVG is inlined rather than
+   an <img>. The first two rules mirror favicon.svg's own embedded style; the
+   keyline is ours alone, since an icon on unknown browser chrome cannot assume
+   a background colour but a page can. It is declared on the wordmark rather than
+   further down because Pico zeroes --pico-background-color on the <a>. */
+.wordmark .wordmark-letters {
+  stroke: var(--wordmark-ink);
+}
+
+.wordmark .wordmark-trademark,
+.wordmark .wordmark-wing-back {
+  fill: var(--wordmark-ink);
+}
+
+.wordmark .wordmark-wing-back,
+.wordmark .wordmark-wing-front {
+  stroke: var(--wordmark-keyline);
+}
+
+:root[data-theme="dark"] .wordmark {
+  --wordmark-ink: #d64fb0;
+  --wordmark-keyline: var(--pico-background-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .wordmark {
+    --wordmark-ink: #d64fb0;
+    --wordmark-keyline: var(--pico-background-color);
+  }
 }
 
 .primary-navigation li a {
