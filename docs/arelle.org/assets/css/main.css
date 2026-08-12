@@ -374,6 +374,128 @@ a:hover {
   font-weight: 700;
 }
 
+.update-archive-header {
+  margin-bottom: calc(var(--pico-spacing) * 2);
+}
+
+.update-year-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding-top: var(--pico-spacing);
+  border-top: 1px solid var(--line);
+}
+
+.update-year-current {
+  color: var(--magenta);
+  font-weight: 700;
+  text-decoration-thickness: 0.16rem;
+}
+
+.update-year > h2 {
+  margin-bottom: 0;
+}
+
+.update-entry {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-block: calc(var(--pico-spacing) * 1.25);
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.update-entry time,
+.update-post-header time {
+  color: var(--dim);
+  font-size: 0.8rem;
+}
+
+.update-entry h3,
+.update-entry p {
+  margin: 0;
+}
+
+.update-entry h3 {
+  font-size: 1.2rem;
+}
+
+.update-summary {
+  color: var(--dim);
+}
+
+.update-rss {
+  margin-top: calc(var(--pico-spacing) * 2);
+}
+
+.update-post {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.update-post-header {
+  margin-bottom: calc(var(--pico-spacing) * 2);
+  padding-bottom: var(--pico-spacing);
+  border-bottom: 1px solid var(--line);
+}
+
+.update-archive-label {
+  color: var(--dim);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.update-post-header h1 {
+  margin-block: 0.5rem 0.25rem;
+}
+
+.update-deck {
+  margin-block: var(--pico-spacing) 0;
+  color: var(--dim);
+  font-size: 1.15rem;
+}
+
+.update-post-navigation {
+  display: grid;
+  align-items: start;
+  gap: var(--pico-spacing);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: calc(var(--pico-spacing) * 3);
+  padding-top: var(--pico-spacing);
+  border-top: 1px solid var(--line);
+}
+
+.update-post-navigation a {
+  overflow-wrap: anywhere;
+}
+
+.update-post-navigation span {
+  display: block;
+  color: var(--dim);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.update-post-archive {
+  grid-column: 2;
+  text-align: center;
+}
+
+.update-post-next {
+  grid-column: 3;
+  text-align: right;
+}
+
 @media (max-width: 40rem) {
   .primary-navigation {
     align-items: flex-start;
@@ -382,6 +504,16 @@ a:hover {
 
   .primary-navigation ul {
     gap: 0.15rem;
+  }
+
+  .update-post-navigation {
+    grid-template-columns: 1fr;
+  }
+
+  .update-post-archive,
+  .update-post-next {
+    grid-column: 1;
+    text-align: left;
   }
 }
 

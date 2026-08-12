@@ -3,46 +3,46 @@ import assert from 'node:assert/strict'
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
-import { checkStaticPageBoundary } from './check.mjs'
+import { checkLegacyUrls } from './check.mjs'
 
 const EMPTY = { resolvable: [], verbatim: [], expected404: [] }
 
 // Lays out a build/source tree from a { path: contents } map and runs the check.
 async function check(fixture, files) {
-  const root = await mkdtemp(join(tmpdir(), 'static-pages-'))
+  const root = await mkdtemp(join(tmpdir(), 'legacy-urls-'))
   for (const [path, contents] of Object.entries(files)) {
     await mkdir(dirname(join(root, path)), { recursive: true })
     await writeFile(join(root, path), contents)
   }
-  return checkStaticPageBoundary({
+  return checkLegacyUrls({
     fixture: { ...EMPTY, ...fixture },
     buildDir: join(root, 'public'),
     sourceDir: join(root, 'static'),
   })
 }
 
-test('a static alias passes on a redirect stub', async () => {
+test('a resolvable URL passes on a redirect stub', async () => {
   const failures = await check({ resolvable: ['/arelle/documentation/'] }, {
     'public/arelle/documentation/index.html': '<meta http-equiv=refresh content="0; url=/documentation/">',
   })
   assert.deepEqual(failures, [])
 })
 
-test('a static compatibility URL passes on a real page', async () => {
-  const failures = await check({ resolvable: ['/arelle/pub/applications/'] }, {
-    'public/arelle/pub/applications/index.html': '<html>Applications</html>',
+test('a resolvable URL passes on a real page', async () => {
+  const failures = await check({ resolvable: ['/documentation/edgar-renderer-installation/'] }, {
+    'public/documentation/edgar-renderer-installation/index.html': '<html>EDGAR Renderer Installation</html>',
   })
   assert.deepEqual(failures, [])
 })
 
-test('a static page URL with no file fails and is named', async () => {
-  const failures = await check({ resolvable: ['/arelle/pub/', '/arelle/participate/'] }, {
-    'public/arelle/participate/index.html': 'page',
+test('a resolvable URL with no file fails and is named', async () => {
+  const failures = await check({ resolvable: ['/arelle/feed/', '/arelle/blog/'] }, {
+    'public/arelle/blog/index.html': 'stub',
   })
-  assert.deepEqual(failures, ['missing: /arelle/pub/'])
+  assert.deepEqual(failures, ['missing: /arelle/feed/'])
 })
 
-test('a historical asset passes when its bytes match the staged source', async () => {
+test('a verbatim asset passes when its bytes match the staged source', async () => {
   const failures = await check({ verbatim: ['/2014/doc-2014-01-31.xsd'] }, {
     'public/2014/doc-2014-01-31.xsd': '<xs:schema/>',
     'static/2014/doc-2014-01-31.xsd': '<xs:schema/>',
@@ -50,7 +50,7 @@ test('a historical asset passes when its bytes match the staged source', async (
   assert.deepEqual(failures, [])
 })
 
-test('a historical asset fails when a redirect stub stands in for it', async () => {
+test('a verbatim asset fails when a redirect stub stands in for it', async () => {
   const failures = await check({ verbatim: ['/2014/doc-2014-01-31.xsd'] }, {
     'public/2014/doc-2014-01-31.xsd': '<meta http-equiv=refresh content="0; url=/schema.xsd">',
     'static/2014/doc-2014-01-31.xsd': '<xs:schema/>',
@@ -58,14 +58,14 @@ test('a historical asset fails when a redirect stub stands in for it', async () 
   assert.deepEqual(failures, ['differs from staged source: /2014/doc-2014-01-31.xsd'])
 })
 
-test('a historical asset fails when it is absent from the build', async () => {
+test('a verbatim asset fails when it is absent from the build', async () => {
   const failures = await check({ verbatim: ['/arelle/logo-platform.png'] }, {
     'static/arelle/logo-platform.png': 'png',
   })
   assert.deepEqual(failures, ['missing: /arelle/logo-platform.png'])
 })
 
-test('a historical asset with no staged source to compare against fails', async () => {
+test('a verbatim asset with no staged source to compare against fails', async () => {
   const failures = await check({ verbatim: ['/arelle/logo-platform.png'] }, {
     'public/arelle/logo-platform.png': 'png',
   })

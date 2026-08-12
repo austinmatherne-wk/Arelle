@@ -1,0 +1,35 @@
+{{ define "main" }}
+  {{/* One template serves the archive and every year section: the archive itself
+       shows the most recent year, so a visitor without JavaScript reaches any
+       other year through its own page rather than through pagination. */}}
+  {{ $blog := site.GetPage "/blog" }}
+  {{ $years := $blog.Sections.ByTitle.Reverse }}
+  {{ $latest := index $years 0 }}
+  {{ $isArchive := eq .RelPermalink $blog.RelPermalink }}
+  {{ $selected := cond $isArchive $latest . }}
+  <header class="update-archive-header">
+    <h1>{{ $blog.Title }}</h1>
+    {{ $blog.Content }}
+    <nav class="update-year-navigation" aria-label="Update year">
+      {{ range $years }}
+        <a href="{{ .RelPermalink }}"{{ if eq .RelPermalink $selected.RelPermalink }} class="update-year-current" aria-current="page"{{ end }}>{{ .Title }}</a>
+      {{ end }}
+    </nav>
+  </header>
+  <section class="update-year" aria-labelledby="updates-{{ $selected.Title }}">
+    <h2 id="updates-{{ $selected.Title }}">{{ $selected.Title }}</h2>
+    {{ range $selected.RegularPages.ByDate.Reverse }}
+      <article class="update-entry">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 January 2006" }}</time>
+        <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+        <p class="update-summary">{{ with .Params.summary }}{{ . | markdownify | plainify }}{{ else }}{{ .Summary | plainify | truncate 220 }}{{ end }}</p>
+      </article>
+    {{ end }}
+  </section>
+  {{/* The feed covers the whole archive, so only the archive advertises it. */}}
+  {{ if $isArchive }}
+    {{ with .OutputFormats.Get "rss" }}
+      <p class="update-rss"><a href="{{ .RelPermalink }}">RSS</a></p>
+    {{ end }}
+  {{ end }}
+{{ end }}

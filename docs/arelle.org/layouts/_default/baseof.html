@@ -3,12 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
-  {{ with .Description }}
+  {{ $blog := site.GetPage "/blog" }}
+  {{ $isBlogYear := and (eq .Section "blog") .IsSection (ne .RelPermalink $blog.RelPermalink) }}
+  {{ $title := .Title }}
+  {{ if $isBlogYear }}
+    {{ $title = printf "%s: %s" $blog.Title .Title }}
+  {{ end }}
+  {{ $title = cond .IsHome .Site.Title (printf "%s · %s" $title .Site.Title) }}
+  <title>{{ $title }}</title>
+  {{ $description := or .Description (.Summary | plainify | chomp | truncate 160) }}
+  {{ if $isBlogYear }}
+    {{ $description = $blog.Description }}
+  {{ end }}
+  {{ with $description }}
     <meta name="description" content="{{ . }}">
   {{ end }}
-  {{ with .OutputFormats.Get "rss" }}
-    <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
+  {{ if eq .RelPermalink $blog.RelPermalink }}
+    {{ with .OutputFormats.Get "rss" }}
+      <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ $blog.Title }}">
+    {{ end }}
   {{ end }}
   {{ $themeController := resources.Get "js/theme.js" | js.Build (dict "minify" true) }}
   <script data-theme-controller>{{ $themeController.Content | safeJS }}</script>
