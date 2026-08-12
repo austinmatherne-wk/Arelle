@@ -1,0 +1,60 @@
+name: Build Website
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/actions/build_website/**'
+      - '.github/workflows/build-website.yml'
+      - 'docs/arelle.org/**'
+      - 'pyproject.toml'
+      - 'requirements-plugins.txt'
+      - 'scripts/generate_viewer_demo.py'
+  workflow_call:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build-website:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          # Full history so enableGitInfo can resolve .Lastmod and .GitInfo.
+          fetch-depth: 0
+      - name: Build website
+        uses: ./.github/actions/build_website
+        # Use the production origin so canonical and social URLs are absolute
+        # during SEO checks. configure-pages, which publish-website.yml uses to
+        # get the temporary /Arelle/ project-site prefix, must not run here: it
+        # needs pages: write and fails until a repo admin enables Pages, which
+        # would turn every website PR red — permanently so for fork PRs, whose
+        # token is read-only.
+        with:
+          base_url: https://arelle.org/
+      - parallel:
+          - name: Check links with htmltest
+            uses: wjdp/htmltest-action@v0.13.0-rc1
+            with:
+              config: docs/arelle.org/.htmltest.yml
+              # The config's DirectoryPath is relative to htmltest's working
+              # directory; this action runs from the repository root.
+              path: docs/arelle.org/public
+          - name: Check performance and accessibility with Lighthouse CI
+            working-directory: docs/arelle.org
+            run: npx lhci autorun
+          - name: Test production artifact contracts
+            working-directory: docs/arelle.org
+            run: npm test
+          # Unlike its neighbours, a failure here is not a quality regression:
+          # it means a URL the outside world still links to has no target in
+          # the build. It belongs here rather than in publish-website.yml
+          # because the release caller gates publishing on this workflow, so a
+          # broken URL blocks deployment without the publishing workflow owning
+          # any tests. Running in parallel with the others means a link or
+          # performance regression cannot mask it.
+          - name: Check legacy URLs still resolve
+            working-directory: docs/arelle.org
+            run: npm run check:legacy-urls
