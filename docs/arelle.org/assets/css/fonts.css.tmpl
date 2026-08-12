@@ -1,0 +1,27 @@
+/* The image-heavy legacy installation page already uses the ten requests its
+   Lighthouse budget allows. Inline the two faces it needs so the shared B2
+   typography does not add requests there; keep homepage-only Martian Mono as a
+   separate resource so other pages do not download it. */
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("data:font/woff2;base64,{{ (resources.Get "fonts/instrument-sans-400-700.woff2").Content | encoding.Base64Encode }}") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("data:font/woff2;base64,{{ (resources.Get "fonts/dm-mono-400.woff2").Content | encoding.Base64Encode }}") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Martian Mono";
+  src: url("{{ (resources.Get "fonts/martian-mono-600.woff2").RelPermalink }}") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
