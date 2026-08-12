@@ -6,18 +6,24 @@
   {{ $blog := site.GetPage "/blog" }}
   {{ $isBlogYear := and (eq .Section "blog") .IsSection (ne .RelPermalink $blog.RelPermalink) }}
   {{ $title := .Title }}
+  {{/* Blog posts state no description of their own; their opening lines are a
+       better one than anything a migration could have invented for them. */}}
+  {{ $description := or .Description (.Summary | plainify | chomp | truncate 160) }}
   {{ if $isBlogYear }}
     {{ $title = printf "%s: %s" $blog.Title .Title }}
+    {{ $description = $blog.Description }}
+  {{ end }}
+  {{ if eq .Kind "404" }}
+    {{ $title = "Page not found" }}
+    {{ $description = "The requested page could not be found." }}
   {{ end }}
   {{ $title = cond .IsHome .Site.Title (printf "%s · %s" $title .Site.Title) }}
   <title>{{ $title }}</title>
-  {{ $description := or .Description (.Summary | plainify | chomp | truncate 160) }}
-  {{ if $isBlogYear }}
-    {{ $description = $blog.Description }}
-  {{ end }}
   {{ with $description }}
     <meta name="description" content="{{ . }}">
   {{ end }}
+  {{ partial "social-preview.html" (dict "URL" .Permalink "Title" $title "Description" $description) }}
+  {{/* The feed is the update archive's, so only the archive announces it. */}}
   {{ if eq .RelPermalink $blog.RelPermalink }}
     {{ with .OutputFormats.Get "rss" }}
       <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ $blog.Title }}">
@@ -48,8 +54,8 @@
     <ul>
       <li><a href="{{ relURL "download/" }}"{{ if eq .RelPermalink (relURL "download/") }} aria-current="page"{{ end }}>Download</a></li>
       <li><a href="{{ relURL "blog/" }}"{{ if eq .Section "blog" }} aria-current="page"{{ end }}>Updates</a></li>
-      <li><a href="{{ relURL "documentation/" }}"{{ if eq .RelPermalink (relURL "documentation/") }} aria-current="page"{{ end }}>Documentation</a></li>
-      <li><a href="{{ relURL "about/" }}"{{ if eq .RelPermalink (relURL "about/") }} aria-current="page"{{ end }}>About</a></li>
+      <li><a href="https://arelle.readthedocs.io/">Docs<span class="external-link-marker" aria-hidden="true">↗</span></a></li>
+      <li><a href="https://github.com/Arelle/Arelle">GitHub<span class="external-link-marker" aria-hidden="true">↗</span></a></li>
       <li>
         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark" title="Switch to dark">
           <svg class="theme-icon theme-icon-moon" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
@@ -70,9 +76,12 @@
 <footer class="site-footer">
   <nav class="footer-navigation" aria-label="Community">
     <a href="{{ relURL "about/" }}"{{ if eq .RelPermalink (relURL "about/") }} aria-current="page"{{ end }}>About</a>
-    <a href="{{ relURL "documentation/" }}">Documentation</a>
-    <a href="{{ relURL "blog/" }}">Updates</a>
+    <a href="https://groups.google.com/d/forum/arelle-users">Community<span class="external-link-marker" aria-hidden="true">↗</span></a>
+    <a href="https://arelle.readthedocs.io/en/latest/contributor_guides/contributing.html">Contribute<span class="external-link-marker" aria-hidden="true">↗</span></a>
+    <a href="mailto:support@arelle.org">Contact</a>
   </nav>
+  <p class="footer-legal">&copy; {{ now.Format "2006" }} Workiva Inc. · <a href="https://www.workiva.com/privacy-policy">Privacy Policy</a></p>
+  <p class="footer-trademark">XBRL™ is a trademark of XBRL International, Inc. All rights reserved. The XBRL™ standards are open and freely licensed by way of the XBRL International License Agreement. Our use of these trademarks is permitted by XBRL International in accordance with the XBRL International Trademark Policy.</p>
 </footer>
 </body>
 </html>

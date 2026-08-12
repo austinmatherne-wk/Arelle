@@ -1,0 +1,19 @@
+<!doctype html>
+{{ $pageTitle := printf "%s · %s" .Title .Site.Title }}
+<html lang="{{ .Site.Language.Lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="0; url=https://arelle.readthedocs.io/">
+  <title>{{ $pageTitle }}</title>
+  <meta name="description" content="{{ .Description }}">
+  {{ partial "social-preview.html" (dict
+    "URL" "https://arelle.readthedocs.io/"
+    "Title" $pageTitle
+    "Description" .Description
+  ) }}
+</head>
+<body>
+  {{ .Content }}
+</body>
+</html>

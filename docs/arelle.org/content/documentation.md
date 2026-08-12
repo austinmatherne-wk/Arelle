@@ -1,6 +1,7 @@
 ---
 title: Documentation
 description: Arelle documentation is hosted on Read the Docs.
+layout: documentation
 aliases:
   - /arelle/documentation/
 ---

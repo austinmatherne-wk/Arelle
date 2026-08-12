@@ -9,8 +9,15 @@
   --pico-font-family-sans-serif: var(--sans);
   --pico-font-family-monospace: var(--mono);
   --pico-font-family: var(--sans);
+  --wordmark-ink: var(--magenta);
+  /* The keyline between the wing layers reads as a halo unless it matches the
+     page it sits on, so it tracks the canvas in both schemes. */
+  --wordmark-keyline: var(--void);
 }
 
+/* Match Pico's light selector specificity so these values override its
+   defaults. The dark media block below wins later in the cascade when no
+   explicit choice has been made. */
 :root:not([data-theme="dark"]) {
   color-scheme: light;
   --void: #f7f7f4;
@@ -50,9 +57,10 @@
   --pico-table-border-color: var(--line);
 }
 
-/* Pico applies its dark defaults through both an explicit data attribute and
-   a prefers-color-scheme block. Keep the two matching overrides in sync so
-   the visitor's explicit choice always wins. */
+/* The dark palette is declared twice on purpose. Pico ships its own dark values
+   against both `[data-theme=dark]` and a `prefers-color-scheme` block, so
+   overriding them takes a matching selector in each context — a single hoisted
+   declaration loses to Pico's. Keep the two blocks in sync. */
 :root[data-theme="dark"] {
   color-scheme: dark;
   --void: #0d1017;
@@ -174,6 +182,10 @@ a:hover {
   color: var(--accent-hover);
 }
 
+main > table td:last-child a {
+  display: inline-block;
+}
+
 .site-header {
   padding-block: 1.1rem;
 }
@@ -203,25 +215,17 @@ a:hover {
 .wordmark {
   display: inline-block;
   flex: 0 0 auto;
-  --wordmark-ink: #aa118e;
-  --wordmark-keyline: #ffffff;
   text-decoration: none;
 }
 
 .wordmark svg {
   display: block;
-  height: 2.75rem;
   width: auto;
+  height: 2.4rem;
 }
 
-/* The light scheme needs nothing: the wordmark is drawn for a white page. Dark
-   breaks it twice — the print magenta drops to 2.74:1 on Pico's dark canvas,
-   and the white keyline between the two wing layers reads as a halo rather than
-   a gap at header size. Recolouring here is why the SVG is inlined rather than
-   an <img>. The first two rules mirror favicon.svg's own embedded style; the
-   keyline is ours alone, since an icon on unknown browser chrome cannot assume
-   a background colour but a page can. It is declared on the wordmark rather than
-   further down because Pico zeroes --pico-background-color on the <a>. */
+/* .wordmark-letters is stroke-only — it carries fill="none", so it must not be
+   given a fill or the letter outlines flood. */
 .wordmark .wordmark-letters {
   stroke: var(--wordmark-ink);
 }
@@ -231,21 +235,13 @@ a:hover {
   fill: var(--wordmark-ink);
 }
 
+.wordmark .wordmark-wing-front {
+  fill: var(--cyan);
+}
+
 .wordmark .wordmark-wing-back,
 .wordmark .wordmark-wing-front {
   stroke: var(--wordmark-keyline);
-}
-
-:root[data-theme="dark"] .wordmark {
-  --wordmark-ink: #d64fb0;
-  --wordmark-keyline: var(--pico-background-color);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .wordmark {
-    --wordmark-ink: #d64fb0;
-    --wordmark-keyline: var(--pico-background-color);
-  }
 }
 
 .primary-navigation li a {
@@ -272,10 +268,17 @@ a:hover {
   font-weight: 700;
 }
 
+.external-link-marker {
+  margin-left: 0.2em;
+  color: var(--dim);
+  font-size: 0.65em;
+  line-height: 0;
+  vertical-align: super;
+}
+
 .wordmark:focus-visible,
 .primary-navigation li a:focus-visible,
-.theme-toggle:focus-visible,
-.footer-navigation a:focus-visible {
+.theme-toggle:focus-visible {
   outline: 2px solid var(--cyan);
   outline-offset: 0.18rem;
 }
@@ -360,141 +363,47 @@ a:hover {
   gap: 0.5rem 1.75rem;
 }
 
-.footer-navigation a {
+footer.site-footer .footer-navigation a {
   color: var(--dim);
   font-size: 0.875rem;
   text-decoration: none;
 }
 
-.footer-navigation a:hover,
-.footer-navigation a[aria-current="page"] {
+footer.site-footer .footer-navigation a:hover {
   color: var(--magenta);
 }
 
-.footer-navigation a[aria-current="page"] {
+footer.site-footer .footer-navigation a[aria-current="page"] {
   font-weight: 700;
 }
 
-.update-archive-header {
-  margin-bottom: calc(var(--pico-spacing) * 2);
+footer.site-footer .footer-navigation a:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 0.18rem;
 }
 
-.update-year-navigation {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  padding-top: var(--pico-spacing);
-  border-top: 1px solid var(--line);
-}
-
-.update-year-current {
-  color: var(--magenta);
-  font-weight: 700;
-  text-decoration-thickness: 0.16rem;
-}
-
-.update-year > h2 {
-  margin-bottom: 0;
-}
-
-.update-entry {
-  display: grid;
-  gap: 0.35rem;
-  margin: 0;
-  padding-block: calc(var(--pico-spacing) * 1.25);
-  border: 0;
-  border-top: 1px solid var(--line);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.update-entry time,
-.update-post-header time {
-  color: var(--dim);
-  font-size: 0.8rem;
-}
-
-.update-entry h3,
-.update-entry p {
+.footer-legal,
+.footer-trademark {
   margin: 0;
 }
 
-.update-entry h3 {
-  font-size: 1.2rem;
+.footer-legal {
+  margin-top: 1.4rem;
+  font-size: 0.8125rem;
 }
 
-.update-summary {
+.footer-legal a {
   color: var(--dim);
 }
 
-.update-rss {
-  margin-top: calc(var(--pico-spacing) * 2);
-}
-
-.update-post {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.update-post-header {
-  margin-bottom: calc(var(--pico-spacing) * 2);
-  padding-bottom: var(--pico-spacing);
-  border-bottom: 1px solid var(--line);
-}
-
-.update-archive-label {
-  color: var(--dim);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.update-post-header h1 {
-  margin-block: 0.5rem 0.25rem;
-}
-
-.update-deck {
-  margin-block: var(--pico-spacing) 0;
-  color: var(--dim);
-  font-size: 1.15rem;
-}
-
-.update-post-navigation {
-  display: grid;
-  align-items: start;
-  gap: var(--pico-spacing);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: calc(var(--pico-spacing) * 3);
-  padding-top: var(--pico-spacing);
+.footer-trademark {
+  max-width: 70ch;
+  margin-top: 1rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--line);
-}
-
-.update-post-navigation a {
-  overflow-wrap: anywhere;
-}
-
-.update-post-navigation span {
-  display: block;
-  color: var(--dim);
   font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.update-post-archive {
-  grid-column: 2;
-  text-align: center;
-}
-
-.update-post-next {
-  grid-column: 3;
-  text-align: right;
+  line-height: 1.6;
+  opacity: 0.8;
 }
 
 @media (max-width: 40rem) {
@@ -505,30 +414,6 @@ a:hover {
 
   .primary-navigation ul {
     gap: 0.15rem;
-  }
-
-  .update-post-navigation {
-    grid-template-columns: 1fr;
-  }
-
-  .update-post-archive,
-  .update-post-next {
-    grid-column: 1;
-    text-align: left;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .primary-navigation li a,
-  .theme-toggle,
-  .homepage-actions a,
-  .product-tabs button,
-  .product-tabs button::after {
-    transition: none;
   }
 }
 
@@ -542,6 +427,42 @@ a:hover {
   border: 0;
   margin: -1px;
   white-space: nowrap;
+}
+
+.not-found {
+  margin-block: clamp(2rem, 7vw, 5rem);
+}
+
+.not-found h1 {
+  margin-bottom: 1.5rem;
+}
+
+.not-found-output {
+  display: grid;
+  gap: 0.75rem;
+  padding: clamp(1rem, 4vw, 1.5rem);
+  border: 1px solid var(--divider);
+  border-radius: var(--pico-border-radius);
+  background: var(--surface);
+  font-family: var(--pico-font-family-monospace);
+  overflow-wrap: anywhere;
+}
+
+.not-found-output p {
+  margin: 0;
+}
+
+.not-found-output code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  white-space: normal;
+}
+
+.not-found-command,
+.not-found-summary {
+  color: var(--muted-ink);
 }
 
 body > main.homepage {
@@ -638,12 +559,6 @@ body > main.homepage {
   color: var(--bright);
 }
 
-.homepage-actions a:focus-visible,
-.product-setup a:focus-visible {
-  outline: 2px solid var(--cyan);
-  outline-offset: 0.18rem;
-}
-
 .homepage-proof {
   display: grid;
   gap: 1px;
@@ -732,6 +647,128 @@ body > main.homepage {
   }
 }
 
+.update-archive-header {
+  margin-bottom: calc(var(--pico-spacing) * 2);
+}
+
+.update-year-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding-top: var(--pico-spacing);
+  border-top: 1px solid var(--divider);
+}
+
+.update-year-current {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration-thickness: 0.16rem;
+}
+
+.update-year > h2 {
+  margin-bottom: 0;
+}
+
+.update-entry {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-block: calc(var(--pico-spacing) * 1.25);
+  border: 0;
+  border-top: 1px solid var(--divider);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.update-entry time,
+.update-post-header time {
+  color: var(--muted-ink);
+  font-size: 0.8rem;
+}
+
+.update-entry h3,
+.update-entry p {
+  margin: 0;
+}
+
+.update-entry h3 {
+  font-size: 1.2rem;
+}
+
+.update-summary {
+  color: var(--muted-ink);
+}
+
+.update-rss {
+  margin-top: calc(var(--pico-spacing) * 2);
+}
+
+.update-post {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.update-post-header {
+  margin-bottom: calc(var(--pico-spacing) * 2);
+  padding-bottom: var(--pico-spacing);
+  border-bottom: 1px solid var(--divider);
+}
+
+.update-archive-label {
+  color: var(--muted-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.update-post-header h1 {
+  margin-block: 0.5rem 0.25rem;
+}
+
+.update-deck {
+  margin-block: var(--pico-spacing) 0;
+  color: var(--muted-ink);
+  font-size: 1.15rem;
+}
+
+.update-post-navigation {
+  display: grid;
+  align-items: start;
+  gap: var(--pico-spacing);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: calc(var(--pico-spacing) * 3);
+  padding-top: var(--pico-spacing);
+  border-top: 1px solid var(--divider);
+}
+
+.update-post-navigation a {
+  overflow-wrap: anywhere;
+}
+
+.update-post-navigation span {
+  display: block;
+  color: var(--muted-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.update-post-archive {
+  grid-column: 2;
+  text-align: center;
+}
+
+.update-post-next {
+  grid-column: 3;
+  text-align: right;
+}
+
 .homepage-capabilities {
   display: grid;
   gap: clamp(2rem, 5vw, 3rem);
@@ -745,7 +782,7 @@ body > main.homepage {
 
 .homepage-eyebrow {
   margin-bottom: 0.35rem;
-  color: var(--dim);
+  color: var(--muted-ink);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -765,10 +802,6 @@ body > main.homepage {
 
 .product-comparison {
   min-width: 0;
-}
-
-html:not(.js) .product-tabs {
-  display: none;
 }
 
 .product-tabs {
@@ -862,7 +895,6 @@ html:not(.js) .product-tabs {
   margin: 0;
   color: var(--bright);
   font-size: 0.9375rem;
-  overflow-wrap: anywhere;
 }
 
 .product-setup-label {
@@ -894,7 +926,6 @@ html:not(.js) .product-tabs {
   color: var(--bright);
   font-family: var(--mono);
   font-size: 0.9em;
-  overflow-wrap: anywhere;
 }
 
 .product-shot,
@@ -1227,6 +1258,16 @@ html:not(.js) .product-tabs {
 }
 
 @media (max-width: 40rem) {
+  .update-post-navigation {
+    grid-template-columns: 1fr;
+  }
+
+  .update-post-archive,
+  .update-post-next {
+    grid-column: 1;
+    text-align: left;
+  }
+
   .product-setup {
     align-items: flex-start;
     flex-direction: column;
@@ -1281,5 +1322,28 @@ html:not(.js) .product-tabs {
 
   .support-table tbody td {
     padding-top: 0.45rem;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .primary-navigation *,
+  .homepage-opening *,
+  .homepage-capabilities *,
+  .homepage-support *,
+  .product-tabs button::after {
+    animation-name: none;
+    transition-property: none;
+  }
+
+  .primary-navigation li a,
+  .theme-toggle,
+  .homepage-actions a,
+  .product-tabs button {
+    transition-property: none;
   }
 }

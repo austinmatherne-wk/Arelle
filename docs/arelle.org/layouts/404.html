@@ -1,5 +1,10 @@
 {{ define "main" }}
-  <h1>Page not found</h1>
-  <p>The page you were looking for doesn't exist at this address anymore.</p>
-  <p>Try the <a href="/">homepage</a>, or browse the <a href="/blog/">blog</a>.</p>
+  <div class="not-found">
+    <h1>Page not found.</h1>
+    <section class="not-found-output" aria-label="Arelle validation result">
+      <p class="not-found-command"><span aria-hidden="true">$</span> <code>arelle --validate</code></p>
+      <p class="not-found-error"><code>[arelle.4.0.4.notFound]</code> The requested page could not be found.</p>
+      <p class="not-found-summary">Validation completed with 1 error.</p>
+    </section>
+  </div>
 {{ end }}

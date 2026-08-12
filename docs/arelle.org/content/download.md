@@ -5,42 +5,46 @@ aliases:
   - /arelle/pub/
 ---
 
-## Builds
+## Desktop app
 
-Each build is offered from three mirrors. Use the one closest to you — the files are identical.
+Choose the mirror closest to you. Each mirror serves the same current release.
 
 | Build | Mirrors |
 | --- | --- |
-| Windows 64-bit (installer) | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-win.exe) · [EU](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-win.exe) · [CN](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-win.exe) |
-| Windows 64-bit (zip) | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-win.zip) · [EU](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-win.zip) · [CN](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-win.zip) |
-| macOS (Apple silicon) | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-macos-arm64.dmg) · [EU](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-macos-arm64.dmg) · [CN](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-macos-arm64.dmg) |
-| macOS (Intel) | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-macos-x64.dmg) · [EU](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-macos-x64.dmg) · [CN](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-macos-x64.dmg) |
-| Linux Ubuntu (tgz) | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-ubuntu.tgz) · [EU](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-ubuntu.tgz) · [CN](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-ubuntu.tgz) |
+| Windows 64-bit installer | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-win.exe) · [Europe](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-win.exe) · [Mainland China](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-win.exe) |
+| Windows 64-bit zip | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-win.zip) · [Europe](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-win.zip) · [Mainland China](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-win.zip) |
+| macOS for Apple silicon | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-macos-arm64.dmg) · [Europe](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-macos-arm64.dmg) · [Mainland China](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-macos-arm64.dmg) |
+| macOS for Intel | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-macos-x64.dmg) · [Europe](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-macos-x64.dmg) · [Mainland China](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-macos-x64.dmg) |
+| Ubuntu Linux | [US](https://arelle-us.s3-us-west-1.amazonaws.com/arelle-ubuntu.tgz) · [Europe](https://arelle-eu.s3.eu-central-1.amazonaws.com/arelle-ubuntu.tgz) · [Mainland China](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/arelle-ubuntu.tgz) |
 
-Every link above serves the current release. For version numbers, release notes and older builds, see the [release history on GitHub](https://github.com/Arelle/Arelle/releases). The EDGAR Renderer has its own [commit history](https://github.com/Arelle/EDGAR/commits/master).
+## Python and containers
 
-Archive indexes of past builds are available from the same mirrors: [US](https://arelle-us.s3-us-west-1.amazonaws.com/archive-index.xml) · [EU](https://arelle-eu.s3.eu-central-1.amazonaws.com/archive-index.xml) · [CN](https://arelle-cn.oss-cn-shenzhen.aliyuncs.com/archive-index.xml)
+### Python
 
-## Source
+Install the canonical Python package:
 
-Arelle is a Python application. The source is the [Arelle project on GitHub](https://github.com/Arelle/Arelle).
+```shell
+pip install arelle-release
+```
 
-## Documentation
+See the [installation documentation](https://arelle.readthedocs.io/en/latest/install.html) for optional dependency groups and installation from source.
 
-Documentation is available at the [Arelle Read the Docs project](https://arelle.readthedocs.io/).
+### Docker
 
-## Support
+Validate a local `filing.zip` from the current directory:
 
-Support details are available at the [Arelle documentation project](https://arelle.readthedocs.io/en/latest/#need-support).
+```shell
+docker run --rm -v "$PWD:/data" arelleproject/arelle:latest \
+  python arelleCmdLine.py --file /data/filing.zip --validate
+```
 
-## Contribution
+Start Arelle as an HTTP web service on port 8080:
 
-Review and improvement of code, suggestions for functionality, documentation, and just about everything is needed. To contribute, an Apache 2 Contributor License is required (modified to name this project). If you are an individual, not under an employee or works-for-hire agreement (for example, a student), please use the [Individual Contributor](/arelle/wp-content/uploads/2010/11/ContributorLicenseForIndividuals.txt) agreement; otherwise use the [Corporate Contributor](/arelle/wp-content/uploads/2010/11/ContributorLicenseForEmployees.txt) agreement. The corporate agreement is required when you are employed because employment agreements and employment laws give intellectual property rights to the employer, so the employer needs to be part of that agreement.
+```shell
+docker run --name arelle-webserver -p 8080:8080 \
+  arelleproject/arelle:latest /opt/start.sh
+```
 
-## License
+See the [Docker installation documentation](https://arelle.readthedocs.io/en/latest/install.html#docker) for image variants, registries, Compose, custom images and output mounts.
 
-Arelle is licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0). Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-
-## Copyright and trademark
-
-Arelle's copyright and trademark are currently owned by Workiva Inc.
+For version numbers, release notes and older builds, see the [release history on GitHub](https://github.com/Arelle/Arelle/releases).

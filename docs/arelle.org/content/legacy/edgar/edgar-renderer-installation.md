@@ -37,7 +37,7 @@ Pre-built applications for Windows, macOS and Linux are on the [Arelle download 
 
 ### Interactively from its GUI
 
-Start Arelle (with the installed app, from the Windows start menu {{< image src="start-1.png" alt="start Edgar Renderer Windows" width="221" >}} or click on arelleGUI.exe, or Mac Application Arelle.app {{< image src="start-2.png" alt="start Edgar Renderer Mac" width="240" >}}).
+Start Arelle (with the installed app, from the Windows start menu {{< image src="start-1.png" alt="start Edgar Renderer Windows" width="221" inline="true" >}} or click on arelleGUI.exe, or Mac Application Arelle.app {{< image src="start-2.png" alt="start Edgar Renderer Mac" width="240" inline="true" >}}).
 
 Check that the EDGAR renderer plugin is installed and enabled: help→manage plugins.
 
@@ -67,12 +67,12 @@ Select an EDGAR Filing Manual validation mode, such as Pragmatic, and press ok.
 
 Enable Disclosure system checks. This menu entry is a checkmark toggle; click so it is enabled.
 
-{{< image src="enable-validation-3.png" alt="check menu selection for disclosure system validation" width="333" >}}
+{{< image src="enable-validation-3.png" alt="check menu selection for disclosure system validation" width="333" inline="true" >}}
 
-Open an SEC filing, click {{< image src="toolbarOpenFile.png" alt="open file toolbar button" >}} and select the instance document or inline html document. After successful loading the local viewer should display the SEC rendering engine results. If it's an inline html document, click the (Source) top menu entry to see the html form with fact information highlighted by ixviewer.
+Open an SEC filing, click {{< image src="toolbarOpenFile.png" alt="open file toolbar button" inline="true" >}} and select the instance document or inline html document. After successful loading the local viewer should display the SEC rendering engine results. If it's an inline html document, click the (Source) top menu entry to see the html form with fact information highlighted by ixviewer.
 
 {{< image src="select-menu.png" alt="inline ix viewer" width="317" >}}
 
 Redline markups in the inline document set are now shown with the View menu selection "Workstation Redline Mode". (These markups are a private communication from filer to SEC personnel, for SEC workstations upon request. They are not disseminated to the public.)
 
-For filer manual validation click {{< image src="toolbarValidate.png" alt="validate toolbar button" >}}.
+For filer manual validation click {{< image src="toolbarValidate.png" alt="validate toolbar button" inline="true" >}}.

@@ -94,7 +94,9 @@ npm run check:legacy-urls
 
 `legacy-urls/check.test.mjs` covers the checker, and
 `project-updates.test.mjs` covers the rendered yearly archive, aliases, and
-feeds. Run both with:
+feeds. The complete test command also builds isolated custom-domain and
+project-site outputs to verify that social-preview metadata contains the
+correct absolute URLs:
 
 ```shell
 npm test
