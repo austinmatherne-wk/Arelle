@@ -1,0 +1,29 @@
+# htmltest configuration for arelle.org.
+#
+# Run locally with `hugo --minify && htmltest -c .htmltest.yml` from
+# docs/arelle.org/. CI runs the same config through wjdp/htmltest-action.
+#
+# DirectoryPath is relative to htmltest's working directory, which is
+# docs/arelle.org/ when run locally. build-website.yml runs htmltest from the
+# repository root and so overrides this with a positional path argument.
+DirectoryPath: public
+
+# The generated Viewer and original filing are tested by the site's artifact
+# contracts. Their machine-generated markup and external references are not
+# part of the Hugo site's link contract.
+IgnoreDirs:
+  - demo
+
+# Don't fail the run on broken external links. The site links a lot of
+# third-party pages -- SEC Jira, Google Groups, an ancient UC Irvine Python-libs
+# page -- whose availability is not ours to keep. They are still logged, so a
+# link we do control going bad is visible in the run output.
+#
+# External links are still requested (CheckExternal defaults to true), which
+# means every run makes live network calls, including to the Alibaba OSS mirror
+# from a US-hosted runner. If that turns flaky, turn CheckExternal off rather
+# than papering over it with per-link ignores.
+IgnoreExternalBrokenLinks: true
+
+# Everything else -- CheckExternal, CheckMailto, CheckFavicon, CheckDoctype --
+# is left at its default of true.

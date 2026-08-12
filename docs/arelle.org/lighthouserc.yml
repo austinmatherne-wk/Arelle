@@ -1,0 +1,75 @@
+# Lighthouse CI configuration for arelle.org.
+#
+# First produce the composite artifact documented in README.md, then run
+# `npx lhci autorun`. Its absolute production base URL and minification matter:
+# the budgets below are calibrated against the output CI publishes, and
+# `hugo server` output is neither minified nor fingerprinted.
+#
+# No `upload` section is configured, so `lhci autorun` collects and asserts
+# locally and never uploads a report anywhere.
+ci:
+  collect:
+    # Static output of `hugo --minify`, served by lhci's own file server. Not a
+    # dev server: the assertions are about what actually ships.
+    # The generated Viewer is deliberately absent: it is a 5.32 MB application
+    # owned by the iXBRL Viewer project and receives application-specific tests
+    # instead of the normal static-site budgets below.
+    # /documentation/ is a zero-delay redirect to ReadTheDocs. Lighthouse would
+    # audit that external site, not the local stub, so the built-output contract
+    # pins the redirect while Lighthouse remains deterministic and first-party.
+    staticDistDir: ./public
+    # Three runs per URL gives 27 measurements across the nine representative
+    # routes below. Repeated runs of a route reported identical resource
+    # summaries in the 2026-08-11 B2 baseline.
+    numberOfRuns: 3
+    url:
+      - /
+      - /download/
+      - /about/
+      - /blog/
+      - /blog/2026/07/31/july-2026-update/
+      - /404.html
+      - /arelle/pub/applications/
+      - /arelle/pub/edgar-renderer-installation/
+      - /arelle/documentation/edgar-renderer-technical-operation/
+  assert:
+    # Evaluate every repeated run pessimistically: the weakest category score
+    # and largest budget value must pass, so one regression cannot be hidden by
+    # an optimistic representative run.
+    aggregationMethod: pessimistic
+    assertions:
+      # Category scores.
+      'categories:performance': ['error', {minScore: 0.95}]
+      'categories:accessibility': ['error', {minScore: 1}]
+      'categories:best-practices': ['error', {minScore: 1}]
+      'categories:seo': ['error', {minScore: 1}]
+
+      # Every ceiling below is rounded just above the observed maximum of the
+      # 2026-08-11 B2 baseline. README.md records that baseline and how to
+      # re-measure it; recalibrate there and here together.
+      'resource-summary:total:size': ['error', {maxNumericValue: 184320}]
+      'resource-summary:total:count': ['error', {maxNumericValue: 11}]
+
+      # The only normal-site JavaScript is the measured inline theme controller;
+      # site-contract.test.mjs enforces both its exclusivity and 1.125 KiB
+      # source cap. It creates no fetched script resource for Lighthouse to
+      # budget.
+      # Third-party resources remain a hard zero-request and zero-byte gate.
+      'resource-summary:third-party:size': ['error', {maxNumericValue: 0}]
+      'resource-summary:third-party:count': ['error', {maxNumericValue: 0}]
+
+      # Per resource type, with modest headroom for normal content changes.
+      'resource-summary:document:size': ['error', {maxNumericValue: 73728}]
+      'resource-summary:document:count': ['error', {maxNumericValue: 2}]
+      'resource-summary:stylesheet:size': ['error', {maxNumericValue: 18432}]
+      'resource-summary:stylesheet:count': ['error', {maxNumericValue: 2}]
+      'resource-summary:image:size': ['error', {maxNumericValue: 92160}]
+      'resource-summary:image:count': ['error', {maxNumericValue: 8}]
+      'resource-summary:font:size': ['error', {maxNumericValue: 12288}]
+      'resource-summary:font:count': ['error', {maxNumericValue: 2}]
+      # Media is not part of the current site; permit only a small accidental
+      # request while keeping it visible in the budget report.
+      'resource-summary:media:size': ['error', {maxNumericValue: 1024}]
+      'resource-summary:media:count': ['error', {maxNumericValue: 1}]
+      'resource-summary:other:size': ['error', {maxNumericValue: 2048}]
+      'resource-summary:other:count': ['error', {maxNumericValue: 2}]

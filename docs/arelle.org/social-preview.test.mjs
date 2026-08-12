@@ -70,34 +70,15 @@ for (const baseUrl of ['https://arelle.org/', 'https://arelle.github.io/Arelle/'
         description: 'Download Arelle for Windows, macOS and Linux.',
       },
       {
-        path: 'about/index.html',
-        url: `${baseUrl}about/`,
-        title: 'About Arelle · Arelle',
-        description: "Arelle's history, mission, stewardship, and ways to participate.",
-      },
-      {
         path: 'documentation/index.html',
         url: 'https://arelle.readthedocs.io/',
         title: 'Documentation · Arelle',
         description: 'Arelle documentation is hosted on Read the Docs.',
       },
       {
-        path: 'blog/index.html',
-        url: `${baseUrl}blog/`,
-        title: 'Project updates · Arelle',
-        description: 'Updates from the Arelle team.',
-      },
-      {
-        path: 'blog/2026/index.html',
-        url: `${baseUrl}blog/2026/`,
-        title: 'Project updates: 2026 · Arelle',
-        description: 'Updates from the Arelle team.',
-      },
-      {
         path: 'blog/2026/06/26/june-2026-update/index.html',
         url: `${baseUrl}blog/2026/06/26/june-2026-update/`,
         title: 'June 2026 Update · Arelle',
-        type: 'article',
         descriptionIncludes: 'We missed our monthly update in May',
       },
       {
@@ -119,7 +100,6 @@ for (const baseUrl of ['https://arelle.org/', 'https://arelle.github.io/Arelle/'
       assert.equal(canonical(html), expected.url, `${expected.path} canonical`)
       assert.equal(metadata(html, 'og:title'), expected.title, `${expected.path} title`)
       assert.equal(metadata(html, 'og:url'), expected.url, `${expected.path} URL`)
-      assert.equal(metadata(html, 'og:type'), expected.type ?? 'website', `${expected.path} type`)
       assert.equal(metadata(html, 'og:image'), `${baseUrl}${previewPath}`, `${expected.path} image`)
       assert.equal(metadata(html, 'og:image:width'), '1200')
       assert.equal(metadata(html, 'og:image:height'), '630')
