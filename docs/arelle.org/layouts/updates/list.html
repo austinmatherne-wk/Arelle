@@ -1,0 +1,54 @@
+{{ define "main" }}
+  {{/* One template serves the archive and every year section: the archive itself
+       shows the most recent year, so a visitor without JavaScript reaches any
+       other year through its own page rather than through pagination. */}}
+  {{ $blog := site.GetPage "/updates" }}
+  {{ $years := $blog.Sections.ByTitle.Reverse }}
+  {{ $latest := index $years 0 }}
+  {{ $isArchive := eq .RelPermalink $blog.RelPermalink }}
+  {{ $selected := cond $isArchive $latest . }}
+  {{ $rss := $blog.OutputFormats.Get "rss" }}
+  {{ $rssUrl := cond (ne $rss nil) $rss.RelPermalink "/updates/index.xml" }}
+  <div class="update-archive-layout">
+    <div class="update-content-column">
+      <header class="update-archive-header">
+        <div class="update-header-row">
+          <h1>{{ $blog.Title }}</h1>
+          <a class="rss-action-pill" href="{{ $rssUrl }}" aria-label="Subscribe to RSS feed" title="Subscribe to RSS feed">
+            <svg class="rss-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 11a9 9 0 0 1 9 9"></path>
+              <path d="M4 4a16 16 0 0 1 16 16"></path>
+              <circle cx="5" cy="19" r="1.2" fill="currentColor"></circle>
+            </svg>
+            <span>RSS</span>
+          </a>
+        </div>
+        {{ $blog.Content }}
+      </header>
+      <section class="update-year" aria-label="{{ $selected.Title }}">
+        {{ range $selected.RegularPages.ByDate.Reverse }}
+          <article class="update-entry">
+            <time datetime="{{ .Date.Format "2006-01-02" }}" hidden></time>
+            <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+            <p class="update-summary">{{ with .Params.summary }}{{ . | markdownify | plainify }}{{ else }}{{ .Summary | plainify | truncate 220 }}{{ end }}</p>
+          </article>
+        {{ end }}
+      </section>
+    </div>
+    <aside class="update-rail-column" aria-label="Archive timeline">
+      <div class="update-rail-sticky">
+        <span class="timeline-title">Timeline</span>
+        <nav class="update-year-navigation" aria-label="Update year">
+          <div class="timeline-line" aria-hidden="true"></div>
+          {{ range $years }}
+            <a href="{{ .RelPermalink }}"{{ if eq .RelPermalink $selected.RelPermalink }} class="update-year-current" aria-current="page"{{ end }}>
+              <span class="timeline-dot" aria-hidden="true"></span>
+              <span class="timeline-text">{{ .Title }}</span>
+              <span class="timeline-count" aria-hidden="true">({{ len .RegularPages }})</span>
+            </a>
+          {{ end }}
+        </nav>
+      </div>
+    </aside>
+  </div>
+{{ end }}

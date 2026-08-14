@@ -8,4 +8,4 @@ outputs:
   - RSS
 ---
 
-News about Arelle and the Arelle iXBRL Viewer.
+News from the Arelle team.

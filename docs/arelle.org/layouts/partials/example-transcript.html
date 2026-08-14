@@ -1,7 +1,18 @@
 {{- $contents := readFile .path -}}
 {{- $contents = replaceRE "\r\n?" "\n" $contents -}}
 {{- $transcript := split (strings.TrimSpace $contents) "\n" -}}
+{{- $commandLines := slice -}}
+{{- $outputLines := slice -}}
+{{- $readingCommand := true -}}
+{{- range $transcript -}}
+  {{- if $readingCommand -}}
+    {{- $commandLines = $commandLines | append . -}}
+    {{- $readingCommand = hasSuffix . "\\" -}}
+  {{- else -}}
+    {{- $outputLines = $outputLines | append . -}}
+  {{- end -}}
+{{- end -}}
 {{- return (dict
-  "command" (index $transcript 0)
-  "output" (delimit (after 1 $transcript) "\n")
+  "command" (delimit $commandLines "\n")
+  "output" (delimit $outputLines "\n")
 ) -}}

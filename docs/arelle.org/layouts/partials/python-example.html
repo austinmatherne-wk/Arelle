@@ -2,16 +2,11 @@
 {{- $source = replaceRE "\r\n?" "\n" $source -}}
 {{- $source = strings.TrimSpace $source -}}
 {{- $transcript := partial "example-transcript.html" (dict "path" "examples/python-api.txt") -}}
-<figure class="product-python">
-  <div class="python-example-frame">
-    <div class="python-example-source">
-      <div class="python-example-heading">revenue.py <span>source</span></div>
-      <pre><code>{{ $source }}</code></pre>
-    </div>
-    <div class="python-example-output">
-      <div class="python-example-heading">{{ $transcript.command }}</div>
-      <pre><code>{{ $transcript.output }}</code></pre>
-    </div>
-  </div>
-  <figcaption>The loaded report is an object model that exposes facts, taxonomy relationships, and validation messages. This example reads three years of revenue directly from that model.</figcaption>
-</figure>
+{{ partial "source-example.html" (dict
+  "name" "python"
+  "filename" "revenue.py"
+  "source" $source
+  "language" "python"
+  "transcript" $transcript
+  "caption" "The loaded report is an object model that exposes facts and taxonomy relationships. This example reads two years of revenue directly from that model."
+) }}

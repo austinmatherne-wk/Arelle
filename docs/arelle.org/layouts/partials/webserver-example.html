@@ -1,0 +1,6 @@
+{{- $caption := `Arelle's built-in web server has no authentication layer and is intended for trusted callers and local automation only. Do not expose it directly to untrusted networks or the public internet.` -}}
+{{ partial "console-example.html" (dict
+  "path" "examples/webserver.txt"
+  "title" "arelle webserver"
+  "caption" $caption
+) }}

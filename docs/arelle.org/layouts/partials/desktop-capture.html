@@ -1,12 +1,14 @@
 {{- $source := resources.Get (printf "images/%s.png" .name) -}}
-{{- $smallAvif := $source.Resize "640x avif q78" -}}
-{{- $mediumAvif := $source.Resize "1200x avif q78" -}}
-{{- $largeAvif := $source.Resize "1600x avif q78" -}}
-{{- $smallWebp := $source.Resize "640x webp q82" -}}
-{{- $mediumWebp := $source.Resize "1200x webp q82" -}}
-{{- $largeWebp := $source.Resize "1600x webp q82" -}}
+{{- $smallAvif := $source.Resize "640x avif q85" -}}
+{{- $mediumAvif := $source.Resize "1200x avif q85" -}}
+{{- $largeAvif := $source.Resize "1600x avif q85" -}}
+{{- $fullAvif := $source.Resize (printf "%dx avif q85" $source.Width) -}}
+{{- $smallWebp := $source.Resize "640x webp q90" -}}
+{{- $mediumWebp := $source.Resize "1200x webp q90" -}}
+{{- $largeWebp := $source.Resize "1600x webp q90" -}}
+{{- $fullWebp := $source.Resize (printf "%dx webp q90" $source.Width) -}}
 <picture class="{{ .class }}">
-  <source type="image/avif" sizes="(max-width: 54rem) 100vw, 54rem" srcset="{{ $smallAvif.RelPermalink }} 640w, {{ $mediumAvif.RelPermalink }} 1200w, {{ $largeAvif.RelPermalink }} 1600w">
-  <source type="image/webp" sizes="(max-width: 54rem) 100vw, 54rem" srcset="{{ $smallWebp.RelPermalink }} 640w, {{ $mediumWebp.RelPermalink }} 1200w, {{ $largeWebp.RelPermalink }} 1600w">
-  <img class="{{ .class }}" src="{{ $largeWebp.RelPermalink }}" width="{{ $source.Width }}" height="{{ $source.Height }}" alt="{{ .alt }}" loading="lazy" decoding="async">
+  <source type="image/avif" sizes="(max-width: 54rem) 100vw, 54rem" srcset="{{ $smallAvif.RelPermalink }} 640w, {{ $mediumAvif.RelPermalink }} 1200w, {{ $largeAvif.RelPermalink }} 1600w, {{ $fullAvif.RelPermalink }} {{ $source.Width }}w">
+  <source type="image/webp" sizes="(max-width: 54rem) 100vw, 54rem" srcset="{{ $smallWebp.RelPermalink }} 640w, {{ $mediumWebp.RelPermalink }} 1200w, {{ $largeWebp.RelPermalink }} 1600w, {{ $fullWebp.RelPermalink }} {{ $source.Width }}w">
+  <img class="{{ .class }}" src="{{ $fullWebp.RelPermalink }}" width="{{ $source.Width }}" height="{{ $source.Height }}" alt="{{ .alt }}" loading="lazy" decoding="async">
 </picture>

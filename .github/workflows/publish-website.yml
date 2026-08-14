@@ -2,7 +2,18 @@ name: Publish Website
 
 on:
   workflow_call:
+    inputs:
+      download_version:
+        description: 'Release version to render in download links'
+        required: true
+        type: string
   workflow_dispatch:
+    inputs:
+      download_version:
+        default: ''
+        description: 'Release version to render in download links (blank to use the latest tag)'
+        required: false
+        type: string
 
 permissions: {}
 
@@ -26,18 +37,42 @@ jobs:
         with:
           # Full history so enableGitInfo can resolve .Lastmod and .GitInfo.
           fetch-depth: 0
+          fetch-tags: true
+      - name: Resolve download release version
+        id: release-version
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DOWNLOAD_VERSION: ${{ inputs.download_version }}
+        run: |
+          version="$INPUT_DOWNLOAD_VERSION"
+          if [[ "$EVENT_NAME" == "workflow_dispatch" && -z "$version" ]]; then
+            version="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          fi
+          if [[ -z "$version" ]]; then
+            echo "A download release version is required, but none was provided or found in Git tags." >&2
+            exit 1
+          fi
+          echo "download_version=$version" >> "$GITHUB_OUTPUT"
       - name: Configure GitHub Pages
         id: pages
         uses: actions/configure-pages@v6.0.0
       - name: Build website
         uses: ./.github/actions/build_website
-        # This workflow owns no checks. build-website.yml runs the legacy URL
-        # check, htmltest, and Lighthouse, and release.yml will gate this job
-        # on it once it calls both. Manual dispatch is
-        # an explicit maintainer action for content corrections between
-        # releases, like publish-documentation.yml.
+        # This workflow owns the fail-closed download-page link check.
+        # Site-wide htmltest, Lighthouse, and legacy URL checks stay in
+        # build-website.yml. Manual dispatch is an explicit maintainer action
+        # for content corrections between releases.
         with:
           base_url: ${{ steps.pages.outputs.base_url }}
+          download_version: ${{ steps.release-version.outputs.download_version }}
+      - name: Check versioned download links with htmltest
+        uses: wjdp/htmltest-action@v0.13.0-rc1
+        with:
+          config: docs/arelle.org/.htmltest.download.yml
+          # The config's DirectoryPath is relative to htmltest's working
+          # directory; this action runs from the repository root.
+          path: docs/arelle.org/public
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5.0.0
         with:

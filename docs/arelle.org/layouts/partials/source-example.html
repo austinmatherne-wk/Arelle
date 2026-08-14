@@ -1,0 +1,17 @@
+{{- $name := .name -}}
+{{- $transcript := .transcript -}}
+<figure class="product-{{ $name }}">
+  <div class="{{ $name }}-example-frame">
+    <div class="{{ $name }}-example-source">
+      <div class="{{ $name }}-example-heading">{{ .filename }} <span>source</span></div>
+      {{ highlight .source .language "lineNos=false,noClasses=false" }}
+    </div>
+    <div class="{{ $name }}-example-output">
+      <div class="{{ $name }}-example-heading example-output-heading">command</div>
+      <pre><code>{{ partial "highlight-shell.html" (dict "code" $transcript.command) }}</code></pre>
+      <div class="{{ $name }}-example-heading example-output-heading">output</div>
+      <pre><code>{{ $transcript.output }}</code></pre>
+    </div>
+  </div>
+  <figcaption>{{ .caption }}</figcaption>
+</figure>

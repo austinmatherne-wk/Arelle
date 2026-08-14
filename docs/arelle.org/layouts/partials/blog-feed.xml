@@ -1,9 +1,9 @@
-{{- /* The site has exactly one feed, served at three paths: /blog/index.xml
+{{- /* The site has exactly one feed, served at three paths: /updates/index.xml
        (canonical, and the only one the site advertises), /index.xml, and
        /arelle/feed/index.xml (the WordPress feed URL). They carry the same
        items so that no subscriber sees a different site depending on which one
        they found. Context: the page being rendered. */ -}}
-{{- $blog := site.GetPage "/blog" -}}
+{{- $blog := site.GetPage "/updates" -}}
 {{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>

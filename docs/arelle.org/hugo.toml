@@ -7,8 +7,15 @@ enableGitInfo = true
 
 [taxonomies]
 
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = false
+    noClasses = false
+
 [permalinks]
-  blog = '/blog/:year/:month/:day/:slug/'
+  updates = '/updates/:year/:month/:day/:slug/'
 
 [outputs]
   home = ['HTML', 'RSS']

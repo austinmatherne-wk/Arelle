@@ -1,2 +1,7 @@
-$ arelleCmdLine --file demo-20251231.xbrl --validate --plugins house_rules --disclosureSystem house-rules --logLevel warning
-[house.01.01] demo:OperatingExpenses is a cost and must not be negative, but was reported as -12,500,000. - demo-20251231.xbrl 48
+$ arelleCmdLine \
+  --file demo-20251231.xbrl \
+  --validate \
+  --plugins house_rules \
+  --disclosureSystem house-rules \
+  --logLevel warning
+[house.01.01] AuditReport must be reported. - demo-20251231.xbrl

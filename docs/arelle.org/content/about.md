@@ -5,7 +5,7 @@ aliases:
   - /arelle/participate/
 ---
 
-Arelle is an open source platform for validating and processing XBRL reports and taxonomies.
+Arelle is an open-source platform for validating and processing XBRL reports and taxonomies.
 Created in 2010, it makes XBRL more accessible through a desktop application, command line
 interface, Python API and web service.
 

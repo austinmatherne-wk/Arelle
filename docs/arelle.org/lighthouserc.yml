@@ -1,9 +1,9 @@
 # Lighthouse CI configuration for arelle.org.
 #
 # First produce the composite artifact documented in README.md, then run
-# `npx lhci autorun`. Its absolute production base URL and minification matter:
-# the budgets below are calibrated against the output CI publishes, and
-# `hugo server` output is neither minified nor fingerprinted.
+# `npx lhci autorun`. Minification matters: the budgets below are calibrated
+# against the output CI publishes, and `hugo server` output is neither
+# minified nor fingerprinted.
 #
 # No `upload` section is configured, so `lhci autorun` collects and asserts
 # locally and never uploads a report anywhere.
@@ -26,8 +26,8 @@ ci:
       - /
       - /download/
       - /about/
-      - /blog/
-      - /blog/2026/07/31/july-2026-update/
+      - /updates/
+      - /updates/2026/07/31/july-2026-update/
       - /404.html
       - /arelle/pub/applications/
       - /arelle/pub/edgar-renderer-installation/

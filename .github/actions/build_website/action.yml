@@ -5,18 +5,17 @@ inputs:
     default: '/'
     description: Base URL to build the site against
     required: false
+  download_version:
+    default: ''
+    description: Release version to render in download links (blank for the latest-release locator)
+    required: false
 
 runs:
   using: composite
   steps:
     - name: Install Hugo
       shell: bash
-      env:
-        HUGO_VERSION: '0.164.0'
-      run: |
-        wget -O "${{ runner.temp }}/hugo.deb" \
-          "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
-        sudo dpkg -i "${{ runner.temp }}/hugo.deb"
+      run: sudo snap install hugo --channel=extended --classic
     - name: Install Node
       uses: actions/setup-node@v7.0.0
       with:
@@ -28,32 +27,36 @@ runs:
       uses: actions/setup-python@v6.0.0
       with:
         cache: 'pip'
-        cache-dependency-path: |
-          pyproject.toml
-          requirements-plugins.txt
+        cache-dependency-path: requirements-plugins.txt
         python-version: '3.14'
     - name: Install dependencies
       shell: bash
       working-directory: docs/arelle.org
-      # Required before any build: the stylesheet is assembled out of
-      # node_modules by Hugo's asset pipeline.
       run: npm ci
     - name: Install Arelle and Viewer
       shell: bash
-      run: |
-        viewer_requirement="$(grep -m1 '^ixbrl-viewer==' requirements-plugins.txt)"
-        python -m pip install --disable-pip-version-check -e . "$viewer_requirement"
-    - name: Install EDGAR transform plugin
-      shell: bash
-      run: git clone --branch master --depth 1 https://github.com/Arelle/EDGAR.git "${RUNNER_TEMP}/EDGAR"
+      run: python -m pip install -r requirements-plugins.txt
+    - name: Checkout EDGAR
+      uses: actions/checkout@v7.0.1
+      with:
+        repository: Arelle/EDGAR
+        path: arelle/plugin/EDGAR
+        fetch-depth: 1
     - name: Build website
       shell: bash
       working-directory: docs/arelle.org
       env:
         BASE_URL: ${{ inputs.base_url }}
-      run: hugo --minify --baseURL "$BASE_URL"
+        DOWNLOAD_VERSION: ${{ inputs.download_version }}
+      run: |
+        if [[ -n "$DOWNLOAD_VERSION" ]]; then
+          HUGO_PARAMS_downloadVersion="$DOWNLOAD_VERSION" hugo --minify --baseURL "$BASE_URL"
+        else
+          hugo --minify --baseURL "$BASE_URL"
+        fi
     - name: Generate iXBRL Viewer demo
       shell: bash
+      working-directory: docs/arelle.org
       env:
         BASE_URL: ${{ inputs.base_url }}
-      run: python scripts/generate_viewer_demo.py docs/arelle.org "${RUNNER_TEMP}/EDGAR" --base-url "$BASE_URL"
+      run: python scripts/generate_viewer_demo.py . ../../arelle/plugin/EDGAR --base-url "$BASE_URL"

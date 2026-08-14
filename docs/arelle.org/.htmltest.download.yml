@@ -1,0 +1,12 @@
+# Fail-closed link configuration for the versioned download page.
+#
+# FilePath is relative to DirectoryPath. The publish workflow runs htmltest
+# from the repository root and overrides DirectoryPath with a positional path.
+DirectoryPath: public
+FilePath: download/index.html
+
+# The tagged publish must verify the real GitHub assets rather than accept a
+# cached response. htmltest's default external check uses GET with a one-byte
+# Range request, so installers are not downloaded.
+IgnoreExternalBrokenLinks: false
+CacheExpires: 0s

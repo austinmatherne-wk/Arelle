@@ -1,0 +1,149 @@
+{{ define "main" }}
+{{ $dl := hugo.Data.downloads }}
+{{ $downloadVersion := site.Params.downloadVersion }}
+{{ $latestReleaseURL := "https://github.com/Arelle/Arelle/releases/latest" }}
+{{ $releaseNotesURL := $latestReleaseURL }}
+{{ $versionLabel := "Latest" }}
+{{ if $downloadVersion }}
+  {{ $releaseNotesURL = printf "https://github.com/Arelle/Arelle/releases/tag/%s" $downloadVersion }}
+  {{ $versionLabel = printf "v%s" $downloadVersion }}
+{{ end }}
+<div class="download-layout">
+  {{/* Hero Header */}}
+  <header class="download-hero">
+    <div class="download-version-pill">
+      <span class="download-badge-dot" aria-hidden="true"></span>
+      <span><strong>{{ $versionLabel }}</strong></span>
+      <a href="{{ $releaseNotesURL }}" class="download-changelog-link">Release Notes &rarr;</a>
+    </div>
+    <h1 class="download-page-title">Arelle Distributions</h1>
+    <p class="download-page-tagline">
+      Official prebuilt executables, containers, and library packages.
+    </p>
+  </header>
+
+  {{/* Master Distributions Table */}}
+  <div class="download-directory-section">
+    <div class="dl-table-container">
+      <table class="download-table">
+        <colgroup>
+          <col class="col-distro">
+          <col class="col-format">
+          <col class="col-action">
+          <col class="col-mirrors">
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Distribution</th>
+            <th scope="col">Format</th>
+            <th scope="col">Download / Install Command</th>
+            <th scope="col">Mirrors / Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{/* Desktop Binaries */}}
+          {{ range $dl.desktop }}
+            {{ $mirrorFile := .mirror_file }}
+            {{ $githubURL := $latestReleaseURL }}
+            {{ if $downloadVersion }}
+              {{ $extension := path.Ext $mirrorFile }}
+              {{ $githubAsset := printf "%s-%s%s" (strings.TrimSuffix $extension $mirrorFile) $downloadVersion $extension }}
+              {{ $githubURL = printf "https://github.com/Arelle/Arelle/releases/download/%s/%s" $downloadVersion $githubAsset }}
+            {{ end }}
+            <tr>
+              <td>
+                <strong class="download-title">{{ .name }}</strong>
+                <span class="download-sub">{{ .sub }}</span>
+              </td>
+              <td><span class="dl-type-badge">{{ .format }}</span></td>
+              <td>
+                <a class="download-direct-link" href="{{ $githubURL }}">
+                  <svg class="dl-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <span>GitHub Release</span>
+                </a>
+              </td>
+              <td>
+                <div class="download-mirrors">
+                  {{ range $index, $mirror := $dl.mirrors }}
+                    {{ if $index }} &middot; {{ end }}
+                    <a href="{{ $mirror.base_url }}{{ $mirrorFile }}" title="{{ $mirror.title }}">{{ $mirror.label }}</a>
+                  {{ end }}
+                </div>
+              </td>
+            </tr>
+          {{ end }}
+
+          {{/* Docker Containers */}}
+          {{ range $dl.docker }}
+            <tr>
+              <td>
+                <strong class="download-title">{{ .name }}</strong>
+                <span class="download-sub">{{ .sub }}</span>
+              </td>
+              <td><span class="dl-type-badge container">Docker</span></td>
+              <td>
+                <div class="download-cmd-box">
+                  <span class="dl-reg-badge">Docker Hub</span>
+                  <code>{{ .dockerhub }}</code>
+                </div>
+              </td>
+              <td>
+                <div class="download-cmd-box">
+                  <span class="dl-reg-badge">GHCR</span>
+                  <code>{{ .ghcr }}</code>
+                </div>
+              </td>
+            </tr>
+          {{ end }}
+
+          {{/* Python & Source */}}
+          {{ range $dl.packages }}
+            <tr>
+              <td>
+                <strong class="download-title">{{ .name }}</strong>
+                <span class="download-sub">{{ .sub }}</span>
+              </td>
+              <td><span class="dl-type-badge {{ if eq .format "Git" }}source{{ else }}package{{ end }}">{{ .format }}</span></td>
+              <td>
+                <div class="download-cmd-box">
+                  <span class="dl-reg-badge">{{ if eq .format "PyPI" }}pip{{ else if eq .format "Conda" }}conda{{ else }}git{{ end }}</span>
+                  <code>{{ .command }}</code>
+                </div>
+              </td>
+              <td>
+                {{ if .extra_command }}
+                  <div class="download-cmd-box">
+                    <span class="dl-reg-badge">{{ .extra_label }}</span>
+                    <code>{{ .extra_command }}</code>
+                  </div>
+                {{ else if .link_url }}
+                  <div class="download-link-wrap">
+                    <a href="{{ .link_url }}" class="download-table-link">{{ .link_text }}</a>
+                  </div>
+                {{ end }}
+              </td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{/* Plugin Ecosystem Breakdown */}}
+  <div class="download-plugin-banner">
+    <div class="download-plugin-head">
+      <strong>Plugin Packaging Overview</strong>
+      <span>Desktop binaries and the full Docker image include all standard plugins pre-configured. Python &amp; Source installations can manually add these additional plugins.</span>
+    </div>
+    <div class="download-plugin-grid">
+      {{ range $dl.plugins }}
+        <div class="download-plug-item">
+          <strong>{{ .name }}</strong>
+          <p>{{ .desc | safeHTML }}</p>
+          <a href="{{ .url }}">{{ .link_text }}</a>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}

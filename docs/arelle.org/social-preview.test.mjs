@@ -51,7 +51,7 @@ async function builtSite(baseUrl) {
   }
 }
 
-for (const baseUrl of ['https://arelle.org/', 'https://arelle.github.io/Arelle/']) {
+for (const baseUrl of ['/', 'https://arelle.org/', 'https://arelle.github.io/Arelle/']) {
   test(`social previews are complete at ${baseUrl}`, async (t) => {
     const site = await builtSite(baseUrl)
     t.after(() => rm(site.destination, { recursive: true, force: true }))
@@ -61,7 +61,7 @@ for (const baseUrl of ['https://arelle.org/', 'https://arelle.github.io/Arelle/'
         path: 'index.html',
         url: baseUrl,
         title: 'Arelle',
-        description: 'Validate, explore and extract XBRL data with Arelle, the free and open source XBRL platform.',
+        description: 'Validate and explore XBRL data with Arelle, the free and open-source XBRL platform.',
       },
       {
         path: 'download/index.html',
@@ -76,8 +76,8 @@ for (const baseUrl of ['https://arelle.org/', 'https://arelle.github.io/Arelle/'
         description: 'Arelle documentation is hosted on Read the Docs.',
       },
       {
-        path: 'blog/2026/06/26/june-2026-update/index.html',
-        url: `${baseUrl}blog/2026/06/26/june-2026-update/`,
+        path: 'updates/2026/06/26/june-2026-update/index.html',
+        url: `${baseUrl}updates/2026/06/26/june-2026-update/`,
         title: 'June 2026 Update · Arelle',
         descriptionIncludes: 'We missed our monthly update in May',
       },

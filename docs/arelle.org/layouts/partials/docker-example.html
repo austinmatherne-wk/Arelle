@@ -1,5 +1,5 @@
 {{- $command := readFile "examples/docker.txt" | strings.TrimSpace -}}
-{{- $caption := `The container command is illustrative, and its validation output comes from the verified CLI transcript rather than a separate Docker run. Published images are available on Docker Hub and the GitHub Container Registry. The slim image omits the EDGAR, XULE and iXBRL Viewer plugins for a smaller footprint, and the image can also run Arelle's HTTP web service.` -}}
+{{- $caption := `Published images are available on Docker Hub and the GitHub Container Registry. The image can also run Arelle's HTTP web service.` -}}
 {{ partial "console-example.html" (dict
   "path" "examples/cli.txt"
   "title" "arelle Docker"

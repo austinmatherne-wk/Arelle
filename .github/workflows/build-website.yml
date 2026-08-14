@@ -10,7 +10,6 @@ on:
       - 'docs/arelle.org/**'
       - 'pyproject.toml'
       - 'requirements-plugins.txt'
-      - 'scripts/generate_viewer_demo.py'
   workflow_call:
   workflow_dispatch:
 
@@ -26,14 +25,15 @@ jobs:
           fetch-depth: 0
       - name: Build website
         uses: ./.github/actions/build_website
-        # Use the production origin so canonical and social URLs are absolute
-        # during SEO checks. configure-pages, which publish-website.yml uses to
-        # get the temporary /Arelle/ project-site prefix, must not run here: it
-        # needs pages: write and fails until a repo admin enables Pages, which
-        # would turn every website PR red — permanently so for fork PRs, whose
-        # token is read-only.
+        # Root-relative origin matches local `hugo --minify` and keeps the
+        # Viewer home link on the artifact under test. Absolute production and
+        # project-site URLs are checked by social-preview.test.mjs.
+        # configure-pages, which publish-website.yml uses for the live origin,
+        # must not run here: it needs pages: write and fails until a repo admin
+        # enables Pages, which would turn every website PR red — permanently so
+        # for fork PRs, whose token is read-only.
         with:
-          base_url: https://arelle.org/
+          base_url: /
       - parallel:
           - name: Check links with htmltest
             uses: wjdp/htmltest-action@v0.13.0-rc1
@@ -48,13 +48,10 @@ jobs:
           - name: Test production artifact contracts
             working-directory: docs/arelle.org
             run: npm test
-          # Unlike its neighbours, a failure here is not a quality regression:
-          # it means a URL the outside world still links to has no target in
-          # the build. It belongs here rather than in publish-website.yml
-          # because the release caller gates publishing on this workflow, so a
-          # broken URL blocks deployment without the publishing workflow owning
-          # any tests. Running in parallel with the others means a link or
-          # performance regression cannot mask it.
+          # This site-wide legacy URL check stays with the PR gates. The
+          # versioned download-page link check belongs to publish-website.yml,
+          # where real release assets exist; running in parallel here means a
+          # URL or performance regression cannot mask this result.
           - name: Check legacy URLs still resolve
             working-directory: docs/arelle.org
             run: npm run check:legacy-urls

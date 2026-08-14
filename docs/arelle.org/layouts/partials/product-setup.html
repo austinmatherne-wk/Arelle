@@ -1,7 +1,7 @@
 <div class="product-setup">
   <div>
     <span class="product-setup-label">{{ .label }}</span>
-    <p>{{ .copy }}{{ with .command }} <code>{{ . }}</code>{{ end }}</p>
+    <p>{{ .copy }}{{ with .command }} <code>{{ partial "highlight-shell.html" (dict "code" .) }}</code>{{ end }}</p>
   </div>
   <a href="{{ .href }}">{{ .action }} <span aria-hidden="true">&rarr;</span></a>
 </div>

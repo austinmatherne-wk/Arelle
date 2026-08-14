@@ -4,7 +4,7 @@ The [Hugo](https://gohugo.io/) source for the Arelle website, published to GitHu
 
 ## Prerequisites
 
-- Hugo (extended). CI pins the version in `.github/workflows/build-website.yml`.
+- Hugo (extended). CI installs it from snap.
 - Node.js 26 or newer.
 - Chrome or Chromium for the served-artifact acceptance checks. Set
   `CHROME_PATH` if it is not installed in a standard location.
@@ -29,48 +29,42 @@ hugo --minify
 
 The result lands in `public/`.
 
-## Viewer demo taxonomy package
-
-The Viewer demo is generated offline from the narrowly scoped taxonomy package
-defined by `demo/taxonomy-package.json`. From the repository root, reproduce
-the package with:
-
-```shell
-python scripts/build_viewer_demo_taxonomy_package.py \
-  docs/arelle.org/demo/taxonomy-package.json \
-  arelle-viewer-demo.zip
-```
-
-The builder verifies each upstream archive, copies the FASB US GAAP and SRT
-packages, adds only the SEC files listed in the definition, replaces the
-upstream metadata with Arelle-specific package metadata, and verifies the final
-artifact digest. A maintainer with access to the `arelle-public` bucket can
-publish the resulting file at
-`ci/packages/arelle-viewer-demo.zip`.
-
-Ordinary Hugo development does not build or download this package.
-
 ## Generating the Viewer demo
 
 The production build generates the Workiva FY2025 Form 10-K Viewer after Hugo
-finishes. To reproduce that composite build locally from this directory:
+finishes. This uses the same Python environment as the rest of Arelle. If that
+environment is not set up yet, follow [CONTRIBUTING.md](../../CONTRIBUTING.md)
+(a virtualenv at the repository root, then `pip install -r requirements-dev.txt`).
+
+From the repository root, with that environment activated:
 
 ```shell
-python -m venv /tmp/arelle-site
-source /tmp/arelle-site/bin/activate
-VIEWER_REQUIREMENT="$(grep -m1 '^ixbrl-viewer==' ../../requirements-plugins.txt)"
-python -m pip install -e ../.. "$VIEWER_REQUIREMENT"
-git clone --branch master --depth 1 https://github.com/Arelle/EDGAR.git /tmp/arelle-edgar
-hugo --minify --baseURL https://arelle.org/
-python ../../scripts/generate_viewer_demo.py . /tmp/arelle-edgar --base-url https://arelle.org/
+pip install -e . -r requirements-plugins.txt
+git clone --branch master --depth 1 https://github.com/Arelle/EDGAR.git arelle/plugin/EDGAR
+```
+
+Skip the clone if `arelle/plugin/EDGAR` is already present.
+
+Then, from this directory, reproduce the composite build:
+
+```shell
+hugo --minify --baseURL /
+python scripts/generate_viewer_demo.py . ../../arelle/plugin/EDGAR --base-url /
 python -m http.server --directory public 8000
 ```
 
-Open `http://localhost:8000/demo/ixbrl-viewer/viewer.htm`. The Viewer must be
-served over HTTP; it does not run from a `file:` URL. The generator downloads
-and verifies the published demo taxonomy package, uses a fresh cache with
-network access disabled during Arelle processing, and rejects log messages,
-invalid SEC transformations, or an implausibly small concept set.
+Hugo and the generator must share the same origin. `/` keeps the Viewer's
+home link on this local server; the label remains `arelle.org`. Publishing
+takes the live origin from GitHub Pages (`https://arelle.org/` in production).
+
+Open `http://localhost:8000/demo/ixbrl-viewer/ixbrlviewer.html`. The generator uses
+stub viewer mode so the loading mask appears immediately rather than waiting
+to parse the full 10-K. That mode requires HTTP, which is why the Viewer
+cannot be opened from a `file:` URL. The generator downloads and verifies the
+published demo taxonomy package, uses a fresh cache with network access
+disabled during Arelle processing, and rejects log messages, invalid SEC
+transformations, an implausibly small concept set, or a Viewer that embeds
+the filing instead of using a stub.
 
 The generated `public/demo/` output remains ignored and is rebuilt rather than
 committed or cached.
@@ -91,9 +85,9 @@ navigation states, reduced motion, and the Viewer's shared saved choice.
 
 ## Adding a blog post
 
-Blog posts live in `content/blog/YYYY/` and are named `YYYY-MM-DD-slug.md`. The
+Blog posts live in `content/updates/YYYY/` and are named `YYYY-MM-DD-slug.md`. The
 year directories are the archive's year selector: each holds an `_index.md`
-whose `title` is the year, and the most recent one is what `/blog/` itself
+whose `title` is the year, and the most recent one is what `/updates/` itself
 shows. Starting a new year means adding its directory and `_index.md`.
 
 Front matter:
@@ -107,7 +101,7 @@ summary: Optional authored summary for the archive and post deck.
 ```
 
 The permalink comes from `date`, not the filename — `[permalinks]` in
-`hugo.toml` maps blog pages to `/blog/:year/:month/:day/:slug/`, where the slug
+`hugo.toml` maps blog pages to `/updates/:year/:month/:day/:slug/`, where the slug
 is the filename with its date prefix stripped. Keep the filename's date and the
 `date` field in agreement so posts sort and resolve the way they read.
 
@@ -149,8 +143,8 @@ will not follow a meta refresh. The `expected404` entries must stay unserved.
 
 `legacy-urls/check.test.mjs` covers the checker itself as part of `npm test`.
 That command also checks the complete production artifact in Node and Chrome,
-and builds isolated custom-domain and project-site outputs to verify that
-social-preview metadata contains the correct absolute URLs.
+and builds isolated root-relative, custom-domain, and project-site outputs to
+verify that social-preview metadata contains the correct URLs for each origin.
 
 ### htmltest
 
@@ -223,12 +217,27 @@ an unminified development server.
 
 `.github/workflows/publish-website.yml` builds and deploys the site to GitHub
 Pages. It will deploy on release once `release.yml` calls it, and supports
-`workflow_dispatch` for content corrections in between. It owns no checks of its
-own: the release caller gates it on the build workflow above.
+`workflow_dispatch` for content corrections in between. Production always
+passes a release version: the release caller uses its tag, while a manual run
+uses its input or falls back to the newest local Git tag and fails if none is
+available. The publish job then runs the fail-closed download-page htmltest
+against only `download/index.html`; site-wide htmltest, Lighthouse, and legacy
+URL checks remain on `build-website.yml`.
 
 ## Download links
 
-The download page links static S3 and Alibaba OSS stable aliases, which the
-existing release workflow keeps pointed at the current release. Local and CI
-site builds treat them as plain URLs and never resolve them through an API, so
-no token or network access is needed to build the site.
+`data/downloads.yaml` is the download catalog: it records desktop
+distributions, mirrors, containers, packages, and plugins, but not which GitHub
+release is current. The release version is a compile input, supplied through
+`HUGO_PARAMS_downloadVersion` and read as `site.Params.downloadVersion`.
+
+When that input is unset, as it is for local and pull-request builds, the same
+layout shows `Latest` and uses the latest-release locator for Release Notes and
+desktop GitHub links. When it is set, the layout shows `v<version>`, links notes
+to that release tag, and derives each versioned GitHub asset name from its
+catalog `mirror_file`; S3 and Alibaba OSS links always retain their unversioned
+mirror aliases.
+
+Site builds treat all of these URLs as authored strings and never resolve them
+through an API, so no token or API network access is needed to compile the
+site.

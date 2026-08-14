@@ -1,0 +1,5 @@
+{{- if in (slice "shell" "bash" "sh" "zsh") .Type -}}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-{{ .Type }}" data-lang="{{ .Type }}">{{ partial "highlight-shell.html" (dict "code" .Inner) }}</code></pre></div>
+{{- else -}}
+{{- highlight .Inner .Type "lineNos=false,noClasses=false" -}}
+{{- end -}}

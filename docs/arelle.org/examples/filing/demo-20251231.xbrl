@@ -28,19 +28,12 @@
     </xbrli:period>
   </xbrli:context>
 
-  <xbrli:context id="FY2023">
-    <xbrli:entity>
-      <xbrli:identifier scheme="https://example.com">DEMO</xbrli:identifier>
-    </xbrli:entity>
-    <xbrli:period>
-      <xbrli:startDate>2023-01-01</xbrli:startDate>
-      <xbrli:endDate>2023-12-31</xbrli:endDate>
-    </xbrli:period>
-  </xbrli:context>
-
   <xbrli:unit id="USD">
     <xbrli:measure>iso4217:USD</xbrli:measure>
   </xbrli:unit>
+
+  <demo:EntityRegistrantName contextRef="FY2025">DEMO CORP</demo:EntityRegistrantName>
+  <demo:DocumentType contextRef="FY2025">10-K</demo:DocumentType>
 
   <demo:Revenue contextRef="FY2025" unitRef="USD" decimals="-3">884568000</demo:Revenue>
   <demo:CostOfSales contextRef="FY2025" unitRef="USD" decimals="-3">380364000</demo:CostOfSales>
@@ -50,9 +43,5 @@
   <demo:Revenue contextRef="FY2024" unitRef="USD" decimals="-3">738680000</demo:Revenue>
   <demo:CostOfSales contextRef="FY2024" unitRef="USD" decimals="-3">324019000</demo:CostOfSales>
   <demo:GrossProfit contextRef="FY2024" unitRef="USD" decimals="-3">414661000</demo:GrossProfit>
-
-  <demo:Revenue contextRef="FY2023" unitRef="USD" decimals="-3">630039000</demo:Revenue>
-  <demo:CostOfSales contextRef="FY2023" unitRef="USD" decimals="-3">283517000</demo:CostOfSales>
-  <demo:GrossProfit contextRef="FY2023" unitRef="USD" decimals="-3">346522000</demo:GrossProfit>
 
 </xbrli:xbrl>

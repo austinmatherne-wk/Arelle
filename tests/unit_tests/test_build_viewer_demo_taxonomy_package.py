@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import hashlib
+import sys
 import zipfile
 from pathlib import Path
 
 import pytest
 from lxml import etree
 
-from scripts.build_viewer_demo_taxonomy_package import _downloadSources, buildPackage
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "docs" / "arelle.org" / "scripts"))
+
+from build_viewer_demo_taxonomy_package import _downloadSources, buildPackage  # noqa: E402
 
 
 def _writeZip(path: Path, files: dict[str, bytes]) -> None:
@@ -38,7 +41,7 @@ def test_downloadSources_removesPartialDownload(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "scripts.build_viewer_demo_taxonomy_package.urllib.request.urlopen",
+        "build_viewer_demo_taxonomy_package.urllib.request.urlopen",
         lambda url: FailingResponse(),
     )
     manifest = {

@@ -2,7 +2,7 @@
   <title>Arelle</title>
   <defs>
     <clipPath id="arelle-logo-bowl-cut">
-      <path clip-rule="evenodd" d="M 0,0 H 536.365 V 150.31 H 0 Z M 99.466,101.963 a 40.351,40.351 0 1,0 80.701,0 a 40.351,40.351 0 1,0 -80.701,0 Z"/>
+      <path clip-rule="evenodd" d="M -40,-40 H 576.365 V 190.31 H -40 Z M 99.466,101.963 a 40.351,40.351 0 1,0 80.701,0 a 40.351,40.351 0 1,0 -80.701,0 Z"/>
     </clipPath>
   </defs>
 

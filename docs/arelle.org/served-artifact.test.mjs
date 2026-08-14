@@ -9,7 +9,7 @@ import puppeteer from 'puppeteer-core'
 
 const output = fileURLToPath(new URL('./public/', import.meta.url))
 const storageKey = 'ixbrl-viewer-theme'
-const products = ['gui', 'cli', 'python', 'docker', 'plugin']
+const products = ['gui', 'cli', 'docker', 'python', 'plugin', 'webserver']
 const chromeCandidates = [
   process.env.CHROME_PATH,
   process.env.CHROME_BIN,
@@ -135,7 +135,7 @@ test('theme follows the operating system until the visitor makes a persisted cho
         savedTheme: localStorage.getItem(key),
         theme: document.documentElement.dataset.theme ?? null,
       }), storageKey),
-      { background: 'rgb(247, 247, 244)', label: 'Switch to dark', savedTheme: 'light', theme: 'light' },
+      { background: 'rgb(242, 241, 236)', label: 'Switch to dark', savedTheme: 'light', theme: 'light' },
     )
 
     await page.reload({ waitUntil: 'networkidle0' })
@@ -175,16 +175,18 @@ test('homepage comparison tabs progressively enhance mouse and keyboard input', 
       tabs: [
         { id: 'tab-gui', selected: 'true', tabIndex: 0, focused: false },
         { id: 'tab-cli', selected: 'false', tabIndex: -1, focused: false },
-        { id: 'tab-python', selected: 'false', tabIndex: -1, focused: false },
         { id: 'tab-docker', selected: 'false', tabIndex: -1, focused: false },
+        { id: 'tab-python', selected: 'false', tabIndex: -1, focused: false },
         { id: 'tab-plugin', selected: 'false', tabIndex: -1, focused: false },
+        { id: 'tab-webserver', selected: 'false', tabIndex: -1, focused: false },
       ],
       panels: [
         { id: 'panel-gui', hidden: false },
         { id: 'panel-cli', hidden: true },
-        { id: 'panel-python', hidden: true },
         { id: 'panel-docker', hidden: true },
+        { id: 'panel-python', hidden: true },
         { id: 'panel-plugin', hidden: true },
+        { id: 'panel-webserver', hidden: true },
       ],
     })
 
@@ -197,51 +199,59 @@ test('homepage comparison tabs progressively enhance mouse and keyboard input', 
         tabs: [
           { id: 'tab-gui', selected: 'false', tabIndex: -1, focused: false },
           { id: 'tab-cli', selected: 'true', tabIndex: 0, focused: true },
-          { id: 'tab-python', selected: 'false', tabIndex: -1, focused: false },
           { id: 'tab-docker', selected: 'false', tabIndex: -1, focused: false },
+          { id: 'tab-python', selected: 'false', tabIndex: -1, focused: false },
           { id: 'tab-plugin', selected: 'false', tabIndex: -1, focused: false },
+          { id: 'tab-webserver', selected: 'false', tabIndex: -1, focused: false },
         ],
         panels: [
           { id: 'panel-gui', hidden: true },
           { id: 'panel-cli', hidden: false },
-          { id: 'panel-python', hidden: true },
           { id: 'panel-docker', hidden: true },
+          { id: 'panel-python', hidden: true },
           { id: 'panel-plugin', hidden: true },
+          { id: 'panel-webserver', hidden: true },
         ],
       },
     )
-
-    await page.keyboard.press('ArrowRight')
-    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-python')
-    assert.equal((await state()).panels.find((panel) => panel.id === 'panel-python').hidden, false)
 
     await page.keyboard.press('ArrowRight')
     assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-docker')
     assert.equal((await state()).panels.find((panel) => panel.id === 'panel-docker').hidden, false)
 
     await page.keyboard.press('ArrowRight')
+    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-python')
+    assert.equal((await state()).panels.find((panel) => panel.id === 'panel-python').hidden, false)
+
+    await page.keyboard.press('ArrowRight')
     assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-plugin')
     assert.equal((await state()).panels.find((panel) => panel.id === 'panel-plugin').hidden, false)
 
+    await page.keyboard.press('ArrowRight')
+    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-webserver')
+    assert.equal((await state()).panels.find((panel) => panel.id === 'panel-webserver').hidden, false)
+
+    await page.keyboard.press('ArrowLeft')
+    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-plugin')
+    await page.keyboard.press('ArrowLeft')
+    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-python')
     await page.keyboard.press('ArrowLeft')
     assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-docker')
     await page.keyboard.press('ArrowLeft')
-    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-python')
-    await page.keyboard.press('ArrowLeft')
     assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-cli')
     await page.keyboard.press('ArrowRight')
-    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-python')
+    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-docker')
     await page.keyboard.press('Home')
     assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-gui')
     await page.keyboard.press('End')
-    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-plugin')
-    assert.equal((await state()).panels.find((panel) => panel.id === 'panel-plugin').hidden, false)
+    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-webserver')
+    assert.equal((await state()).panels.find((panel) => panel.id === 'panel-webserver').hidden, false)
     await page.keyboard.press('ArrowRight')
     assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-gui')
     assert.equal((await state()).panels.find((panel) => panel.id === 'panel-gui').hidden, false)
     await page.keyboard.press('ArrowLeft')
-    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-plugin')
-    assert.equal((await state()).panels.find((panel) => panel.id === 'panel-plugin').hidden, false)
+    assert.equal((await state()).tabs.find((tab) => tab.focused).id, 'tab-webserver')
+    assert.equal((await state()).panels.find((panel) => panel.id === 'panel-webserver').hidden, false)
 
     await page.evaluate(() => {
       window.__tabDefaultPrevented = null
@@ -269,7 +279,7 @@ test('homepage comparison tabs progressively enhance mouse and keyboard input', 
     assert.equal(
       await page.evaluate(() => {
         const list = document.querySelector('[role="tablist"]').getBoundingClientRect()
-        const tab = document.querySelector('#tab-plugin').getBoundingClientRect()
+        const tab = document.querySelector('#tab-webserver').getBoundingClientRect()
         return tab.left >= list.left - 1 && tab.right <= list.right + 1
       }),
       true,
@@ -280,13 +290,15 @@ test('homepage comparison tabs progressively enhance mouse and keyboard input', 
     const reset = await state()
     assert.equal(reset.tabs.find((tab) => tab.id === 'tab-gui').selected, 'true')
     assert.equal(reset.tabs.find((tab) => tab.id === 'tab-cli').selected, 'false')
-    assert.equal(reset.tabs.find((tab) => tab.id === 'tab-python').selected, 'false')
     assert.equal(reset.tabs.find((tab) => tab.id === 'tab-docker').selected, 'false')
+    assert.equal(reset.tabs.find((tab) => tab.id === 'tab-python').selected, 'false')
     assert.equal(reset.tabs.find((tab) => tab.id === 'tab-plugin').selected, 'false')
+    assert.equal(reset.tabs.find((tab) => tab.id === 'tab-webserver').selected, 'false')
     assert.equal(reset.panels.find((panel) => panel.id === 'panel-cli').hidden, true)
-    assert.equal(reset.panels.find((panel) => panel.id === 'panel-python').hidden, true)
     assert.equal(reset.panels.find((panel) => panel.id === 'panel-docker').hidden, true)
+    assert.equal(reset.panels.find((panel) => panel.id === 'panel-python').hidden, true)
     assert.equal(reset.panels.find((panel) => panel.id === 'panel-plugin').hidden, true)
+    assert.equal(reset.panels.find((panel) => panel.id === 'panel-webserver').hidden, true)
   } finally {
     await context.close()
   }
@@ -307,9 +319,10 @@ test('homepage product panels remain in document order without JavaScript', asyn
       [
         { id: 'panel-gui', display: 'block', hidden: false },
         { id: 'panel-cli', display: 'block', hidden: false },
-        { id: 'panel-python', display: 'block', hidden: false },
         { id: 'panel-docker', display: 'block', hidden: false },
+        { id: 'panel-python', display: 'block', hidden: false },
         { id: 'panel-plugin', display: 'block', hidden: false },
+        { id: 'panel-webserver', display: 'block', hidden: false },
       ],
     )
   } finally {
@@ -353,40 +366,129 @@ test('homepage remains usable at 320 pixels across the shell, panels, and matrix
         const { left, right } = element.getBoundingClientRect()
         return left >= -1 && right <= viewportWidth + 1
       }
+      const columns = (rects) => {
+        const lefts = []
+        for (const rect of rects) {
+          if (!lefts.some((left) => Math.abs(left - rect.left) < 2)) lefts.push(rect.left)
+        }
+        return lefts.length
+      }
       const tablist = document.querySelector('[role="tablist"]')
       const setup = document.querySelector('.product-setup')
-      const rows = [...document.querySelectorAll('.support-table tbody tr')]
+      const cards = [...document.querySelectorAll('.support-split-card')]
+      const nav = document.querySelector('.primary-navigation').getBoundingClientRect()
+      const wordmark = document.querySelector('.wordmark').getBoundingClientRect()
+      const theme = document.querySelector('[data-theme-toggle]').getBoundingClientRect()
+      const destinationLinks = [...document.querySelectorAll('.primary-navigation ul a')]
+      const destinations = destinationLinks.map((link) => link.getBoundingClientRect())
+      const linkRow = document.querySelector('.primary-navigation ul').getBoundingClientRect()
+      const tabs = [...tablist.querySelectorAll('[role="tab"]')]
+        .map((tab) => tab.getBoundingClientRect())
 
       return {
         pageOverflow: document.documentElement.scrollWidth > viewportWidth,
         navigationFits: [...document.querySelectorAll(
           '.primary-navigation a, .primary-navigation button',
         )].every(fitsViewport),
+        themeBesideWordmark: theme.left >= wordmark.right - 1
+          && theme.top < wordmark.bottom
+          && theme.bottom > wordmark.top,
+        linksBelowWordmark: destinations.every((link) => link.top >= wordmark.bottom - 1),
+        linkRowSpansNav: Math.abs(linkRow.width - nav.width) <= 2,
+        labelsFit: destinationLinks.every((link) => link.scrollWidth <= link.clientWidth + 1),
+        labelsContained: destinationLinks.every((link) => {
+          const a = link.getBoundingClientRect()
+          const li = link.parentElement.getBoundingClientRect()
+          return a.top >= li.top - 1 && a.bottom <= li.bottom + 1
+        }),
+        navColumns: columns(destinations),
         tabsFit: fitsViewport(tablist),
         tabsScroll: tablist.scrollWidth > tablist.clientWidth,
-        setupStacked: getComputedStyle(setup).flexDirection === 'column',
-        tableIsSemantic: document.querySelector('.support-table') instanceof HTMLTableElement,
-        longNamesWrap: [...document.querySelectorAll(
-          '.support-table h3, .support-table p, .support-items li',
-        )].every((element) => element.scrollWidth <= element.clientWidth),
-        rowsStacked: rows.every((row) => {
-          const group = row.querySelector('th').getBoundingClientRect()
-          const supported = row.querySelector('td').getBoundingClientRect()
-          return group.bottom <= supported.top + 1
+        tabColumns: columns(tabs),
+        allTabsVisible: [...tablist.querySelectorAll('[role="tab"]')].every((tab) => {
+          const bounds = tab.getBoundingClientRect()
+          const list = tablist.getBoundingClientRect()
+          return fitsViewport(tab)
+            && bounds.left >= list.left - 1
+            && bounds.right <= list.right + 1
+            && bounds.top >= list.top - 1
+            && bounds.bottom <= list.bottom + 1
         }),
+        setupStacked: getComputedStyle(setup).flexDirection === 'column',
+        cardsStacked: cards.length === 2 && cards[0].getBoundingClientRect().bottom <= cards[1].getBoundingClientRect().top + 1,
+        longNamesWrap: [...document.querySelectorAll(
+          '.support-split-card h3, .support-split-card h4, .support-split-card p, .support-items li',
+        )].every((element) => element.scrollWidth <= element.clientWidth),
       }
     })
 
     assert.deepEqual(narrowLayout, {
       pageOverflow: false,
       navigationFits: true,
+      themeBesideWordmark: true,
+      linksBelowWordmark: true,
+      linkRowSpansNav: true,
+      labelsFit: true,
+      labelsContained: true,
+      navColumns: 1,
       tabsFit: true,
-      tabsScroll: true,
+      tabsScroll: false,
+      tabColumns: 1,
+      allTabsVisible: true,
       setupStacked: true,
-      tableIsSemantic: true,
+      cardsStacked: true,
       longNamesWrap: true,
-      rowsStacked: true,
     })
+
+    await page.setViewport({ width: 400, height: 900 })
+    const twoColumnLayout = await page.evaluate(() => {
+      const columns = (rects) => {
+        const lefts = []
+        for (const rect of rects) {
+          if (!lefts.some((left) => Math.abs(left - rect.left) < 2)) lefts.push(rect.left)
+        }
+        return lefts.length
+      }
+      return {
+        navColumns: columns([...document.querySelectorAll('.primary-navigation ul a')]
+          .map((link) => link.getBoundingClientRect())),
+        tabColumns: columns([...document.querySelectorAll('[role="tab"]')]
+          .map((tab) => tab.getBoundingClientRect())),
+      }
+    })
+    assert.deepEqual(twoColumnLayout, { navColumns: 2, tabColumns: 2 })
+
+    await page.setViewport({ width: 800, height: 900 })
+    const threeColumnLayout = await page.evaluate(() => {
+      const columns = (rects) => {
+        const lefts = []
+        for (const rect of rects) {
+          if (!lefts.some((left) => Math.abs(left - rect.left) < 2)) lefts.push(rect.left)
+        }
+        return lefts.length
+      }
+      return {
+        tabColumns: columns([...document.querySelectorAll('[role="tab"]')]
+          .map((tab) => tab.getBoundingClientRect())),
+      }
+    })
+    assert.deepEqual(threeColumnLayout, { tabColumns: 3 })
+
+    await page.setViewport({ width: 1200, height: 900 })
+    const sixColumnLayout = await page.evaluate(() => {
+      const columns = (rects) => {
+        const lefts = []
+        for (const rect of rects) {
+          if (!lefts.some((left) => Math.abs(left - rect.left) < 2)) lefts.push(rect.left)
+        }
+        return lefts.length
+      }
+      return {
+        tabColumns: columns([...document.querySelectorAll('[role="tab"]')]
+          .map((tab) => tab.getBoundingClientRect())),
+      }
+    })
+    assert.deepEqual(sixColumnLayout, { tabColumns: 6 })
 
     for (const product of products) {
       await page.locator(`#tab-${product}`).click()
@@ -484,17 +586,16 @@ test('homepage keyboard focus follows navigation, hero, tabs, panel action, and 
       for (const selector of [
         '.wordmark',
         '.primary-navigation a[href="/download/"]',
-        '.primary-navigation a[href="/blog/"]',
+        '.primary-navigation a[href="/updates/"]',
         '.primary-navigation a[href="https://arelle.readthedocs.io/"]',
         '.primary-navigation a[href="https://github.com/Arelle/Arelle"]',
         '[data-theme-toggle]',
         '.homepage-action-primary',
-        '.homepage-action-secondary',
         '.homepage-certification a',
         '#tab-gui',
         '#panel-gui .product-setup a',
         '.footer-navigation a[href="/about/"]',
-        '.footer-navigation a[href="https://groups.google.com/d/forum/arelle-users"]',
+        '.footer-navigation a[href="https://groups.google.com/g/arelle-users"]',
         '.footer-navigation a[href="https://arelle.readthedocs.io/en/latest/contributor_guides/contributing.html"]',
         '.footer-navigation a[href="mailto:support@arelle.org"]',
       ]) {
@@ -518,6 +619,37 @@ test('homepage keyboard focus follows navigation, hero, tabs, panel action, and 
   }
 })
 
+test('Web server panel is selectable through the public tab interface', async () => {
+  const { context, page } = await pageFor('light')
+  try {
+    await page.goto(origin, { waitUntil: 'networkidle0' })
+    await page.locator('#tab-webserver').click()
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        selected: document.querySelector('#tab-webserver').getAttribute('aria-selected'),
+        focused: document.activeElement.id,
+        panelHidden: document.querySelector('#panel-webserver').hidden,
+        setup: (() => {
+          const setup = document.querySelector('#panel-webserver .product-setup')
+          return [
+            setup.querySelector('.product-setup-label').textContent,
+            setup.querySelector('p').textContent,
+            setup.querySelector('a').textContent,
+          ].map((text) => text.trim()).join(' ')
+        })(),
+      })),
+      {
+        selected: 'true',
+        focused: 'tab-webserver',
+        panelHidden: false,
+        setup: 'Run the web server Use the local HTTP development server. Read the webserver security policy →',
+      },
+    )
+  } finally {
+    await context.close()
+  }
+})
+
 test('Docker panel is selectable through the public tab interface', async () => {
   const { context, page } = await pageFor('light')
   try {
@@ -528,13 +660,20 @@ test('Docker panel is selectable through the public tab interface', async () => 
         selected: document.querySelector('#tab-docker').getAttribute('aria-selected'),
         focused: document.activeElement.id,
         panelHidden: document.querySelector('#panel-docker').hidden,
-        setup: document.querySelector('#panel-docker .product-setup').textContent.replace(/\s+/g, ' ').trim(),
+        setup: (() => {
+          const setup = document.querySelector('#panel-docker .product-setup')
+          return [
+            setup.querySelector('.product-setup-label').textContent,
+            setup.querySelector('p').textContent,
+            setup.querySelector('a').textContent,
+          ].map((text) => text.trim()).join(' ')
+        })(),
       })),
       {
         selected: 'true',
         focused: 'tab-docker',
         panelHidden: false,
-        setup: 'Use DockerPull the published image with docker pull arelleproject/arelleOpen Docker Hub →',
+        setup: 'Use Docker Pull the official image with docker pull arelleproject/arelle Open Docker Hub →',
       },
     )
   } finally {
@@ -552,13 +691,20 @@ test('Plugin panel is selectable through the public tab interface', async () => 
         selected: document.querySelector('#tab-plugin').getAttribute('aria-selected'),
         focused: document.activeElement.id,
         panelHidden: document.querySelector('#panel-plugin').hidden,
-        setup: document.querySelector('#panel-plugin .product-setup').textContent.replace(/\s+/g, ' ').trim(),
+        setup: (() => {
+          const setup = document.querySelector('#panel-plugin .product-setup')
+          return [
+            setup.querySelector('.product-setup-label').textContent,
+            setup.querySelector('p').textContent,
+            setup.querySelector('a').textContent,
+          ].map((text) => text.trim()).join(' ')
+        })(),
       })),
       {
         selected: 'true',
         focused: 'tab-plugin',
         panelHidden: false,
-        setup: 'Build a pluginUse the maintained plugin scaffolding rather than mounting raw validation hooks by hand. Plugins extend validation, loading, UI, export, and other behavior.Read the plugin development guide →',
+        setup: "Build a plugin Extend Arelle's capabilities with custom validation rules, data extraction, or UI enhancements. Read the plugin development guide →",
       },
     )
   } finally {
@@ -614,6 +760,106 @@ test('Python API source and output remain distinct in both themes', async () => 
   }
 })
 
+test('source example commands scroll within stacked narrow panels', async () => {
+  await withPage('light', async (page) => {
+    await page.setViewport({ width: 320, height: 900 })
+    await page.goto(origin, { waitUntil: 'networkidle0' })
+
+    for (const product of ['python', 'plugin']) {
+      await page.locator(`#tab-${product}`).click()
+      const command = await page.$eval(
+        `#panel-${product} .${product}-example-output pre:first-of-type`,
+        (element) => {
+          const style = getComputedStyle(element)
+          const frame = element.closest('.python-example-frame, .plugin-example-frame')
+          return {
+            columns: getComputedStyle(frame).gridTemplateColumns.split(/\s+/).length,
+            overflowX: style.overflowX,
+            whiteSpace: style.whiteSpace,
+          }
+        },
+      )
+      assert.deepEqual(command, {
+        columns: 1,
+        overflowX: 'auto',
+        whiteSpace: 'pre',
+      })
+
+      const source = await page.$eval(
+        `#panel-${product} .${product}-example-source pre`,
+        (element) => {
+          const style = getComputedStyle(element)
+          return {
+            horizontalOverflow: element.scrollWidth > element.clientWidth,
+            overflowWrap: style.overflowWrap,
+            overflowX: style.overflowX,
+            whiteSpace: style.whiteSpace,
+          }
+        },
+      )
+      assert.deepEqual(source, {
+        horizontalOverflow: true,
+        overflowWrap: 'normal',
+        overflowX: 'auto',
+        whiteSpace: 'pre',
+      })
+    }
+  })
+})
+
+test('source examples stack before medium layouts become cramped', async () => {
+  await withPage('light', async (page) => {
+    for (const [width, columns] of [[1024, 1], [1200, 2]]) {
+      await page.setViewport({ width, height: 900 })
+      await page.goto(origin, { waitUntil: 'networkidle0' })
+
+      for (const product of ['python', 'plugin']) {
+        await page.locator(`#tab-${product}`).click()
+        assert.equal(
+          await page.$eval(
+            `#panel-${product} .${product}-example-frame`,
+            (element) => getComputedStyle(element).gridTemplateColumns.split(/\s+/).length,
+          ),
+          columns,
+          `${product} should use ${columns} column(s) at ${width}px`,
+        )
+        if (columns === 1) {
+          assert.deepEqual(
+            await page.$eval(
+              `#panel-${product} .${product}-example-source pre`,
+              (element) => {
+                const style = getComputedStyle(element)
+                return {
+                  overflowWrap: style.overflowWrap,
+                  whiteSpace: style.whiteSpace,
+                }
+              },
+            ),
+            { overflowWrap: 'normal', whiteSpace: 'pre' },
+          )
+        }
+      }
+    }
+  })
+})
+
+test('CLI example switches to shell continuations in narrow containers', async () => {
+  await withPage('light', async (page) => {
+    const commandDisplay = () => page.evaluate(() => ({
+      wide: getComputedStyle(document.querySelector('#panel-cli .console-command-wide')).display,
+      narrow: getComputedStyle(document.querySelector('#panel-cli .console-command-narrow')).display,
+    }))
+
+    await page.setViewport({ width: 320, height: 900 })
+    await page.goto(origin, { waitUntil: 'networkidle0' })
+    await page.locator('#tab-cli').click()
+    assert.deepEqual(await commandDisplay(), { wide: 'none', narrow: 'block' })
+
+    await page.setViewport({ width: 1200, height: 900 })
+    assert.deepEqual(await commandDisplay(), { wide: 'block', narrow: 'none' })
+  })
+})
+
 test('keyboard focus, current navigation, and reduced motion remain observable in the artifact', async () => {
   const { context, page } = await pageFor()
   try {
@@ -635,9 +881,9 @@ test('keyboard focus, current navigation, and reduced motion remain observable i
       }
     })
     assert.deepEqual(current, {
-      backgroundColor: 'rgb(255, 255, 255)',
-      borderColor: 'rgb(201, 199, 191)',
-      color: 'rgb(20, 23, 28)',
+      backgroundColor: 'rgba(0, 0, 0, 0)',
+      borderColor: 'rgba(0, 0, 0, 0)',
+      color: 'rgb(19, 21, 24)',
       fontWeight: '700',
       label: 'Download',
       transitionDuration: '0s',
@@ -656,11 +902,11 @@ test('keyboard focus, current navigation, and reduced motion remain observable i
       }
     })
     assert.deepEqual(footer, {
-      borderTopColor: 'rgb(227, 226, 220)',
-      color: 'rgb(113, 118, 127)',
+      borderTopColor: 'rgb(214, 211, 200)',
+      color: 'rgb(110, 114, 122)',
       display: 'grid',
       fontFamily: '"Instrument Sans", system-ui, sans-serif',
-      trademarkBorderTopColor: 'rgb(227, 226, 220)',
+      trademarkBorderTopColor: 'rgb(214, 211, 200)',
       trademarkOpacity: '0.8',
     })
 
@@ -689,7 +935,7 @@ test('the generated Viewer consumes the website theme choice', async () => {
     await page.locator('[data-theme-toggle]').click()
     assert.equal(await page.evaluate((key) => localStorage.getItem(key), storageKey), 'dark')
 
-    await page.goto(`${origin}/demo/ixbrl-viewer/viewer.htm`, { waitUntil: 'networkidle0' })
+    await page.goto(`${origin}/demo/ixbrl-viewer/ixbrlviewer.html`, { waitUntil: 'networkidle0' })
     assert.deepEqual(
       await page.evaluate((key) => ({
         background: getComputedStyle(document.body).backgroundColor,

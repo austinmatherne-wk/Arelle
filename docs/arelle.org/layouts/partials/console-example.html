@@ -1,10 +1,16 @@
 {{- $transcript := partial "example-transcript.html" (dict "path" .path) -}}
 {{- $command := default $transcript.command .command -}}
+{{- $narrowCommand := default "" .narrowCommand -}}
 <figure class="product-console">
   <div class="console-frame">
     <div class="console-bar"><span aria-hidden="true">● ● ●</span> {{ .title }} <span class="console-example">example</span></div>
     <div class="console-body">
-      <pre><code>{{ $command }}</code></pre>
+      {{- if $narrowCommand }}
+      <pre class="console-command-wide"><code>{{ partial "highlight-shell.html" (dict "code" $command) }}</code></pre>
+      <pre class="console-command-narrow"><code>{{ partial "highlight-shell.html" (dict "code" $narrowCommand) }}</code></pre>
+      {{- else }}
+      <pre><code>{{ partial "highlight-shell.html" (dict "code" $command) }}</code></pre>
+      {{- end }}
       <pre><code>{{ $transcript.output }}</code></pre>
     </div>
   </div>

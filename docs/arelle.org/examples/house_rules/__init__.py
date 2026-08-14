@@ -1,10 +1,5 @@
 """
 An example Arelle validation plugin, published on arelle.org.
-
-The scaffolding below is what the template validation plugin in
-arelle/examples/plugin/validate/XYZ gives you; the rule itself lives in
-rules.py. ValidationPlugin collects every @validation decorated rule in the
-listed modules and runs it when the matching disclosure system is selected.
 """
 from __future__ import annotations
 
@@ -13,7 +8,7 @@ from typing import Any
 
 from arelle.utils.validate.ValidationPlugin import ValidationPlugin
 
-from . import rules
+from . import house_rules
 
 PLUGIN_NAME = "House rules"
 DISCLOSURE_SYSTEM_VALIDATION_TYPE = "HOUSE"
@@ -22,7 +17,7 @@ validationPlugin = ValidationPlugin(
     name=PLUGIN_NAME,
     disclosureSystemConfigUrl=Path(__file__).parent / "resources" / "config.xml",
     validationTypes=[DISCLOSURE_SYSTEM_VALIDATION_TYPE],
-    validationRuleModules=[rules],
+    validationRuleModules=[house_rules],
 )
 
 

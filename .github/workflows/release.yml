@@ -11,6 +11,10 @@ jobs:
     uses: ./.github/workflows/publish-documentation.yml
     secrets: inherit
 
+  build-website:
+    uses: ./.github/workflows/build-website.yml
+    secrets: inherit
+
   tests:
     uses: ./.github/workflows/tests.yml
   python-package:
@@ -118,6 +122,23 @@ jobs:
       github_artifact: ${{ needs.build-windows.outputs.zip_uploaded_artifact_name }}
       build_name: ${{ needs.build-windows.outputs.zip_artifact_versioned_name }}
       build_alias: arelle-win.zip
+    secrets: inherit
+
+  publish-website:
+    needs:
+      - build-website
+      - publish-linux
+      - publish-macos-x64
+      - publish-macos-arm64
+      - publish-windows-installer
+      - publish-windows-zip
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+    uses: ./.github/workflows/publish-website.yml
+    with:
+      download_version: ${{ github.ref_name }}
     secrets: inherit
 
   publish-docker:

@@ -1,0 +1,3 @@
+$ arelleCmdLine --webserver localhost:8080
+Listening on http://localhost:8080/
+Hit Ctrl-C to quit.

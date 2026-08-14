@@ -1,0 +1,27 @@
+{{- $code := .code -}}
+{{- $code = replaceRE "\r\n?" "\n" $code -}}
+{{- $lines := split $code "\n" -}}
+{{- $resultLines := slice -}}
+{{- range $lines -}}
+  {{- $line := htmlEscape . -}}
+  {{- if $line -}}
+    {{- /* 1. Line continuation backslash at end of line */ -}}
+    {{- $line = replaceRE `(\\)$` `<span class="token-continuation">$1</span>` $line -}}
+    {{- /* 2. Prompt at start of line */ -}}
+    {{- $line = replaceRE `^(\$\s+)` `<span class="token-prompt">$1</span>` $line -}}
+    {{- /* 3. Quoted strings with variables */ -}}
+    {{- $line = replaceRE `(&#34;[^&]*&#34;|&quot;[^&]*&quot;)` `<span class="token-string">$1</span>` $line -}}
+    {{- /* 4. Environment variables (like $PWD) */ -}}
+    {{- $line = replaceRE `(\$[A-Z0-9_]+)` `<span class="token-var">$1</span>` $line -}}
+    {{- /* 5. Flags/options (run twice to handle consecutive flags like --rm -v) */ -}}
+    {{- $line = replaceRE `(^|\s)(--[a-zA-Z0-9_-]+|-[a-zA-Z0-9]+)(\s|=|$|&#34;|&quot;)` `$1<span class="token-flag">$2</span>$3` $line -}}
+    {{- $line = replaceRE `(^|\s)(--[a-zA-Z0-9_-]+|-[a-zA-Z0-9]+)(\s|=|$|&#34;|&quot;)` `$1<span class="token-flag">$2</span>$3` $line -}}
+    {{- /* 6. Main executables/commands (standalone words only, not inside package/image names) */ -}}
+    {{- $line = replaceRE `(^|\s|>)(arelleCmdLine(?:\.py)?|docker|pip3?|python3?)(?:\.exe)?(\s|$)` `$1<span class="token-command">$2</span>$3` $line -}}
+    {{- $line = replaceRE `(^|\s|>)(arelleCmdLine(?:\.py)?|docker|pip3?|python3?)(?:\.exe)?(\s|$)` `$1<span class="token-command">$2</span>$3` $line -}}
+    {{- /* 7. Subcommands */ -}}
+    {{- $line = replaceRE `(^|\s)(run|install|pull|build|exec)(\s|$)` `$1<span class="token-subcommand">$2</span>$3` $line -}}
+  {{- end -}}
+  {{- $resultLines = $resultLines | append $line -}}
+{{- end -}}
+{{- delimit $resultLines "\n" | safeHTML -}}

@@ -1,5 +1,5 @@
 {{ define "main" }}
-  {{ $blog := site.GetPage "/blog" }}
+  {{ $blog := site.GetPage "/updates" }}
   {{/* Posts are filed under year sections, so adjacency is resolved against the
        whole archive in reading order: newest first, which is why Hugo's Next is
        the newer post and Prev the older one. */}}
@@ -8,20 +8,20 @@
   {{ $older := $posts.Prev . }}
   <article class="update-post">
     <header class="update-post-header">
-      <a class="update-archive-label" href="{{ $blog.RelPermalink }}">Arelle blog</a>
+      <a class="update-archive-label" href="{{ $blog.RelPermalink }}">Arelle updates</a>
       <h1>{{ .Title }}</h1>
-      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 January 2006" }}</time>
       {{ with .Params.summary }}<p class="update-deck">{{ . | markdownify }}</p>{{ end }}
     </header>
-    {{ .Content }}
+    <div class="update-post-content">
+      {{ .Content }}
+    </div>
   </article>
   <nav class="update-post-navigation" aria-label="More project updates">
     {{ with $older }}
-      <a class="update-post-previous" href="{{ .RelPermalink }}"><span>Previous</span> {{ .Title }}</a>
+      <a class="update-post-previous" href="{{ .RelPermalink }}"><span class="update-nav-direction"><span aria-hidden="true">← </span>Previous</span> <span class="update-nav-title">{{ .Title }}</span></a>
     {{ end }}
-    <a class="update-post-archive" href="{{ $blog.RelPermalink }}">Project updates</a>
     {{ with $newer }}
-      <a class="update-post-next" href="{{ .RelPermalink }}"><span>Next</span> {{ .Title }}</a>
+      <a class="update-post-next" href="{{ .RelPermalink }}"><span class="update-nav-direction">Next<span aria-hidden="true"> →</span></span> <span class="update-nav-title">{{ .Title }}</span></a>
     {{ end }}
   </nav>
 {{ end }}

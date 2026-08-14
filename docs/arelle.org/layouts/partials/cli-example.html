@@ -1,6 +1,10 @@
-{{- $caption := `Gross profit in this example filing does not foot, and Arelle says so — naming the concept, the context, and the lines of the document to look at. The figures are ranges because the facts are reported to the nearest thousand, so Calculations v1.1 compares what the rounding allows rather than pretending to a precision the filing never claimed. Add <code>--logFile results.xml</code> or <code>--logFile results.json</code> and the same messages are written as structured XML and JSON data your pipeline can read.` -}}
+{{- $caption := `Gross profit in this example filing does not foot, and Arelle says so — naming the concept, the context, and the lines of the document to look at. Add <code>--logFile results.xml</code> or <code>--logFile results.json</code> and the same messages are written as structured XML or JSON data that your pipeline can read.` -}}
+{{- $transcript := partial "example-transcript.html" (dict "path" "examples/cli.txt") -}}
+{{- $wideCommand := replaceRE `\\\r?\n[ \t]*` "" $transcript.command -}}
 {{ partial "console-example.html" (dict
   "path" "examples/cli.txt"
   "title" "arelleCmdLine"
+  "command" $wideCommand
+  "narrowCommand" $transcript.command
   "caption" $caption
 ) }}

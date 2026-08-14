@@ -73,8 +73,12 @@ def _verifyFiling(filingDirectory: Path) -> None:
 def _downloadTaxonomyPackage(definitionPath: Path, destination: Path) -> None:
     definition = json.loads(definitionPath.read_text())
     artifact = definition["artifact"]
-    with urllib.request.urlopen(artifact["publicUrl"], timeout=60) as response:
-        destination.write_bytes(response.read())
+    localPackage = definitionPath.parent.parent / artifact["filename"]
+    if localPackage.exists():
+        destination.write_bytes(localPackage.read_bytes())
+    else:
+        with urllib.request.urlopen(artifact["publicUrl"], timeout=60) as response:
+            destination.write_bytes(response.read())
     actualDigest = _sha256(destination)
     if actualDigest != artifact["sha256"]:
         raise ValueError(
@@ -83,15 +87,16 @@ def _downloadTaxonomyPackage(definitionPath: Path, destination: Path) -> None:
         )
 
 
-def _verifyViewer(viewerPath: Path, baseUrl: str) -> None:
-    match = VIEWER_DATA_PATTERN.search(viewerPath.read_text())
+def _verifyViewer(viewerPath: Path, filingPath: Path, baseUrl: str) -> None:
+    html = viewerPath.read_text()
+    match = VIEWER_DATA_PATTERN.search(html)
     if match is None:
         raise ValueError(f"Viewer data is absent from {viewerPath}")
     source = match.group(1)
     data: dict[str, Any] = json.loads(source)
     expectedFeatures = {
         "highlight_facts_on_startup": True,
-        "home_link_label": "Arelle",
+            "home_link_label": "arelle.org",
         "home_link_url": baseUrl,
         "review": False,
     }
@@ -110,6 +115,10 @@ def _verifyViewer(viewerPath: Path, baseUrl: str) -> None:
     for sentinel in ("INVALID_IX_VALUE", "ixTransformValueError"):
         if sentinel in source:
             raise ValueError(f"Viewer contains invalid transformation sentinel {sentinel}")
+    if "ixv-stub-viewer" not in html or 'format="ixt-sec:' in html:
+        raise ValueError(f"Viewer is not a stub: {viewerPath}")
+    if VIEWER_DATA_PATTERN.search(filingPath.read_text()):
+        raise ValueError(f"Filing contains embedded viewer data: {filingPath}")
 
 
 def generateViewer(
@@ -129,7 +138,7 @@ def generateViewer(
         temporaryPath = Path(temporaryDirectory)
         taxonomyPackage = temporaryPath / "arelle-viewer-demo.zip"
         stagingDirectory = temporaryPath / "ixbrl-viewer"
-        viewerPath = stagingDirectory / "viewer.htm"
+        viewerPath = stagingDirectory / "ixbrlviewer.html"
         logPath = temporaryPath / "arelle.log"
         cacheDirectory = temporaryPath / "cache"
         _downloadTaxonomyPackage(definitionPath, taxonomyPackage)
@@ -141,7 +150,8 @@ def generateViewer(
             "-m",
             "arelle.CntlrCmdLine",
             f"--file={filingDirectory / 'wk-20251231.htm'}",
-            f"--save-viewer={viewerPath}",
+            f"--save-viewer={stagingDirectory}",
+            "--use-stub-viewer",
             f"--plugins=ixbrl-viewer|{transformPlugin}",
             f"--packages={taxonomyPackage}",
             "--internetConnectivity=offline",
@@ -149,7 +159,7 @@ def generateViewer(
             "--disablePersistentConfig",
             "--viewer-feature-highlight-facts-on-startup",
             f"--viewer-feature-home-link-url={baseUrl}",
-            "--viewer-feature-home-link-label=Arelle",
+            "--viewer-feature-home-link-label=arelle.org",
             f"--logFile={logPath}",
             "--logLevel=warning",
             "--logFormat=%(messageCode)s %(message)s",
@@ -164,7 +174,9 @@ def generateViewer(
         if generationLog:
             raise RuntimeError(f"Viewer generation produced log messages:\n{generationLog}")
 
-        _verifyViewer(viewerPath, baseUrl)
+        if not viewerPath.is_file():
+            raise ValueError(f"Stub viewer is absent from {viewerPath}")
+        _verifyViewer(viewerPath, stagingDirectory / "wk-20251231.htm", baseUrl)
         (stagingDirectory / "ixbrlviewer.config.json").write_text(
             json.dumps({"skin": {"faviconUrl": "../../favicon.ico"}}) + "\n"
         )
