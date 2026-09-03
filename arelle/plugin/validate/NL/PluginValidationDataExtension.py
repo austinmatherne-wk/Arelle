@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, TYPE_CHECKING, cast, Iterable
 
@@ -22,6 +21,7 @@ from arelle.ModelObject import ModelObject
 from arelle.ModelValue import QName, gYear
 from arelle.ModelXbrl import ModelXbrl
 from arelle.typing import assert_type
+from arelle.utils.MethodLruCache import method_lru_cache
 from arelle.utils.PluginData import PluginData
 from arelle.utils.validate.Concepts import getExtensionConcepts
 from arelle.utils.validate.Common import isExtensionUri
@@ -164,10 +164,6 @@ class PluginValidationDataExtension(PluginData):
     textFormattingSchemaPath: str
     textFormattingWrapper: str
 
-    # Identity hash for caching.
-    def __hash__(self) -> int:
-        return id(self)
-
     def addDomMbrs(self, modelXbrl: ModelXbrl, sourceDomMbr: ModelConcept, ELR: str, membersSet: set[ModelConcept]) -> None:
         if isinstance(sourceDomMbr, ModelConcept) and sourceDomMbr not in membersSet:
             membersSet.add(sourceDomMbr)
@@ -175,7 +171,7 @@ class PluginValidationDataExtension(PluginData):
                 self.addDomMbrs(modelXbrl, domMbrRel.toModelObject, domMbrRel.consecutiveLinkrole, membersSet)  # type: ignore[arg-type]
 
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def checkContexts(self, modelXbrl: ModelXbrl) -> ContextIssues:
         return checkContextsShared(modelXbrl)
 
@@ -196,7 +192,7 @@ class PluginValidationDataExtension(PluginData):
         visited.remove(parent)
         return issues
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def checkHiddenElements(self, modelXbrl: ModelXbrl) -> HiddenElementsData:
         cssHiddenFacts = set()
         eligibleForTransformHiddenFacts = set()
@@ -250,7 +246,7 @@ class PluginValidationDataExtension(PluginData):
             ixdsHtmlElements = modelXbrl.ixdsHtmlElements
         return ixdsHtmlElements
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def checkInlineHTMLElements(self, modelXbrl: ModelXbrl) -> InlineHTMLData:
         baseElements = set()
         factLangs = self.factLangs(modelXbrl)
@@ -295,7 +291,7 @@ class PluginValidationDataExtension(PluginData):
         )
 
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def factsByDocument(self, modelXbrl: ModelXbrl) -> dict[str, list[ModelFact]]:
         factsByDocument = defaultdict(list)
         for fact in modelXbrl.facts:
@@ -303,7 +299,7 @@ class PluginValidationDataExtension(PluginData):
         factsByDocument.default_factory = None
         return factsByDocument
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def factLangs(self, modelXbrl: ModelXbrl) -> set[str]:
         factLangs = set()
         for fact in modelXbrl.facts:
@@ -311,7 +307,7 @@ class PluginValidationDataExtension(PluginData):
                 factLangs.add(fact.xmlLang)
         return factLangs
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getAnchorData(self, modelXbrl: ModelXbrl) -> AnchorData:
         extLineItemsNotAnchored = set()
         extLineItemsWronglyAnchored = set()
@@ -399,7 +395,7 @@ class PluginValidationDataExtension(PluginData):
     def getContextsWithSegments(self, modelXbrl: ModelXbrl) -> set[ModelContext]:
         return self.checkContexts(modelXbrl).contextsWithSegments
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getDocumentsInDts(self, modelXbrl: ModelXbrl) -> dict[ModelDocument, str | None]:
         modelDocuments: dict[ModelDocument, str | None] = {}
         if modelXbrl.modelDocument is None:
@@ -417,7 +413,7 @@ class PluginValidationDataExtension(PluginData):
         _getDocumentsInDts(modelXbrl.modelDocument)
         return modelDocuments
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getDimensionalData(self, modelXbrl: ModelXbrl) -> DimensionalData:
         domainMembers = set()  # concepts which are dimension domain members
         elrPrimaryItems = defaultdict(set)
@@ -472,14 +468,14 @@ class PluginValidationDataExtension(PluginData):
     def getHiddenFactsOutsideHiddenSection(self, modelXbrl: ModelXbrl) -> set[ModelInlineFact]:
         return self.checkHiddenElements(modelXbrl).hiddenFactsOutsideHiddenSection
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFilenameAllowedCharactersPattern(self) -> re.Pattern[str]:
         return re.compile(
             r"^[\w\.-]*$",
             flags=re.ASCII
         )
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFilenameFormatPattern(self) -> re.Pattern[str]:
         return re.compile(
             r"^(?<base>[^-]*)"
@@ -489,7 +485,7 @@ class PluginValidationDataExtension(PluginData):
             flags=re.ASCII
         )
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getExtensionFilenameFormatPattern(self) -> re.Pattern[str]:
         return re.compile(
             r"^(?<base>[^-]*)"
@@ -500,14 +496,14 @@ class PluginValidationDataExtension(PluginData):
             flags=re.ASCII
         )
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFilenameParts(self, filename: str, filenamePattern: re.Pattern[str]) -> dict[str, Any] | None:
         match = filenamePattern.match(filename)
         if match:
             return match.groupdict()
         return None
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFilingInformationDocument(self, modelXbrl: ModelXbrl) -> ModelDocument | None:
         ixdsDocUrls = getattr(modelXbrl, "ixdsDocUrls", [])
         if len(ixdsDocUrls) <= 1:
@@ -519,17 +515,17 @@ class PluginValidationDataExtension(PluginData):
                 return doc
         return None
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFilingInformationFacts(self, modelXbrl: ModelXbrl) -> tuple[ModelFact, ...]:
         filingInformationDocument = self.getFilingInformationDocument(modelXbrl)
         facts = tuple(fact for fact in modelXbrl.facts if fact.modelDocument == filingInformationDocument)
         return facts
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getIxdsDocBasenames(self, modelXbrl: ModelXbrl) -> tuple[str, ...]:
         return tuple(sorted(set(Path(url).name for url in getattr(modelXbrl, "ixdsDocUrls", []))))
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getExtensionData(self, modelXbrl: ModelXbrl) -> ExtensionData:
         extensionDocuments = {}
         extensionImportedUrls = set()
@@ -608,7 +604,7 @@ class PluginValidationDataExtension(PluginData):
     def getTupleElements(self, modelXbrl: ModelXbrl) -> set[tuple[Any]]:
         return self.checkInlineHTMLElements(modelXbrl).tupleElements
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getReportingPeriod(self, modelXbrl: ModelXbrl) -> int | None:
         reportingPeriodFacts = modelXbrl.factsByQname.get(self.financialReportingPeriodQn, set())
         for fact in reportingPeriodFacts:
@@ -628,7 +624,7 @@ class PluginValidationDataExtension(PluginData):
                     return y
         return None
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getReportXmlLang(self, modelXbrl: ModelXbrl) -> str | None:
         reportXmlLang = None
         firstRootmostXmlLangDepth = 9999999
@@ -644,7 +640,7 @@ class PluginValidationDataExtension(PluginData):
                         firstRootmostXmlLangDepth = depth
         return reportXmlLang
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getElementsByTarget(self, modelXbrl: ModelXbrl) -> dict[str | None, list[ModelObject]]:
         elementsByTarget = defaultdict(list)
         for ixdsHtmlRootElt in self.getIxdsHtmlElements(modelXbrl):
@@ -656,12 +652,12 @@ class PluginValidationDataExtension(PluginData):
         return elementsByTarget
 
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def isFilenameValidCharacters(self, filename: str) -> bool:
         match = self.getFilenameAllowedCharactersPattern().match(filename)
         return match is not None
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def unitsByDocument(self, modelXbrl: ModelXbrl) -> dict[str, list[ModelUnit]]:
         unitsByDocument = defaultdict(list)
         for unit in modelXbrl.units.values():
