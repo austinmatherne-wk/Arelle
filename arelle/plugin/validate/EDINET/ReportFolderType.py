@@ -4,10 +4,12 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 from enum import Enum
-from functools import cached_property, lru_cache
+from functools import cached_property
 from pathlib import Path
 
 from regex import Pattern
+
+from arelle.utils.MethodLruCache import method_lru_cache
 
 from . import Constants
 
@@ -62,7 +64,7 @@ class ReportFolderType(Enum):
     def xbrlFilenamePatterns(self) -> list[Pattern[str]]:
         return XBRL_FILENAME_PATTERNS.get(self, [])
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getValidExtensions(self, isAmendment: bool, isSubdirectory: bool) -> frozenset[str] | None:
         if self.extensionCategory is None:
             return None
