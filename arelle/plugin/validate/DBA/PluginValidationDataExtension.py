@@ -9,12 +9,12 @@ from dataclasses import dataclass
 from typing import cast
 
 import regex
-from functools import lru_cache
 
 from arelle.ModelInstanceObject import ModelContext, ModelFact
 from arelle.ModelValue import QName
 from arelle.ModelXbrl import ModelXbrl
 from .rules import groupFactsByContextHash
+from arelle.utils.MethodLruCache import method_lru_cache
 from arelle.utils.PluginData import PluginData
 from arelle.XmlValidateConst import VALID
 
@@ -138,18 +138,14 @@ class PluginValidationDataExtension(PluginData):
     typeOfReportingPeriodDimensionQn: QName
     wagesAndSalariesQn: QName
 
-    # Identity hash for caching.
-    def __hash__(self) -> int:
-        return id(self)
-
-    @lru_cache(1)
+    @method_lru_cache(1)
     def contextFactMap(self, modelXbrl: ModelXbrl) -> dict[str, dict[QName, ModelFact]]:
         contextFactMap: dict[str, dict[QName, ModelFact]] = defaultdict(dict)
         for fact in modelXbrl.facts:
             contextFactMap[fact.contextID][fact.qname] = fact  # type: ignore[index]
         return contextFactMap
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def factsByContextId(self, modelXbrl: ModelXbrl) -> dict[str, set[ModelFact]]:
         """
         :return: A mapping of context ID to the set of facts associated with that context.
@@ -200,7 +196,7 @@ class PluginValidationDataExtension(PluginData):
         sortedPeriodList = sorted(periodsList, key=lambda period: cast(datetime.date, period[0].xValue))
         return sortedPeriodList
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getReportingPeriodContexts(self, modelXbrl: ModelXbrl) -> list[ModelContext]:
         """
         :return: A sorted list of contexts that match "reporting period" criteria.
