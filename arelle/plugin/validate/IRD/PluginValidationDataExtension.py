@@ -5,12 +5,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from functools import lru_cache
 
 from arelle.ModelDocumentType import ModelDocumentType
 from arelle.ModelObject import ModelObject
 from arelle.ModelValue import QName
 from arelle.ModelXbrl import ModelXbrl
+from arelle.utils.MethodLruCache import method_lru_cache
 from arelle.utils.PluginData import PluginData
 from arelle.utils.validate.Facts import hasValidNonNilFactByQname
 
@@ -44,17 +44,13 @@ class PluginValidationDataExtension(PluginData):
     hksicCodeRegex: re.Pattern[str]     # r'^\d{6}$'
     validHksicCodes: frozenset[str]
 
-    # Identity hash for caching.
-    def __hash__(self) -> int:
-        return id(self)
-
     def _exclusiveQnCount(self, modelXbrl: ModelXbrl, qnames: frozenset[QName]) -> int:
         return sum(
             1 for qn in qnames
             if hasValidNonNilFactByQname(modelXbrl, qn)
         )
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def isBir52(self, modelXbrl: ModelXbrl) -> bool:
         """True when the document is a BIR52 (partnership/proprietorship) filing.
 
@@ -67,7 +63,7 @@ class PluginValidationDataExtension(PluginData):
             return False  # FS-only / no exclusive facts → keep today's BIR51 default
         return n52 > n51
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getSchemaRefsByDocument(
         self,
         modelXbrl: ModelXbrl,
@@ -92,7 +88,7 @@ class PluginValidationDataExtension(PluginData):
                 refsByDoc[doc.uri] = list(root.iter(SCHEMA_REF_TAG))
         return refsByDoc
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getSchemaRefHrefs(self, modelXbrl: ModelXbrl) -> list[str]:
         """Return all non-empty ``xlink:href`` values from ``link:schemaRef``
         elements across the IXDS.
