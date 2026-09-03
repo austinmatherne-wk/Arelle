@@ -7,7 +7,7 @@ import traceback
 import zipfile
 from collections import defaultdict
 from dataclasses import dataclass
-from functools import lru_cache, cached_property
+from functools import cached_property
 from pathlib import Path
 from typing import cast
 
@@ -181,7 +181,6 @@ def _parseManifestDoc(cntlr: Cntlr, xmlRootElement: _Element, path: Path) -> lis
     return instances
 
 
-@lru_cache(1)
 def parseManifests(filesource: FileSource) -> list[ManifestInstance]:
     assert filesource.cntlr is not None, "FileSource controller must be set before parsing manifests."
     cntlr = filesource.cntlr
