@@ -7,7 +7,6 @@ from collections import defaultdict
 from collections.abc import Callable, Hashable, Iterable
 from dataclasses import dataclass
 from decimal import Decimal
-from functools import lru_cache
 from pathlib import Path
 
 import regex
@@ -31,6 +30,7 @@ from arelle.ValidateXbrl import ValidateXbrl
 from arelle.XhtmlInlineUtil import htmlEltUriAttrs
 from arelle.XmlValidate import VALID
 from arelle.typing import TypeGetText
+from arelle.utils.MethodLruCache import method_lru_cache
 from arelle.utils.PluginData import PluginData
 from arelle.utils.validate.Common import isExtensionUri
 from arelle.utils.validate.Facts import getUsedConceptsFromFacts, hasValidNonNilFactByQname, iterValidNonNilFactsByQname
@@ -164,11 +164,7 @@ class PluginValidationDataExtension(PluginData):
         self._uriReferences = []
         self._initialize(validateXbrl.modelXbrl)
 
-    # Identity hash for caching.
-    def __hash__(self) -> int:
-        return id(self)
-
-    @lru_cache(1)
+    @method_lru_cache(1)
     def _contextMatchesStatement(self, modelXbrl: ModelXbrl, contextId: str, statement: Statement) -> bool:
         """
         :return: Whether the context's facts are applicable to the given statement.
@@ -253,7 +249,7 @@ class PluginValidationDataExtension(PluginData):
         assert ns is not None, f"Unknown namespace prefix: {prefix}"
         return qname(ns, localName)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def isCorporateForm(self, modelXbrl: ModelXbrl) -> bool:
         formType = self.getFormType(modelXbrl)
         if formType is None:
@@ -263,7 +259,7 @@ class PluginValidationDataExtension(PluginData):
     def isCorporateReport(self, modelXbrl: ModelXbrl) -> bool:
         return self.namespaces.jpcrp in modelXbrl.namespaceDocs
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def isStockForm(self, modelXbrl: ModelXbrl) -> bool:
         formType = self.getFormType(modelXbrl)
         if formType is None:
@@ -271,7 +267,7 @@ class PluginValidationDataExtension(PluginData):
         return formType.isStockReport
 
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getUsedConcepts(self, modelXbrl: ModelXbrl) -> set[ModelConcept]:
         """
         Returns a set of concepts used on facts and in explicit dimensions
@@ -314,7 +310,7 @@ class PluginValidationDataExtension(PluginData):
         )
 
         for (contextId, unitId), facts in factsByContextIdAndUnitId.items():
-            if not self._contextMatchesStatement(modelXbrl, contextId, statement):
+            if not self._contextMatchesStatement(modelXbrl, str(contextId), statement):
                 continue
             creditSum = Decimal(0)
             debitSum = Decimal(0)
@@ -338,7 +334,7 @@ class PluginValidationDataExtension(PluginData):
             )
         return balanceSheets
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getCoverItemRequirements(self, modelXbrl: ModelXbrl) -> list[QName] | None:
         manifestInstance = self.getManifestInstance(modelXbrl)
         if manifestInstance is None:
@@ -358,7 +354,7 @@ class PluginValidationDataExtension(PluginData):
             [name.split(":") for name in coverItems]
         ]
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getCoverItems(self, modelXbrl: ModelXbrl) -> frozenset[QName]:
         controllerPluginData = ControllerPluginData.get(modelXbrl.modelManager.cntlr, self.name)
         coverItemRequirements = controllerPluginData.getCoverItemRequirements(self.coverItemRequirementsPath)
@@ -373,7 +369,7 @@ class PluginValidationDataExtension(PluginData):
         controllerPluginData = ControllerPluginData.get(modelXbrl.modelManager.cntlr, self.name)
         return controllerPluginData.getDeiRequirements(self.deiRequirementsPath, self.deiItems, FILING_FORMATS)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getExtensionSchemas(self, modelXbrl: ModelXbrl) -> dict[str, UploadPathInfo]:
         namespacePathInfos: dict[str, UploadPathInfo] = {}
         uploadContents = self.getUploadContents(modelXbrl)
@@ -409,7 +405,7 @@ class PluginValidationDataExtension(PluginData):
                     problematicTextBlocks.append(fact)
         return problematicTextBlocks
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getStatementInstance(self, modelXbrl: ModelXbrl, statement: Statement) -> StatementInstance | None:
         if statement.roleUri not in modelXbrl.roleTypes:
             return None
@@ -418,7 +414,7 @@ class PluginValidationDataExtension(PluginData):
             statement=statement,
         )
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getStatementInstances(self, modelXbrl: ModelXbrl) -> list[StatementInstance]:
         return [
             statementInstance
@@ -430,11 +426,11 @@ class PluginValidationDataExtension(PluginData):
     def uriReferences(self) -> list[UriReference]:
         return self._uriReferences
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getDeduplicatedFacts(self, modelXbrl: ModelXbrl) -> list[ModelFact]:
         return getDeduplicatedFacts(modelXbrl, DeduplicationType.CONSISTENT_PAIRS)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getDocumentType(self, modelXbrl: ModelXbrl) -> DocumentType | None:
         """
         Retrieves document type value from the instance.
@@ -464,7 +460,7 @@ class PluginValidationDataExtension(PluginData):
             getFactsByContextAndUnit[(contextKey, unitKey)].append(fact)
         return dict(getFactsByContextAndUnit)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFootnoteLinkElements(self, modelXbrl: ModelXbrl) -> list[ModelObject | LinkPrototype]:
         # TODO: Consolidate with similar implementations in EDGAR and FERC
         doc = modelXbrl.modelDocument
@@ -486,14 +482,14 @@ class PluginValidationDataExtension(PluginData):
             if isinstance(elt, (ModelObject, LinkPrototype))
         ]
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFilingFormat(self, modelXbrl: ModelXbrl) ->  FilingFormat | None:
         manifestInstance = self.getManifestInstance(modelXbrl)
         if manifestInstance is None:
             return None
         return manifestInstance.filingFormat
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getFormType(self, modelXbrl: ModelXbrl) -> FormType | None:
         """
         Retrieves form type value from the instance.
@@ -509,12 +505,12 @@ class PluginValidationDataExtension(PluginData):
         controllerPluginData = ControllerPluginData.get(modelXbrl.modelManager.cntlr, self.name)
         return controllerPluginData.getIllegalCharactersPattern()
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getManifestInstance(self, modelXbrl: ModelXbrl) -> ManifestInstance | None:
         controllerPluginData = ControllerPluginData.get(modelXbrl.modelManager.cntlr, self.name)
         return controllerPluginData.getManifestInstance(modelXbrl)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getOrdinance(self, modelXbrl: ModelXbrl) -> Ordinance | None:
         """
         Retrieves ordinance value from the instance.
@@ -526,7 +522,7 @@ class PluginValidationDataExtension(PluginData):
             return None
         return filingFormat.ordinance
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getProhibitedAttributeElements(self, modelDocument: ModelDocument) -> list[tuple[ModelObject, str]]:
         results: list[tuple[ModelObject, str]] = []
         if modelDocument.type not in (ModelDocumentType.INLINEXBRL, ModelDocumentType.HTML):
@@ -539,7 +535,7 @@ class PluginValidationDataExtension(PluginData):
                     results.append((elt, str(attributeName)))
         return results
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getProhibitedTagElements(self, modelDocument: ModelDocument) -> list[ModelObject]:
         elts: list[ModelObject] = []
         if modelDocument.type not in (ModelDocumentType.INLINEXBRL, ModelDocumentType.HTML):
@@ -570,7 +566,7 @@ class PluginValidationDataExtension(PluginData):
         controllerPluginData = ControllerPluginData.get(modelXbrl.modelManager.cntlr, self.name)
         return controllerPluginData.getUploadContents()
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getUriAttributeValues(self, modelDocument: ModelDocument) -> list[tuple[ModelObject, str, str]]:
         results: list[tuple[ModelObject, str, str]] = []
         modelDocumentType = modelDocument.type
