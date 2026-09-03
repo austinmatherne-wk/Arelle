@@ -6,7 +6,6 @@ from __future__ import annotations
 import zipfile
 from collections import defaultdict
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -18,6 +17,7 @@ from arelle.ModelValue import QName, TypeXValue, qname
 from arelle.ModelXbrl import ModelXbrl
 from arelle.XmlValidateConst import VALID
 from arelle.typing import TypeGetText
+from arelle.utils.MethodLruCache import method_lru_cache
 from arelle.utils.PluginData import PluginData
 from . import Constants
 from .CoverItemRequirements import CoverItemRequirements
@@ -65,31 +65,29 @@ class ControllerPluginData(PluginData):
         self._usedFilepaths = set()
         self._uploadContents = None
 
-    def __hash__(self) -> int:
-        return id(self)
-
     def addManifestInstance(self, manifestInstance: ManifestInstance) -> None:
         """
         Add a manifest instance with unique ID to the plugin data.
         """
         self._manifestInstancesById[manifestInstance.id] = manifestInstance
+        self.getManifestInstance.cache_clear()
 
     def addModelXbrl(self, modelXbrl: ModelXbrl) -> None:
         self._loadedModelXbrls.append(modelXbrl)
         self.setDeiValues(modelXbrl)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getCoverItemRequirements(self, jsonPath: Path) -> CoverItemRequirements:
         return CoverItemRequirements(jsonPath)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getDeiRequirements(self, csvPath: Path, deiItems: tuple[QName, ...], filingFormats: tuple[FilingFormat, ...]) -> DeiRequirements:
         return DeiRequirements(csvPath, deiItems, filingFormats)
 
     def getDeiValue(self, localName: str) -> TypeXValue:
         return self._deiValues.get(localName)
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getIllegalCharactersPattern(self) -> regex.Pattern[str]:
         allowedCharacters = set()
         with open(self._allowedCharacterSheetPath, "r", encoding="utf-8") as file:
@@ -164,7 +162,7 @@ class ControllerPluginData(PluginData):
         )
         return self._uploadContents
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getUploadFilepaths(self, fileSource: FileSource) -> dict[Path, zipfile.Path]:
         if not self.isUpload(fileSource):
             return {}
@@ -185,7 +183,7 @@ class ControllerPluginData(PluginData):
             for path in sorted(paths)
         }
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getUploadFileSizes(self, fileSource: FileSource) -> dict[Path, int]:
         """
         Get the sizes of files in the upload directory.
@@ -226,7 +224,7 @@ class ControllerPluginData(PluginData):
                     return False
         return None
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def isUpload(self, fileSource: FileSource) -> bool:
         fileSource.open()  # Make sure file source is open
         if (fileSource.fs is None or
@@ -248,7 +246,7 @@ class ControllerPluginData(PluginData):
         """
         return self._loadedModelXbrls
 
-    @lru_cache(1)
+    @method_lru_cache(1)
     def getManifestInstance(self, modelXbrl: ModelXbrl) -> ManifestInstance | None:
         """
         Match a manifest instance based on the provided ixdsDocUrls.
