@@ -6,7 +6,7 @@ from typing import Any
 
 from arelle.Cntlr import Cntlr
 from arelle.ModelDocument import LoadingException, ModelDocument
-from arelle.ModelValue import qname
+from arelle.ModelValue import QName, qnameNsLocalName
 from arelle.ModelXbrl import ModelXbrl
 from arelle.ValidateXbrl import ValidateXbrl
 from arelle.typing import TypeGetText
@@ -291,68 +291,68 @@ class ValidationPluginExtension(ValidationPlugin):
                 "rj": rjNamespace,
             }
             mandatoryFactQNames = frozenset(
-                qname(value=s, name=namespaces, noPrefixIsNoNamespace=False, castException=ValueError, prefixException=ValueError) for s in [
-                    "bw2-titel9:ChamberOfCommerceRegistrationNumber",
-                    "bw2-titel9:LegalEntityName",
-                    "bw2-titel9:LegalEntityLegalForm",
-                    "bw2-titel9:LegalEntityRegisteredOffice",
-                    "kvk:LegalEntitySize",
-                    "bw2-titel9:FinancialReportingPeriodEndDate",
-                    "bw2-titel9:FinancialReportingPeriod",
-                    "rj:FinancialStatementsConsolidated",
-                    "kvk:AuditorsReportFinancialStatementsPresent",
-                    "bw2-titel9:DocumentAdoptionStatus",
+                QName(prefix, namespaces[prefix], localName) for prefix, localName in [
+                    ("bw2-titel9", "ChamberOfCommerceRegistrationNumber"),
+                    ("bw2-titel9", "LegalEntityName"),
+                    ("bw2-titel9", "LegalEntityLegalForm"),
+                    ("bw2-titel9", "LegalEntityRegisteredOffice"),
+                    ("kvk", "LegalEntitySize"),
+                    ("bw2-titel9", "FinancialReportingPeriodEndDate"),
+                    ("bw2-titel9", "FinancialReportingPeriod"),
+                    ("rj", "FinancialStatementsConsolidated"),
+                    ("kvk", "AuditorsReportFinancialStatementsPresent"),
+                    ("bw2-titel9", "DocumentAdoptionStatus"),
 
                     # conditionally mandatory
-                    "bw2-titel9:DocumentAdoptionDate",
-                    "kvk:AnnualReportOfForeignGroupHeadForExemptionUnderArticle403",
-                    "kvk:AnnualReportOfForeignGroupHeadForExemptionUnderArticle408",
+                    ("bw2-titel9", "DocumentAdoptionDate"),
+                    ("kvk", "AnnualReportOfForeignGroupHeadForExemptionUnderArticle403"),
+                    ("kvk", "AnnualReportOfForeignGroupHeadForExemptionUnderArticle408"),
                 ]
             )
         else:
             mandatoryFactQNames = None
         permissibleMandatoryFactsRootAbstracts=frozenset([
-            qname(kvkINamespace, "AnnualReportFilingInformationTitle"),
+            qnameNsLocalName(kvkINamespace, "AnnualReportFilingInformationTitle"),
         ]) if kvkINamespace else frozenset()
         return PluginValidationDataExtension(
             self.name,
-            AnnualReportOfForeignGroupHeadForExemptionUnderArticle403Qn=qname(kvkINamespace, "AnnualReportOfForeignGroupHeadForExemptionUnderArticle403"),
-            AnnualReportOfForeignGroupHeadForExemptionUnderArticle408Qn=qname(kvkINamespace, "AnnualReportOfForeignGroupHeadForExemptionUnderArticle408"),
-            chamberOfCommerceRegistrationNumberQn=qname(jenvNamespace, "ChamberOfCommerceRegistrationNumber"),
-            consolidatedMemberQn=qname(jenvNamespace, "ConsolidatedMember"),
-            documentAdoptionDateQn=qname(jenvNamespace, "DocumentAdoptionDate"),
-            documentAdoptionStatusQn=qname(jenvNamespace, "DocumentAdoptionStatus"),
-            documentResubmissionUnsurmountableInaccuraciesQn=qname(kvkINamespace, "DocumentResubmissionDueToUnsurmountableInaccuracies"),
+            AnnualReportOfForeignGroupHeadForExemptionUnderArticle403Qn=qnameNsLocalName(kvkINamespace, "AnnualReportOfForeignGroupHeadForExemptionUnderArticle403"),
+            AnnualReportOfForeignGroupHeadForExemptionUnderArticle408Qn=qnameNsLocalName(kvkINamespace, "AnnualReportOfForeignGroupHeadForExemptionUnderArticle408"),
+            chamberOfCommerceRegistrationNumberQn=qnameNsLocalName(jenvNamespace, "ChamberOfCommerceRegistrationNumber"),
+            consolidatedMemberQn=qnameNsLocalName(jenvNamespace, "ConsolidatedMember"),
+            documentAdoptionDateQn=qnameNsLocalName(jenvNamespace, "DocumentAdoptionDate"),
+            documentAdoptionStatusQn=qnameNsLocalName(jenvNamespace, "DocumentAdoptionStatus"),
+            documentResubmissionUnsurmountableInaccuraciesQn=qnameNsLocalName(kvkINamespace, "DocumentResubmissionDueToUnsurmountableInaccuracies"),
             entrypointRoot=entrypointRoot,
             entrypoints=entrypoints,
-            financialReportingPeriodQn=qname(jenvNamespace, "FinancialReportingPeriod"),
-            financialReportingPeriodCurrentStartDateQn=qname(jenvNamespace, "FinancialReportingPeriodCurrentStartDate"),
-            financialReportingPeriodCurrentEndDateQn=qname(jenvNamespace, "FinancialReportingPeriodCurrentEndDate"),
-            financialReportingPeriodPreviousStartDateQn=qname(jenvNamespace, "FinancialReportingPeriodPreviousStartDate"),
-            financialReportingPeriodPreviousEndDateQn=qname(jenvNamespace, "FinancialReportingPeriodPreviousEndDate"),
-            financialStatementsTypeAxisQn=qname(jenvNamespace, "FinancialStatementsTypeAxis"),
-            formattedExplanationItemTypeQn=qname(nlTypesNamespace, "formattedExplanationItemType") if nlTypesNamespace else None,
-            ifrsConsolidatedAndSeparateFinancialStatementsAxisQn=qname(ifrsNamespace, "ConsolidatedAndSeparateFinancialStatementsAxis") if ifrsNamespace else None,
-            ifrsConsolidatedMemberQn=qname(ifrsNamespace, "ConsolidatedMember") if ifrsNamespace else None,
+            financialReportingPeriodQn=qnameNsLocalName(jenvNamespace, "FinancialReportingPeriod"),
+            financialReportingPeriodCurrentStartDateQn=qnameNsLocalName(jenvNamespace, "FinancialReportingPeriodCurrentStartDate"),
+            financialReportingPeriodCurrentEndDateQn=qnameNsLocalName(jenvNamespace, "FinancialReportingPeriodCurrentEndDate"),
+            financialReportingPeriodPreviousStartDateQn=qnameNsLocalName(jenvNamespace, "FinancialReportingPeriodPreviousStartDate"),
+            financialReportingPeriodPreviousEndDateQn=qnameNsLocalName(jenvNamespace, "FinancialReportingPeriodPreviousEndDate"),
+            financialStatementsTypeAxisQn=qnameNsLocalName(jenvNamespace, "FinancialStatementsTypeAxis"),
+            formattedExplanationItemTypeQn=qnameNsLocalName(nlTypesNamespace, "formattedExplanationItemType") if nlTypesNamespace else None,
+            ifrsConsolidatedAndSeparateFinancialStatementsAxisQn=qnameNsLocalName(ifrsNamespace, "ConsolidatedAndSeparateFinancialStatementsAxis") if ifrsNamespace else None,
+            ifrsConsolidatedMemberQn=qnameNsLocalName(ifrsNamespace, "ConsolidatedMember") if ifrsNamespace else None,
             ifrsIdentifier = "https://xbrl.ifrs.org",
-            ifrsSeparateMemberQn=qname(ifrsNamespace, "SeparateMember") if ifrsNamespace else None,
+            ifrsSeparateMemberQn=qnameNsLocalName(ifrsNamespace, "SeparateMember") if ifrsNamespace else None,
             mandatoryFactQNames=mandatoryFactQNames,
-            nonDimensionalLineItemsQName=qname(kvkINamespace, "NonDimensionalLineItems") if kvkINamespace else None,
+            nonDimensionalLineItemsQName=qnameNsLocalName(kvkINamespace, "NonDimensionalLineItems") if kvkINamespace else None,
             permissibleGAAPRootAbstracts=permissibleMandatoryFactsRootAbstracts | frozenset([
-                qname(jenvNamespace, "BalanceSheetTitle"),
-                qname(jenvNamespace, "IncomeStatementTitle"),
-                qname(jenvNamespace, "StatementOfComprehensiveIncomeTitle"),
-                qname(jenvNamespace, "EquityStatementOfChangesTitle"),
-                qname(rjNamespace, "CashFlowStatementTitle"),
+                qnameNsLocalName(jenvNamespace, "BalanceSheetTitle"),
+                qnameNsLocalName(jenvNamespace, "IncomeStatementTitle"),
+                qnameNsLocalName(jenvNamespace, "StatementOfComprehensiveIncomeTitle"),
+                qnameNsLocalName(jenvNamespace, "EquityStatementOfChangesTitle"),
+                qnameNsLocalName(rjNamespace, "CashFlowStatementTitle"),
             ]) if jenvNamespace and rjNamespace else frozenset(),
             permissibleIFRSRootAbstracts=permissibleMandatoryFactsRootAbstracts | frozenset([
-                qname(ifrsNamespace, "StatementOfFinancialPositionAbstract"),
-                qname(ifrsNamespace, "IncomeStatementAbstract"),
-                qname(ifrsNamespace, "StatementOfComprehensiveIncomeAbstract"),
-                qname(ifrsNamespace, "StatementOfCashFlowsAbstract"),
-                qname(ifrsNamespace, "StatementOfChangesInEquityAbstract"),
+                qnameNsLocalName(ifrsNamespace, "StatementOfFinancialPositionAbstract"),
+                qnameNsLocalName(ifrsNamespace, "IncomeStatementAbstract"),
+                qnameNsLocalName(ifrsNamespace, "StatementOfComprehensiveIncomeAbstract"),
+                qnameNsLocalName(ifrsNamespace, "StatementOfCashFlowsAbstract"),
+                qnameNsLocalName(ifrsNamespace, "StatementOfChangesInEquityAbstract"),
             ]) if ifrsNamespace else frozenset(),
-            separateMemberQn=qname(jenvNamespace, "SeparateMember"),
+            separateMemberQn=qnameNsLocalName(jenvNamespace, "SeparateMember"),
             textFormattingSchemaPath="sbr-text-formatting.xsd",
             textFormattingWrapper='<formattedText xmlns="http://www.nltaxonomie.nl/2017/xbrl/sbr-text-formatting">{}</formattedText>',
         )
@@ -362,6 +362,6 @@ class ValidationPluginExtension(ValidationPlugin):
             disclosureSystem = modelXbrl.modelManager.disclosureSystem.name
             if disclosureSystem in (DISCLOSURE_SYSTEM_NT16, DISCLOSURE_SYSTEM_NT17, DISCLOSURE_SYSTEM_NT18, DISCLOSURE_SYSTEM_NT19, DISCLOSURE_SYSTEM_NL_INLINE_2024):
                 # Dutch taxonomies prior to 2025 incorrectly used hypercube linkrole for roots instead of dimension linkrole.
-                paramQName = qname("tlbDimRelsUseHcRoleForDomainRoots", noPrefixIsNoNamespace=True)
+                paramQName = QName(None, None, "tlbDimRelsUseHcRoleForDomainRoots")
                 modelXbrl.modelManager.formulaOptions.parameterValues[paramQName] = (None, "true")
         return None

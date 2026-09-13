@@ -9,7 +9,7 @@ from typing import Any, Callable
 from arelle import XbrlUtil
 from arelle.formula import XPathContext
 from arelle.ModelInstanceObject import ModelDimensionValue
-from arelle.ModelValue import QName, qname
+from arelle.ModelValue import QName
 from arelle.PythonUtil import flattenSequence
 from arelle.formula.XPathParser import OperationDef
 from arelle.typing import TypeGetText
@@ -127,7 +127,7 @@ def my_fn_PDxEV(
     if len(args) != 2: raise XPathContext.FunctionNumArgs()
     PDseq = flattenSequence(args[0])
     EVseq = flattenSequence(args[1])
-    dimQname = qname("{http://www.example.com/wgt-avg}ExposuresDimension")
+    dimQname = QName(None, "http://www.example.com/wgt-avg", "ExposuresDimension")
     PDxEV = []
     for pd in PDseq:
         if pd.context is not None:
@@ -155,5 +155,5 @@ def my_fn_PDxEV(
 
 
 customFunctions: dict[QName, Callable] = {  # type: ignore[type-arg]
-    qname("{http://www.example.com/wgt-avg/function}my-fn:PDxEV"): my_fn_PDxEV
+    QName("my-fn", "http://www.example.com/wgt-avg/function", "PDxEV"): my_fn_PDxEV
 }

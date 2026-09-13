@@ -3,14 +3,106 @@ from __future__ import annotations
 import datetime
 
 import pytest
+from lxml import etree
 
-from arelle.ModelValue import QName, gDay, gMonthDay, qnameFromNsmap
+from arelle.ModelObject import ModelObject
+from arelle.ModelValue import QName, gDay, gMonthDay, qname, qnameFromNsmap
 
 NSMAP = {
     None: "http://default.ns",
     "pfx": "http://pfx.ns",
     "other": "http://other.ns",
 }
+
+
+class TestQname:
+    @pytest.mark.parametrize("value, name, expected", [
+        ("undeclared:item", None, None),
+        ("", "p:item", None),
+        ("item", None, (None, None, "item")),
+        ("", None, (None, None, "")),
+        ("{urn:p}p:item", None, ("p", "urn:p", "item")),
+        ("{urn:p}p:a:b", None, ("p:a", "urn:p", "b")),
+        ("urn:p", "p:a:b", ("p", "urn:p", "a:b")),
+        ("urn:p", "", (None, None, "")),
+        ("{}p:item", None, None),
+        ("{oops", None, (None, None, "oops")),
+        ("  p:item  ", {"p": "urn:p"}, ("p", "urn:p", "item")),
+        ("p:item", {}, None),
+        ("item", {None: "urn:default"}, (None, "urn:default", "item")),
+        ("p:item", {"p": ""}, ("p", "", "item")),
+        ("{urn:p}item", {"urn:p": "p"}, ("p", "urn:p", "item")),
+        ("{urn:p}item", {"p": "urn:p"}, ("p", "urn:p", "item")),
+        (None, None, None),
+        (42, None, None),
+        ([], None, None),
+    ])
+    def test_result_fields(self, value, name, expected):
+        result = qname(value, name)
+        fields = None if result is None else (result.prefix, result.namespaceURI, result.localName)
+        assert fields == expected
+
+    @pytest.fixture
+    def element(self):
+        parser = etree.XMLParser()
+        parser.set_element_class_lookup(etree.ElementDefaultClassLookup(element=ModelObject))
+        return etree.fromstring(b'<p:root xmlns:p="urn:p" xmlns="urn:default"><child/></p:root>', parser)
+
+    def test_qname_input_preserves_identity(self):
+        for value in (QName("p", "urn:p", "item"), QName(None, None, "")):
+            assert qname(value) is value
+
+    def test_element_and_qname_names(self, element):
+        expected = ("p", "urn:p", "root")
+        for result in (qname(element), qname(element, None), qname(element, ""), qname(element, QName(None, None, ""))):
+            assert (result.prefix, result.namespaceURI, result.localName) == expected
+        name = QName("other", "urn:other", "item")
+        assert qname(element, name) is name
+
+    def test_element_namespace_resolution(self, element):
+        for result in (qname(element, "p:item"), qname("p:item", element)):
+            assert (result.prefix, result.namespaceURI, result.localName) == ("p", "urn:p", "item")
+        assert qname(element, "undeclared:item") is None
+        xml_name = qname(element, "xml:lang")
+        assert (xml_name.prefix, xml_name.namespaceURI, xml_name.localName) == ("xml", "http://www.w3.org/XML/1998/namespace", "lang")
+
+    def test_element_name_uses_existing_truthiness(self, element):
+        assert qname(element, element) is None
+        result = qname(element, element[0])
+        assert (result.prefix, result.namespaceURI, result.localName) == ("p", "urn:p", "root")
+
+    def test_default_namespace_can_be_disabled(self):
+        result = qname("item", {None: "urn:default"}, noPrefixIsNoNamespace=True)
+        assert (result.prefix, result.namespaceURI, result.localName) == (None, None, "item")
+        assert qname("p:item", noPrefixIsNoNamespace=True) is None
+
+    @pytest.mark.parametrize("flag, value", [("prefixException", "p:item"), ("castException", None)])
+    def test_exception_class(self, flag, value):
+        with pytest.raises(ValueError):
+            qname(value, **{flag: ValueError})
+
+    @pytest.mark.parametrize("flag, value", [("prefixException", "p:item"), ("castException", None)])
+    def test_exception_instance_preserves_identity(self, flag, value):
+        exception = ValueError("custom message")
+        with pytest.raises(ValueError) as caught:
+            qname(value, **{flag: exception})
+        assert caught.value is exception
+
+    @pytest.mark.parametrize("flag, value", [("prefixException", "p:item"), ("castException", None)])
+    def test_falsey_exception_flags_preserve_none_result(self, flag, value):
+        class FalseyException(Exception):
+            def __bool__(self):
+                return False
+
+        class FalseyMeta(type):
+            def __bool__(cls):
+                return False
+
+        class FalseyExceptionClass(Exception, metaclass=FalseyMeta):
+            pass
+
+        assert qname(value, **{flag: FalseyException()}) is None
+        assert qname(value, **{flag: FalseyExceptionClass}) is None
 
 
 class TestQnameFromNsmap:

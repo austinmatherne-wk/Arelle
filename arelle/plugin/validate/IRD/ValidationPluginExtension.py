@@ -18,7 +18,9 @@ TC_NAMESPACE = "http://xbrl.ird.gov.hk/taxonomy/2026-04-01/ird_tc"
 
 
 def tcQn(local: str) -> QName:
-    return qname(f"{{{TC_NAMESPACE}}}{local}")
+    result = qname(f"{{{TC_NAMESPACE}}}{local}")
+    assert result is not None, "The TC namespace must produce a QName"
+    return result
 
 
 class ValidationPluginExtension(ValidationPlugin):

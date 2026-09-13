@@ -7,7 +7,7 @@ import regex as re
 
 from arelle import XbrlConst
 from arelle.FunctionIxt import ixtNamespaces
-from arelle.ModelValue import QName, qname
+from arelle.ModelValue import QName
 from arelle.XmlValidate import lexicalPatterns
 
 styleCssHiddenPattern = re.compile(r"(.*[^\w]|^)display\s*:\s*none([^\w].*|$)")
@@ -27,9 +27,9 @@ FOOTNOTE_LINK_CHILDREN = frozenset((
     XbrlConst.qnIXbrl11Footnote,
 ))
 
-PERCENT_TYPE = qname("{http://www.xbrl.org/dtr/type/numeric}num:percentItemType")
-PERCENT_TYPE_2020 = qname("{http://www.xbrl.org/dtr/type/2020-01-21}dtr-types:percentItemType")
-PERCENT_TYPE_2022 = qname("{http://www.xbrl.org/dtr/type/2022-03-31}dtr-types:percentItemType")
+PERCENT_TYPE = QName("num", "http://www.xbrl.org/dtr/type/numeric", "percentItemType")
+PERCENT_TYPE_2020 = QName("dtr-types", "http://www.xbrl.org/dtr/type/2020-01-21", "percentItemType")
+PERCENT_TYPE_2022 = QName("dtr-types", "http://www.xbrl.org/dtr/type/2022-03-31", "percentItemType")
 PERCENT_TYPES = {
     PERCENT_TYPE,
     PERCENT_TYPE_2020,
@@ -86,16 +86,16 @@ LineItemsNotQualifiedLinkroles = (
 )
 
 qnDomainItemTypesBefore2023 = frozenset((
-    qname("{http://www.xbrl.org/dtr/type/non-numeric}nonnum:domainItemType"),
-    qname("{http://www.xbrl.org/dtr/type/2020-01-21}dtr-types:domainItemType"),
+    QName("nonnum", "http://www.xbrl.org/dtr/type/non-numeric", "domainItemType"),
+    QName("dtr-types", "http://www.xbrl.org/dtr/type/2020-01-21", "domainItemType"),
 ))
 
 qnDomainItemTypes2023 = frozenset((
-    qname("{http://www.xbrl.org/dtr/type/2020-01-21}dtr-types:domainItemType"),
+    QName("dtr-types", "http://www.xbrl.org/dtr/type/2020-01-21", "domainItemType"),
 ))
 
 qnDomainItemTypes2024 = frozenset((
-    qname("{http://www.xbrl.org/dtr/type/2022-03-31}dtr-types:domainItemType"),
+    QName("dtr-types", "http://www.xbrl.org/dtr/type/2022-03-31", "domainItemType"),
 ))
 
 

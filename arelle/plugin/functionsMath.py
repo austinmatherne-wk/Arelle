@@ -10,7 +10,7 @@ from collections.abc import Callable
 
 from arelle.formula import XPathContext
 from arelle.FunctionUtil import numericArg
-from arelle.ModelValue import QName, qname
+from arelle.ModelValue import QName
 from arelle.Version import authorLabel, copyrightLabel
 from arelle.formula.XPathParser import OperationDef
 from arelle.typing import EmptyTuple
@@ -275,20 +275,20 @@ def xfmMathFunctions() -> dict[
     ], float | EmptyTuple]
 ]:
     return {
-        qname("{http://www.xbrl.org/2008/function/math}xfm:pi"): xfm_pi,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:exp"): xfm_exp,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:exp10"): xfm_exp10,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:log"): xfm_log,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:log10"): xfm_log10,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:pow"): xfm_pow,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:sqrt"): xfm_sqrt,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:sin"): xfm_sin,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:cos"): xfm_cos,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:tan"): xfm_tan,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:asin"): xfm_asin,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:acos"): xfm_acos,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:atan"): xfm_atan,
-        qname("{http://www.xbrl.org/2008/function/math}xfm:atan2"): xfm_atan2,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "pi"): xfm_pi,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "exp"): xfm_exp,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "exp10"): xfm_exp10,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "log"): xfm_log,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "log10"): xfm_log10,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "pow"): xfm_pow,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "sqrt"): xfm_sqrt,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "sin"): xfm_sin,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "cos"): xfm_cos,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "tan"): xfm_tan,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "asin"): xfm_asin,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "acos"): xfm_acos,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "atan"): xfm_atan,
+        QName("xfm", "http://www.xbrl.org/2008/function/math", "atan2"): xfm_atan2,
     }
 
 

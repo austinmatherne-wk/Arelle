@@ -99,4 +99,6 @@ def loadCsvTestcase(
 
 
 def _conformanceQName(name: str) -> QName:
-    return qname(CONFORMANCE_NAMESPACE, name)
+    result = qname(CONFORMANCE_NAMESPACE, name)
+    assert result is not None, "A fixed namespace and string name always produce a QName"
+    return result

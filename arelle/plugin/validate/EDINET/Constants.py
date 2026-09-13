@@ -5,7 +5,7 @@ from enum import Enum
 
 import regex
 
-from arelle.ModelValue import qname
+from arelle.ModelValue import QName, qnameNsLocalName
 
 class AccountingStandard(Enum):
     IFRS = "IFRS"
@@ -13,15 +13,15 @@ class AccountingStandard(Enum):
     US_GAAP = "US GAAP"
 
 
-domainItemTypeQname = qname("{http://www.xbrl.org/dtr/type/non-numeric}nonnum:domainItemType")
+domainItemTypeQname = QName("nonnum", "http://www.xbrl.org/dtr/type/non-numeric", "domainItemType")
 
-qnEdinetManifestInsert = qname("{http://disclosure.edinet-fsa.go.jp/2013/manifest}insert")
-qnEdinetManifestInstance = qname("{http://disclosure.edinet-fsa.go.jp/2013/manifest}instance")
-qnEdinetManifestItem = qname("{http://disclosure.edinet-fsa.go.jp/2013/manifest}item")
-qnEdinetManifestIxbrl = qname("{http://disclosure.edinet-fsa.go.jp/2013/manifest}ixbrl")
-qnEdinetManifestList = qname("{http://disclosure.edinet-fsa.go.jp/2013/manifest}list")
-qnEdinetManifestTitle = qname("{http://disclosure.edinet-fsa.go.jp/2013/manifest}title")
-qnEdinetManifestTocComposition = qname("{http://disclosure.edinet-fsa.go.jp/2013/manifest}tocComposition")
+qnEdinetManifestInsert = qnameNsLocalName("http://disclosure.edinet-fsa.go.jp/2013/manifest", "insert")
+qnEdinetManifestInstance = qnameNsLocalName("http://disclosure.edinet-fsa.go.jp/2013/manifest", "instance")
+qnEdinetManifestItem = qnameNsLocalName("http://disclosure.edinet-fsa.go.jp/2013/manifest", "item")
+qnEdinetManifestIxbrl = qnameNsLocalName("http://disclosure.edinet-fsa.go.jp/2013/manifest", "ixbrl")
+qnEdinetManifestList = qnameNsLocalName("http://disclosure.edinet-fsa.go.jp/2013/manifest", "list")
+qnEdinetManifestTitle = qnameNsLocalName("http://disclosure.edinet-fsa.go.jp/2013/manifest", "title")
+qnEdinetManifestTocComposition = qnameNsLocalName("http://disclosure.edinet-fsa.go.jp/2013/manifest", "tocComposition")
 xhtmlDtdExtension = "xhtml1-strict-ix.dtd"
 
 COVER_PAGE_FILENAME_PREFIX = "0000000_header_"

@@ -116,11 +116,11 @@ PLUGIN_NAME = "Save Loadable OIM"
 
 oimErrorPattern = re.compile("oime|oimce|xbrlje|xbrlce")
 nsOim = "https://xbrl.org/2021"
-qnOimConceptAspect = qname("concept", noPrefixIsNoNamespace=True)
-qnOimLangAspect = qname("language", noPrefixIsNoNamespace=True)
-qnOimPeriodAspect = qname("period", noPrefixIsNoNamespace=True)
-qnOimEntityAspect = qname("entity", noPrefixIsNoNamespace=True)
-qnOimUnitAspect = qname("unit", noPrefixIsNoNamespace=True)
+qnOimConceptAspect = QName(None, None, "concept")
+qnOimLangAspect = QName(None, None, "language")
+qnOimPeriodAspect = QName(None, None, "period")
+qnOimEntityAspect = QName(None, None, "entity")
+qnOimUnitAspect = QName(None, None, "unit")
 
 reservedUriAliases = {
     nsOim: "xbrl",
