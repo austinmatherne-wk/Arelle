@@ -414,6 +414,20 @@ class ModelTestcaseVariation(ModelObject):
         return resultElement.get("match")
 
     @property
+    def calcMode(self) -> str | None:
+        """
+        The Calculations 1.1 mode (`round-to-nearest` or `truncate`) from a namespaced `mode`
+        attribute on the result element. The conformance namespace is dated, so any namespace is accepted.
+        """
+        resultElement = XmlUtil.descendant(self, None, "result")
+        if resultElement is None:
+            return None
+        for name, value in resultElement.attrib.items():  # type: ignore[union-attr]
+            if name.startswith("{") and name.rpartition("}")[2] == "mode" and value in ("round-to-nearest", "truncate"):
+                return value
+        return None
+
+    @property
     def expectedCount(self) -> Any:
         for pluginXbrlMethod in self.modelXbrl.modelManager.cntlr.plugins.hooks("ModelTestcaseVariation.ExpectedCount"):  # type: ignore[union-attr]
             _count = pluginXbrlMethod(self)
