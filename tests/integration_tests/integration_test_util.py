@@ -188,19 +188,19 @@ def get_test_data(
                     else:
                         for error in mv.expected or []:
                             expected_results["ERROR"][str(error)] += 1
-                        for error in mv.userExpectedErrors:  # type: ignore[assignment]
-                            expected_results["ERROR"][str(error)] += 1
                         if mv.modelXbrl is not None and mv.modelXbrl.modelManager.formulaOptions.testcaseResultsCaptureWarnings:
                             for warning in mv.expectedWarnings or []:
                                 expected_results["WARNING"][str(warning)] += 1
-                    # Arelle adds message code frequencies to the end, but conformance suites usually don't.
-                    # Skip assertion results dictionaries.
-                    actual = [regex.sub(r" \(\d+\)$", "", code) for code in mv.actual if not isinstance(code, dict)]
+                    configured_errors = dict(Counter(str(error) for error in mv.userExpectedErrors))
+                    actual_counts = get_actual_error_counts(mv.actual)
                     param = pytest.param(
                         {
                             "status": mv.status,
                             "expected": json.dumps(expected_results),
-                            "actual": actual,
+                            "configured_errors": configured_errors,
+                            # Conformance suites usually list each code once, so saved results omit counts.
+                            "actual": list(actual_counts),
+                            "actual_counts": actual_counts,
                             "duration": mv.duration,
                         },
                         id=test_id,
@@ -224,6 +224,32 @@ def get_test_data(
         cntlr.modelManager.close()
         PackageManager.close()
         PluginManager.getInstance().close()
+
+
+def get_actual_error_counts(actual: list[Any]) -> dict[str, int]:
+    """
+    Converts a variation's actual results, where Arelle appends " (N)" to codes raised more than once,
+    into a count per code. Assertion result dictionaries are skipped.
+    """
+    counts: dict[str, int] = {}
+    for code in actual:
+        if isinstance(code, dict):
+            continue
+        match = regex.fullmatch(r"(.*) \((\d+)\)", code)
+        if match:
+            counts[match.group(1)] = int(match.group(2))
+        else:
+            counts[code] = 1
+    return counts
+
+
+def format_failure_message(result: dict[str, Any]) -> str:
+    message = f"Expected by the suite: {result.get('expected')}."
+    configured_errors = result.get("configured_errors")
+    if configured_errors:
+        message += f" Configured additional errors: {configured_errors}."
+    message += f" Actual errors: {result.get('actual_counts')}."
+    return message
 
 
 def collect_test_data(

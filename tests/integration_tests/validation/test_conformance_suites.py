@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Any
 
+from tests.integration_tests.integration_test_util import format_failure_message
+
 
 def test_conformance_suite(conformance_suite_results: dict[str, Any]) -> None:
     """
@@ -8,7 +10,4 @@ def test_conformance_suite(conformance_suite_results: dict[str, Any]) -> None:
     It is critical that this file is not imported or referenced by other modules to ensure that it is not evaluated
     before pytest can evaluate conformance suite results via the pytest_configure hook.
     """
-    assert conformance_suite_results.get("status") == "pass", \
-        "Expected these validation suffixes: {}, but received these validations: {}".format(
-            conformance_suite_results.get("expected"), conformance_suite_results.get("actual")
-        )
+    assert conformance_suite_results.get("status") == "pass", format_failure_message(conformance_suite_results)
