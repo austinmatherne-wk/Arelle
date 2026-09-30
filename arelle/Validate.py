@@ -24,6 +24,7 @@ from arelle.ModelRssItem import rssItemAlreadyValidatedStatuses
 from arelle.ModelRssObject import ModelRssObject
 from arelle.PythonUtil import isLegacyAbs
 from arelle.ValidateFileSource import ValidateFileSource
+from arelle.ValidateXbrlCalcs import ValidateCalcsMode
 from arelle.formula import ValidateFormula
 from arelle.FileSource import FileSource, openFileSource, archiveFilenameParts
 from arelle.ModelDocument import (
@@ -63,6 +64,11 @@ class ValidationException(Exception):
         return "{0}({1})={2}".format(self.code,self.severity,self.message)
 
 commaSpaceSplitPattern = re.compile(r",\s*")
+
+TESTCASE_CALCS_MODES = {
+    "round-to-nearest": ValidateCalcsMode.ROUND_TO_NEAREST,
+    "truncate": ValidateCalcsMode.TRUNCATION,
+}
 
 class Validate:
     """Validation operations are separated from the objects that are validated, because the operations are
@@ -581,6 +587,11 @@ class Validate:
                 # validate except for formulas
                 _hasFormulae = model.hasFormulae
                 model.hasFormulae = False
+                modelManager = self.modelXbrl.modelManager
+                priorCalcsMode = modelManager.validateCalcs
+                variationCalcsMode = TESTCASE_CALCS_MODES.get(modelTestcaseVariation.calcMode or "")
+                if variationCalcsMode is not None:
+                    modelManager.validateCalcs = variationCalcsMode
                 try:
                     for pluginXbrlMethod in self.modelXbrl.modelManager.cntlr.plugins.hooks("TestcaseVariation.Xbrl.Loaded"):
                         pluginXbrlMethod(self.modelXbrl, model, modelTestcaseVariation)
@@ -591,6 +602,8 @@ class Validate:
                     model.error("exception:" + type(err).__name__,
                         _("Testcase variation validation exception: %(error)s, instance: %(instance)s"),
                         modelXbrl=model, instance=model.modelDocument.basename, error=err, exc_info=True)
+                finally:
+                    modelManager.validateCalcs = priorCalcsMode
                 model.hasFormulae = _hasFormulae
         for pluginXbrlMethod in self.modelXbrl.modelManager.cntlr.plugins.hooks("Validate.Complete"):
             pluginXbrlMethod(self.modelXbrl.modelManager.cntlr, filesource)
