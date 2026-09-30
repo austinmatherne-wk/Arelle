@@ -787,17 +787,22 @@ class Validate:
         numErrors = sum(isinstance(e,(QName,str)) for e in _errors) # does not include assertion dict results
         hasAssertionResult = any(isinstance(e,dict) for e in _errors)
         expectedCount = modelTestcaseVariation.expectedCount
+        if matchAllExpected:
+            if isinstance(expected, str) and expected not in {"valid", "invalid"}:
+                expected = [code for code in expected.split()]
+            elif isinstance(expected, dict):
+                expected = [expected]  # type: ignore[list-item]
         if userExpectedErrors and not userExpectedErrorsUnused:
-            if expected is None:
-                expected = []
-            elif isinstance(expected, str):
-                assert expected in {"valid", "invalid"}, f"unhandled expected value string '{expected}'"
+            if expected is None or expected in ("valid", "invalid"):
                 expected = []
             elif isinstance(expected, list):
                 expected = expected.copy()
             expected.extend(userExpectedErrors)  # type: ignore[union-attr, arg-type]
             if expectedCount is not None:
                 expectedCount += len(userExpectedErrors)
+        expectsAssertionResults = isinstance(expected, list) and any(isinstance(e, dict) for e in expected)
+        # Formula runs report assertion results even when a testcase expects only error codes, so count them only when expected.
+        numComparedResults = numErrors + (sum(isinstance(e, dict) for e in _errors) if expectsAssertionResults else 0)
         if matchAllExpected:
             if isinstance(expected, list):
                 if not expectedCount:
@@ -880,7 +885,7 @@ class Validate:
                         break
             if _passCount > 0:
                 if expectedCount is not None and (expectedCount != _passCount or
-                                                  (matchAllExpected and expectedCount != numErrors)):
+                                                  (matchAllExpected and expectedCount != numComparedResults)):
                     status = "fail"
                 else:
                     status = "pass"

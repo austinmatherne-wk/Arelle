@@ -67,6 +67,12 @@ def _determineVariation(
     ("match-all", ["suite:required"], ["cfg:extra"], ["cfg:extra"], "fail"),
     ("match-all", "valid", ["cfg:extra"], ["cfg:extra"], "pass"),
     ("match-all", "valid", ["cfg:extra"], ["cfg:extra", "cfg:extra"], "fail"),
+    ("match-all", "invalid", ["cfg:extra"], ["cfg:extra"], "pass"),
+    # Single-string expected codes, including whitespace-separated lists.
+    ("match-all", "EFM.6.03.04", ["cfg:extra"], ["EFM.6.03.04", "cfg:extra"], "pass"),
+    ("match-all", "EFM.6.03.04", ["cfg:extra"], ["cfg:extra"], "fail"),
+    ("match-all", "suite:a suite:b", ["cfg:extra"], ["suite:a", "suite:b", "cfg:extra"], "pass"),
+    ("match-all", "suite:a suite:b", ["cfg:extra"], ["suite:a", "cfg:extra"], "fail"),
 ])
 def test_determineTestStatus_userExpectedErrors(
         resultOption: str,
@@ -94,3 +100,31 @@ def test_determineTestStatus_userExpectedErrorsUnused(
 ) -> None:
     variation = _determineVariation(resultOption, expected, userExpectedErrors, ["other:error"])
     assert ("conf:testcaseExpectedErrorsUnused" in variation.actual) is unused
+
+
+ASSERTION_RESULTS = {"assertion1": (1, 0)}
+
+
+@pytest.mark.parametrize("resultOption, expected, userExpectedErrors, actualErrors, status", [
+    # A single expected code string, with or without configured errors.
+    ("match-all", "EFM.6.03.04", [], ["EFM.6.03.04"], "pass"),
+    ("match-all", "EFM.6.03.04", [], ["EFM.6.03.04", "other:error"], "fail"),
+    ("match-all", "EFM.6.03.04", [], [], "fail"),
+    # Expected formula assertion counts, with or without configured errors.
+    ("match-all", ASSERTION_RESULTS, [], [ASSERTION_RESULTS], "pass"),
+    ("match-all", ASSERTION_RESULTS, [], [{"assertion1": (0, 1)}], "fail"),
+    ("match-all", ASSERTION_RESULTS, [], [ASSERTION_RESULTS, "other:error"], "fail"),
+    ("match-all", ASSERTION_RESULTS, ["cfg:extra"], [ASSERTION_RESULTS, "cfg:extra"], "pass"),
+    ("match-all", ASSERTION_RESULTS, ["cfg:extra"], [ASSERTION_RESULTS], "fail"),
+    ("match-any", ASSERTION_RESULTS, [], [ASSERTION_RESULTS], "pass"),
+    # Assertion results reported alongside expected error codes are not counted.
+    ("match-all", ["suite:required"], [], ["suite:required", ASSERTION_RESULTS], "pass"),
+])
+def test_determineTestStatus_nonListExpected(
+        resultOption: str,
+        expected: Any,
+        userExpectedErrors: list[str],
+        actualErrors: list[Any],
+        status: str,
+) -> None:
+    assert _determineStatus(resultOption, expected, userExpectedErrors, actualErrors) == status
