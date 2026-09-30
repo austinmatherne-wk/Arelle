@@ -186,8 +186,11 @@ def get_test_data(
                     if isinstance(mv.expected, str):
                         expected_results = mv.expected
                     else:
-                        for error in mv.expected or []:
-                            expected_results["ERROR"][str(error)] += 1
+                        if isinstance(mv.expected, dict):
+                            expected_results["ASSERTIONS"] = {k: list(v) for k, v in mv.expected.items()}
+                        else:
+                            for error in mv.expected or []:
+                                expected_results["ERROR"][str(error)] += 1
                         if mv.modelXbrl is not None and mv.modelXbrl.modelManager.formulaOptions.testcaseResultsCaptureWarnings:
                             for warning in mv.expectedWarnings or []:
                                 expected_results["WARNING"][str(warning)] += 1
@@ -201,6 +204,7 @@ def get_test_data(
                             # Conformance suites usually list each code once, so saved results omit counts.
                             "actual": list(actual_counts),
                             "actual_counts": actual_counts,
+                            "actual_assertions": get_actual_assertion_results(mv.actual),
                             "duration": mv.duration,
                         },
                         id=test_id,
@@ -243,12 +247,28 @@ def get_actual_error_counts(actual: list[Any]) -> dict[str, int]:
     return counts
 
 
+def get_actual_assertion_results(actual: list[Any]) -> dict[str, list[int]]:
+    """
+    Collects formula assertion results from a variation's actual results, as
+    [countSatisfied, countNotSatisfied] per assertion ID.
+    """
+    return {
+        assertionId: list(counts[:2])
+        for result in actual
+        if isinstance(result, dict)
+        for assertionId, counts in result.items()
+    }
+
+
 def format_failure_message(result: dict[str, Any]) -> str:
     message = f"Expected by the suite: {result.get('expected')}."
     configured_errors = result.get("configured_errors")
     if configured_errors:
         message += f" Configured additional errors: {configured_errors}."
     message += f" Actual errors: {result.get('actual_counts')}."
+    actual_assertions = result.get("actual_assertions")
+    if actual_assertions:
+        message += f" Actual assertion results: {actual_assertions}."
     return message
 
 
