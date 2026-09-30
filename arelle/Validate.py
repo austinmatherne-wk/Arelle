@@ -771,6 +771,12 @@ class Validate:
         expectedWarnings = modelTestcaseVariation.expectedWarnings if self.modelXbrl.modelManager.formulaOptions.testcaseResultsCaptureWarnings else []
         if expectedReportCount is not None and validateModelCount is not None and expectedReportCount != validateModelCount:
             errors.append("conf:testcaseExpectedReportCountError")
+        expected = modelTestcaseVariation.expected
+        userExpectedErrors = modelTestcaseVariation.setUserExpectedErrors(testcaseExpectedErrors, self.useFileSource).copy()
+        # Match-any ignores extra errors, so configured errors can only replace a valid expectation.
+        userExpectedErrorsUnused = bool(userExpectedErrors) and not matchAllExpected and expected not in ("valid", None, [])
+        if userExpectedErrorsUnused:
+            errors.append("conf:testcaseExpectedErrorsUnused")
         _blockedMessageCodes = modelTestcaseVariation.blockedMessageCodes # restricts codes examined when provided
         if _blockedMessageCodes:
             _blockPattern = re.compile(_blockedMessageCodes)
@@ -780,10 +786,8 @@ class Validate:
         _errors.extend(self.modelXbrl.modelManager.cntlr.errors)  # type: ignore[arg-type]
         numErrors = sum(isinstance(e,(QName,str)) for e in _errors) # does not include assertion dict results
         hasAssertionResult = any(isinstance(e,dict) for e in _errors)
-        expected = modelTestcaseVariation.expected
         expectedCount = modelTestcaseVariation.expectedCount
-        userExpectedErrors = modelTestcaseVariation.setUserExpectedErrors(testcaseExpectedErrors, self.useFileSource).copy()
-        if userExpectedErrors:
+        if userExpectedErrors and not userExpectedErrorsUnused:
             if expected is None:
                 expected = []
             elif isinstance(expected, str):
@@ -900,6 +904,8 @@ class Validate:
                     status = "pass" # passes due to no counts expected
 
         else:
+            status = "fail"
+        if userExpectedErrorsUnused:
             status = "fail"
         modelTestcaseVariation.status = status
         _actual: dict[str, int] = {} # code and quantity
