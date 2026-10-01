@@ -1,12 +1,11 @@
 '''
-This plug-in removes xmlns="http://www.w3.org/1999/xhtml" from
-escaped html in text content of expected instance facts for inline XBRL text facts
+This plug-in resolves relative URIs in escaped html of expected instance footnotes
+the same way inline XBRL extraction does.
 
 It also provides an error code when a testcase variation does not load any iXBRL document.
 
 See COPYRIGHT.md for copyright information.
 '''
-import regex as re
 from arelle.ModelDocument import Type
 from arelle.Version import authorLabel, copyrightLabel
 from arelle.XhtmlInlineUtil import htmlEltUriAttrs, resolveHtmlUri
@@ -20,10 +19,6 @@ def variationInstanceLoaded(testcaseInstance, variationInstance, extraErrors, in
                 extraErrors.append( "NotAnIxbrlDocument" )
 
 def compareInstanceLoaded(expectedInstance, outputInstanceToCompare):
-    for f in expectedInstance.facts:
-        if not f.isNumeric and f.text and "http://www.w3.org/1999/xhtml" in f.text:
-            f.text = re.sub(r"""(<[^>]+)\s+xmlns=["']http://www.w3.org/1999/xhtml["']""",r"\1", f.text)
-
     # fixup relative urls in fact footnotes
     for elt in expectedInstance.modelDocument.xmlRootElement.iterdescendants(tag="{http://www.w3.org/1999/xhtml}*"):
         for n in htmlEltUriAttrs.get(elt.localName, ()):
@@ -33,9 +28,9 @@ def compareInstanceLoaded(expectedInstance, outputInstanceToCompare):
                 elt.set(n, v)
 
 __pluginInfo__ = {
-    "name": "Testcase fixup escaped html xmlns",
+    "name": "Testcase fixup expected inline XBRL output",
     "version": "0.9",
-    "description": "This plug-in removes xxx.  ",
+    "description": "Resolves relative URIs in expected escaped html and reports testcase variations that load no iXBRL document.",
     "license": "Apache-2",
     "author": authorLabel,
     "copyright": copyrightLabel,
