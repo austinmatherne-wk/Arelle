@@ -279,25 +279,28 @@ def get_conformance_suite_arguments(config: ConformanceSuiteConfig, filename: st
     optional_plugins = set()
     if build_cache:
         optional_plugins.add("CacheBuilder")
-    plugins = config.plugins | additional_plugins | optional_plugins
-    args = [
-        "--file", filename,
+    # A command line --plugins replaces the baseline's plugins rather than adding to them.
+    plugins = config.plugins | config.baseline_plugins | additional_plugins | optional_plugins
+    if config.baseline is not None:
+        args = ["--optionsFile", config.baseline.as_posix()]
+    else:
+        args = ["--file", filename, "--validate"]
+    args.extend([
         "--keepOpen",
         "--testcaseResultOptions", config.test_case_result_options,
-        "--validate",
-    ]
+    ])
     if config.base_taxonomy_validation:
         args.extend(["--baseTaxonomyValidation", config.base_taxonomy_validation])
     if disclosure_system:
         args.extend(["--disclosureSystem", disclosure_system])
-    if config.package_paths:
+    if config.package_paths and config.baseline is None:
         args.extend(["--packages", "|".join(sorted(p.as_posix() for p in config.package_paths))])
     if plugins:
         args.extend(["--plugins", "|".join(sorted(plugins))])
     shard_str = f"-s{shard}" if use_shards else ""
     if build_cache:
         args.extend(["--cache-builder-path", f"conf-{config.name}{shard_str}-cache.zip"])
-    if config.capture_warnings:
+    if config.capture_warnings and config.baseline is None:
         args.append("--testcaseResultsCaptureWarnings")
     if log_to_file:
         args.extend([

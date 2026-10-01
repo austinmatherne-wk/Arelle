@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import itertools
+import json
 import re
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import Literal, Callable
+from typing import Any, Literal, Callable
 
 from tests.integration_tests.github import OS_CORES
 
@@ -203,6 +204,8 @@ class ConformanceSuiteConfig:
     additional_plugins_by_prefix: list[tuple[str, frozenset[str]]] = field(default_factory=list)
     args: list[str] = field(default_factory=list)
     assets: list[ConformanceSuiteAssetConfig] = field(default_factory=list)
+    # Arelle options file that runs the suite without expected failures or expected errors.
+    baseline: Path | None = None
     base_taxonomy_validation: Literal["disclosureSystem", "none", "all", None] = None
     cache_version_id: str | None = None
     capture_warnings: bool = True
@@ -242,6 +245,44 @@ class ConformanceSuiteConfig:
             ci_core_counts = set(OS_CORES.values())
             assert any(self.shards % core_count == 0 for core_count in ci_core_counts), \
                 f"Shards setting not optimized for CI CPU cores: {self.shards}"
+        if self.baseline is not None:
+            self._validate_baseline()
+
+    def _validate_baseline(self) -> None:
+        settings_in_both_layers = [name for name, value in (
+            ("args", self.args),
+            ("plugins", self.plugins),
+            ("disclosure_system", self.disclosure_system),
+            ("base_taxonomy_validation", self.base_taxonomy_validation),
+            ("additional_plugins_by_prefix", self.additional_plugins_by_prefix),
+            ("disclosure_system_by_prefix", self.disclosure_system_by_prefix),
+        ) if value]
+        assert not settings_in_both_layers, \
+            f"Settings must be in the baseline options file instead: {settings_in_both_layers}"
+        options = self.baseline_options
+        assert options.get("entrypointFile") == self.entry_point_path.as_posix(), \
+            f"Baseline entrypointFile must be {self.entry_point_path.as_posix()}: {options.get('entrypointFile')}"
+        assert options.get("validate") is True, "Baseline must set validate."
+        assert options.get("testcaseResultOptions") == "match-any", "Baseline must use match-any."
+        assert "testcaseExpectedErrors" not in options, "Expected errors belong in the Python config, not the baseline."
+        missing_packages = {p.as_posix() for p in self.package_paths} - set(options.get("packages", []))
+        assert not missing_packages, f"Taxonomy package assets missing from baseline packages: {sorted(missing_packages)}"
+        assert self.capture_warnings == bool(options.get("testcaseResultsCaptureWarnings")), \
+            "capture_warnings must match the baseline's testcaseResultsCaptureWarnings."
+
+    @cached_property
+    def baseline_options(self) -> dict[str, Any]:
+        if self.baseline is None:
+            return {}
+        with open(self.baseline) as file:
+            options = json.load(file)
+        assert isinstance(options, dict), f"Baseline must contain a JSON object: {self.baseline}"
+        return options
+
+    @cached_property
+    def baseline_plugins(self) -> frozenset[str]:
+        plugins = self.baseline_options.get("plugins", "")
+        return frozenset(p for p in plugins.split("|") if p)
 
     @property
     def runs_without_network(self) -> bool:
