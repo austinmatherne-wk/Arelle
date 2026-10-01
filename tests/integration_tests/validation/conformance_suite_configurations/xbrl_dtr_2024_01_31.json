@@ -1,0 +1,6 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/data-type-registry-1.11.0-REC+registry+2024-01-31.zip/data-type-registry-1.11.0-REC+registry+2024-01-31/conf/dtr/testcase-index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "testcaseResultsCaptureWarnings": true
+}

@@ -8,6 +8,7 @@ config = ConformanceSuiteConfig(
             entry_point=Path("formula/tests/index.xml"),
         ),
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     info_url="https://specifications.xbrl.org/release-history-formula-1.0-formula-conf.html",
     name=PurePath(__file__).stem,
     shards=4,

@@ -8,6 +8,7 @@ config = ConformanceSuiteConfig(
             entry_point=Path("extensible-enumerations-2.0-2020-02-12/enumerations-index.xml"),
         ),
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     info_url="https://specifications.xbrl.org/work-product-index-extensible-enumerations-extensible-enumerations-2.0.html",
     membership_url="https://www.xbrl.org/join",
     name=PurePath(__file__).stem,

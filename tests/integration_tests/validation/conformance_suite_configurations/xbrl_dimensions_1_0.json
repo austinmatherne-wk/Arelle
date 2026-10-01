@@ -1,0 +1,6 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/XBRL-XDT-CONF-2025-09-09.zip/XBRL-XDT-CONF-2025-09-09/xdt.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "testcaseResultsCaptureWarnings": true
+}

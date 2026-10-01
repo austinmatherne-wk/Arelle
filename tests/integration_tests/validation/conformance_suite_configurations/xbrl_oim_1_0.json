@@ -1,0 +1,7 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/oim-conformance-2023-04-19.zip/oim-conformance-2023-04-19/oim-index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "validateXmlOim": true,
+    "testcaseResultsCaptureWarnings": true
+}

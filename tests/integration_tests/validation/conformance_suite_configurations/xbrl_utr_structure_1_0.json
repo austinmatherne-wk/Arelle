@@ -1,0 +1,8 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/utr/structure/utr-structure-conf-cr-2013-11-18.zip/conf/utr-structure/index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "utrUrl": "tests/resources/conformance_suites/utr/structure/utr-structure-conf-cr-2013-11-18.zip/conf/utr-structure/utr-for-structure-conformance-tests.xml",
+    "utrValidate": true,
+    "testcaseResultsCaptureWarnings": true
+}

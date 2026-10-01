@@ -2,15 +2,13 @@ from pathlib import PurePath, Path
 from tests.integration_tests.validation.conformance_suite_config import ConformanceSuiteConfig, ConformanceSuiteAssetConfig
 
 config = ConformanceSuiteConfig(
-    args=[
-        "--validateXmlOim",
-    ],
     assets=[
         ConformanceSuiteAssetConfig.conformance_suite(
             Path("oim-conformance-2023-04-19.zip"),
             entry_point=Path("oim-conformance-2023-04-19/oim-index.xml"),
         ),
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     expected_failure_ids=frozenset(f"oim-conformance-2023-04-19/{s}" for s in [
         "600-xml/index-xbrl-xml.xml:V-05",
         "600-xml/index-xbrl-xml.xml:V-06",

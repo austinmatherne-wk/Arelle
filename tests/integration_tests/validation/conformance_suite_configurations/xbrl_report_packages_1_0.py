@@ -6,15 +6,13 @@ from tests.integration_tests.validation.conformance_suite_config import (
 )
 
 config = ConformanceSuiteConfig(
-    args=[
-        "--reportPackage"
-    ],
     assets=[
         ConformanceSuiteAssetConfig.conformance_suite(
             Path("report-package-conformance.zip"),
             entry_point=Path("report-package-conformance/index.csv"),
         ),
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     expected_additional_testcase_errors={f"report-package-conformance/index.csv:{s}": val for s, val in {
         # Invalid zip also fires FileSourceError.
         "V-000-invalid-zip": {
@@ -52,5 +50,4 @@ config = ConformanceSuiteConfig(
     info_url="https://specifications.xbrl.org/work-product-index-taxonomy-packages-report-packages-1.0.html",
     membership_url="https://www.xbrl.org/join",
     name=PurePath(__file__).stem,
-    plugins=frozenset(["inlineXbrlDocumentSet"]),
 )

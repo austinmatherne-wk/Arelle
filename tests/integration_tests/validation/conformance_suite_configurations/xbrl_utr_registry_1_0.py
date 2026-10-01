@@ -1,14 +1,9 @@
-import os
 from pathlib import PurePath, Path
 from tests.integration_tests.validation.conformance_suite_config import (
-    CONFORMANCE_SUITE_PATH_PREFIX, ConformanceSuiteConfig, ConformanceSuiteAssetConfig, AssetType, AssetSource
+    ConformanceSuiteConfig, ConformanceSuiteAssetConfig, AssetType, AssetSource
 )
 
 config = ConformanceSuiteConfig(
-    args=[
-        "--utrUrl", os.path.join(CONFORMANCE_SUITE_PATH_PREFIX, "utr/registry/utr.xml"),
-        "--utr",
-    ],
     assets=[
         ConformanceSuiteAssetConfig.conformance_suite(
             Path("utr/registry/utr-conf-cr-2013-05-17.zip"),
@@ -24,6 +19,7 @@ config = ConformanceSuiteConfig(
             s3_key="utr/registry/utr.xml",
         )
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     info_url="https://specifications.xbrl.org/work-product-index-registries-units-registry-1.0.html",
     name=PurePath(__file__).stem,
 )

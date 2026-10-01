@@ -1,0 +1,7 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/calculation-1.1-conformance-2023-12-20.zip/calculation-1.1-conformance-2023-12-20/index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "validateXmlOim": true,
+    "testcaseResultsCaptureWarnings": true
+}

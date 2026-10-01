@@ -1,0 +1,7 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/lrr-conf-pwd-2005-06-21.zip/lrr/conf/index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "plugins": "../../tests/plugin/lrrUrlRewriter.py",
+    "testcaseResultsCaptureWarnings": true
+}

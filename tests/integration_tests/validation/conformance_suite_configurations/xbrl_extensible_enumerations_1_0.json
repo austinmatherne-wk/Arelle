@@ -1,0 +1,6 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/extensible-enumerations-CONF-2014-10-29.zip/extensible-enumerations-CONF-2014-10-29/enumerations-index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "testcaseResultsCaptureWarnings": true
+}

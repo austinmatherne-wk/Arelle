@@ -1,0 +1,6 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/formula.zip/formula/tests/index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "testcaseResultsCaptureWarnings": true
+}

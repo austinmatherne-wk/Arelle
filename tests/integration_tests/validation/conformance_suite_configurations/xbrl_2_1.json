@@ -1,0 +1,7 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/XBRL-CONF-2025-07-16.zip/XBRL-CONF-2025-07-16/xbrl.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "calcs": "xbrl21",
+    "testcaseResultsCaptureWarnings": true
+}

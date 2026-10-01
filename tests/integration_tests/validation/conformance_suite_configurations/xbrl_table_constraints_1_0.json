@@ -1,0 +1,7 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/table-constraints-conformance-2026-09-10.zip/table-constraints-conformance-2026-09-10/table-constraints-index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "validateTableConstraintsSkipLoading": true,
+    "testcaseResultsCaptureWarnings": true
+}

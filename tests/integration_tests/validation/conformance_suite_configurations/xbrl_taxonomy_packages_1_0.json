@@ -1,0 +1,6 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/taxonomy-package-conformance/index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "testcaseResultsCaptureWarnings": true
+}

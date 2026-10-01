@@ -1,0 +1,10 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/inlineXBRL-1.1-conformanceSuite-2020-04-08/inlineXBRL-1.1-conformanceSuite-2020-04-08/index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "plugins": "inlineXbrlDocumentSet",
+    "packages": [
+        "tests/resources/conformance_suites/inlineXBRL-1.1-conformanceSuite-2020-04-08/inlineXBRL-1.1-conformanceSuite-2020-04-08/schemas/www.example.com.zip"
+    ],
+    "validateAllFilesAsInlineXbrl": true
+}

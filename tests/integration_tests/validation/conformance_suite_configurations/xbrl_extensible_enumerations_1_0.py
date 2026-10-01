@@ -10,6 +10,7 @@ config = ConformanceSuiteConfig(
             source=AssetSource.S3_PUBLIC,
         ),
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     info_url="https://specifications.xbrl.org/work-product-index-extensible-enumerations-extensible-enumerations-1.0.html",
     name=PurePath(__file__).stem,
 )

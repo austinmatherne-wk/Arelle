@@ -8,8 +8,8 @@ config = ConformanceSuiteConfig(
             entry_point=Path("lrr/conf/index.xml"),
         ),
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     info_url="https://specifications.xbrl.org/work-product-index-registries-lrr-1.0.html",
     membership_url="https://www.xbrl.org/join",
     name=PurePath(__file__).stem,
-    plugins=frozenset({"../../tests/plugin/lrrUrlRewriter.py"}),
 )

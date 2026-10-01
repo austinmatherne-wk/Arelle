@@ -8,15 +8,13 @@ from tests.integration_tests.validation.conformance_suite_config import (
 _VERSION = "2026-09-10"
 
 config = ConformanceSuiteConfig(
-    args=[
-        "--validateTableConstraintsSkipLoading",
-    ],
     assets=[
         ConformanceSuiteAssetConfig.conformance_suite(
             Path(f"table-constraints-conformance-{_VERSION}.zip"),
             entry_point=Path(f"table-constraints-conformance-{_VERSION}/table-constraints-index.xml"),
         ),
     ],
+    baseline=Path(__file__).with_suffix(".json"),
     expected_additional_testcase_errors={f"table-constraints-conformance-{_VERSION}/{s}": val for s, val in {
         # Invalid xBRL-CSV test cases prevent report construction, triggering arelle:notLoaded.
         "710-tc-metadata-processor/index-tc-metadata-table.xml:V-817c": {

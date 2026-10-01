@@ -1,0 +1,8 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/report-package-conformance.zip/report-package-conformance/index.csv",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "plugins": "inlineXbrlDocumentSet",
+    "reportPackage": true,
+    "testcaseResultsCaptureWarnings": true
+}

@@ -1,0 +1,6 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/60111 AssertionSeverity-2.0-Processing.zip/60111 AssertionSeverity-2.0-Processing/60111 Assertion Severity 2.0 Processing.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "testcaseResultsCaptureWarnings": true
+}

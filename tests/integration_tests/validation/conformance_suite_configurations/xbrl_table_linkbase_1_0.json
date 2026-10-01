@@ -1,0 +1,6 @@
+{
+    "entrypointFile": "tests/resources/conformance_suites/table-linkbase-conformance-2024-12-17.zip/table-linkbase-conformance-2024-12-17/testcases-index.xml",
+    "validate": true,
+    "testcaseResultOptions": "match-any",
+    "testcaseResultsCaptureWarnings": true
+}
