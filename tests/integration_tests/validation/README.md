@@ -59,3 +59,15 @@ This example attempts to download all configured conformance suites and will out
 ```
 python -m tests.integration_tests.validation.run_conformance_suites --download-missing --all
 ```
+
+### Run a conformance suite baseline without the test harness:
+Each XBRL International conformance suite has a baseline options file next to its config in `conformance_suite_configurations`, for example `xbrl_2_1.json`.
+A baseline runs the suite as a plain Arelle command in `match-any` mode, with no expected failures and no expected errors, so every failure shows up as a failure.
+
+Paths in a baseline are relative to the repository root, so download the suite files and run Arelle from there:
+```
+python -m tests.integration_tests.validation.run_conformance_suites --download-missing --name xbrl_2_1
+python arelleCmdLine.py --optionsFile tests/integration_tests/validation/conformance_suite_configurations/xbrl_2_1.json --csvTestReport xbrl_2_1-report.csv
+```
+Command line options override the baseline, as with any options file.
+When the test harness runs a suite that has a baseline, it adds the CI settings on top: the result mode from the Python config (usually `match-all`) and the expected errors and failures recorded there.
