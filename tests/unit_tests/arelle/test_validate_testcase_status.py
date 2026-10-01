@@ -17,8 +17,9 @@ def _determineStatus(
         expected: Any,
         userExpectedErrors: list[str],
         actualErrors: list[str],
+        expectedWarnings: list[str] | None = None,
 ) -> str:
-    return _determineVariation(resultOption, expected, userExpectedErrors, actualErrors).status
+    return _determineVariation(resultOption, expected, userExpectedErrors, actualErrors, expectedWarnings).status
 
 
 def _determineVariation(
@@ -26,11 +27,12 @@ def _determineVariation(
         expected: Any,
         userExpectedErrors: list[str],
         actualErrors: list[str],
+        expectedWarnings: list[str] | None = None,
 ) -> MagicMock:
     modelXbrl = MagicMock()
     modelXbrl.modelManager.formulaOptions.testcaseResultOptions = resultOption
     modelXbrl.modelManager.formulaOptions.testcaseExpectedErrors = {"*": userExpectedErrors}
-    modelXbrl.modelManager.formulaOptions.testcaseResultsCaptureWarnings = False
+    modelXbrl.modelManager.formulaOptions.testcaseResultsCaptureWarnings = expectedWarnings is not None
     modelXbrl.modelManager.cntlr.errors = []
     validator = Validate.__new__(Validate)
     validator.modelXbrl = modelXbrl
@@ -40,6 +42,7 @@ def _determineVariation(
         expected=expected,
         expectedCount=None,
         expectedReportCount=None,
+        expectedWarnings=expectedWarnings,
         blockedMessageCodes=None,
         assertions=None,
     )
@@ -128,3 +131,37 @@ def test_determineTestStatus_nonListExpected(
         status: str,
 ) -> None:
     assert _determineStatus(resultOption, expected, userExpectedErrors, actualErrors) == status
+
+
+@pytest.mark.parametrize("resultOption, expected, expectedWarnings, userExpectedErrors, actualErrors, status", [
+    # Match-any requires at least one expected error and at least one expected warning.
+    ("match-any", ["suite:error"], ["suite:warning"], [], ["suite:error", "suite:warning"], "pass"),
+    ("match-any", ["suite:error"], ["suite:warning"], [], ["suite:error", "suite:error", "suite:warning"], "pass"),
+    ("match-any", ["suite:a", "suite:b"], ["suite:warning"], [], ["suite:b", "suite:warning"], "pass"),
+    ("match-any", ["suite:error"], ["suite:warning"], [], ["suite:error"], "fail"),
+    ("match-any", ["suite:error"], ["suite:warning"], [], ["suite:warning"], "fail"),
+    ("match-any", ["suite:error"], ["suite:warning"], [], ["suite:error", "other:warning"], "fail"),
+    ("match-any", None, ["suite:warning"], [], ["suite:warning"], "pass"),
+    ("match-any", None, ["suite:warning"], [], ["suite:warning", "suite:warning"], "pass"),
+    ("match-any", None, ["suite:a", "suite:b"], [], ["suite:b"], "pass"),
+    ("match-any", None, ["suite:warning"], [], ["other:warning"], "fail"),
+    ("match-any", None, ["suite:warning"], [], [], "fail"),
+    # Configured errors follow the same match-any rules alongside expected warnings.
+    ("match-any", "valid", ["suite:warning"], ["cfg:extra"], ["cfg:extra", "suite:warning"], "pass"),
+    ("match-any", "valid", ["suite:warning"], ["cfg:extra"], ["suite:warning"], "fail"),
+    ("match-any", ["suite:error"], ["suite:warning"], ["cfg:extra"], ["cfg:extra", "suite:warning"], "fail"),
+    # Match-all requires every expected error and warning, exactly.
+    ("match-all", ["suite:error"], ["suite:warning"], [], ["suite:error", "suite:warning"], "pass"),
+    ("match-all", ["suite:error"], ["suite:warning"], [], ["suite:error"], "fail"),
+    ("match-all", ["suite:error"], ["suite:warning"], [], ["suite:warning"], "fail"),
+    ("match-all", None, ["suite:a", "suite:b"], [], ["suite:b"], "fail"),
+])
+def test_determineTestStatus_expectedWarnings(
+        resultOption: str,
+        expected: Any,
+        expectedWarnings: list[str],
+        userExpectedErrors: list[str],
+        actualErrors: list[str],
+        status: str,
+) -> None:
+    assert _determineStatus(resultOption, expected, userExpectedErrors, actualErrors, expectedWarnings) == status

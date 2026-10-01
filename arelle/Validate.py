@@ -824,12 +824,12 @@ class Validate:
                 _expectedList = []
             else:
                 _expectedList = [expected]  # type: ignore[list-item]
+            _numExpectedErrors = len(_expectedList)
+            _warningPassCount = 0
             if expectedWarnings:
                 _expectedList.extend(expectedWarnings)
-                if expectedCount is not None:
+                if matchAllExpected:
                     expectedCount += len(expectedWarnings)
-                else:
-                    expectedCount = len(expectedWarnings)
             if not isinstance(expected, list):
                 expected = [expected]  # type: ignore[list-item]
             for testErr in _errors:
@@ -838,7 +838,7 @@ class Validate:
                     testErrPrefix, __, testErrSuffix = testErr.rpartition(".")
                     if not testErrSuffix.isdigit():
                         testErr = testErrSuffix
-                for _exp in _expectedList:
+                for _expIndex, _exp in enumerate(_expectedList):
                     _expMatched = False
                     if isinstance(_exp,QName) and isinstance(testErr,str):
                         errPrefix, sep, errLocalName = testErr.rpartition(":")
@@ -882,8 +882,16 @@ class Validate:
                         _passCount += 1
                         if matchAllExpected:
                             _expectedList.remove(_exp)
+                        elif _expIndex >= _numExpectedErrors:
+                            _warningPassCount += 1
                         break
-            if _passCount > 0:
+            if expectedWarnings and not matchAllExpected:
+                # Expected errors and expected warnings are each lists of alternatives, so at least one of each must be raised.
+                _errorPassCount = _passCount - _warningPassCount
+                if (_warningPassCount > 0 and (_errorPassCount > 0 or _numExpectedErrors == 0) and
+                        (expectedCount is None or expectedCount == _errorPassCount)):
+                    status = "pass"
+            elif _passCount > 0:
                 if expectedCount is not None and (expectedCount != _passCount or
                                                   (matchAllExpected and expectedCount != numComparedResults)):
                     status = "fail"
