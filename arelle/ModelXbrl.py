@@ -936,19 +936,20 @@ class ModelXbrl:
             )
             return self._dimensionsInUse
 
-    def matchFact(self, otherFact: ModelFact, unmatchedFactsStack: list[ModelFact] | None = None, deemP0inf: bool = False, matchId: bool = False, matchLang: bool = True) -> ModelFact | None:
+    def matchFact(self, otherFact: ModelFact, unmatchedFactsStack: list[ModelFact] | None = None, deemP0inf: bool = False, matchId: bool = False, matchLang: bool = True, ignoreEscapedXhtmlNamespace: bool = False) -> ModelFact | None:
         """Finds matching fact, by XBRL 2.1 duplicate definition (if tuple), or by
         QName and VEquality (if an item), lang and accuracy equality, as in formula and test case usage
 
         :param otherFact: Fact to match
         :deemP0inf: boolean for formula validation to deem P0 facts to be VEqual as if they were P=INF
+        :ignoreEscapedXhtmlNamespace: boolean to match escaped XHTML with or without XHTML default namespace declarations
         """
         for fact in self.facts:
             if not matchId or otherFact.id == fact.id:
                 if (fact.isTuple):
                     if otherFact.isDuplicateOf(fact, unmatchedFactsStack=unmatchedFactsStack):
                         return fact
-                elif (fact.qname == otherFact.qname and fact.isVEqualTo(otherFact, deemP0inf=deemP0inf)):
+                elif (fact.qname == otherFact.qname and fact.isVEqualTo(otherFact, deemP0inf=deemP0inf, ignoreEscapedXhtmlNamespace=ignoreEscapedXhtmlNamespace)):
                     if fact.isFraction:
                         return fact
                     elif fact.isMultiLanguage and matchLang:
