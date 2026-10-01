@@ -93,6 +93,12 @@ manifest file (such as JP FSA) that identifies inline XBRL documents.
   python arelleCmdLine.py --plugins inlineXbrlDocumentSet --file reports/report.html --saveInstance
   ```
 
+- **Validate all files as Inline XBRL** (report files that are not Inline XBRL as errors):
+
+  ```bash
+  python arelleCmdLine.py --plugins inlineXbrlDocumentSet --file report.html --validate --inlineXbrl
+  ```
+
 ### GUI Usage
 
 - **Load IXDS documents**:
@@ -106,6 +112,11 @@ manifest file (such as JP FSA) that identifies inline XBRL documents.
   1. Load the IXDS.
   2. Open the Tools menu.
   3. Select "Save target document" to export the XML instance.
+
+- **Validate all files as Inline XBRL**:
+
+  1. Open the Tools menu, then Validation.
+  2. Check "Validate all files as Inline XBRL".
 
 ## Additional Notes
 
@@ -151,6 +162,7 @@ from arelle.XmlUtil import (
     setXmlns,
     xmlnsprefix,
 )
+from arelle.XhtmlInlineUtil import ixMsgCode
 from arelle.XmlValidate import NONE, VALID
 from arelle.XmlValidate import validate as xmlValidate
 
@@ -160,6 +172,7 @@ from arelle.XbrlConst import DEFAULT_TARGET
 MINIMUM_IXDS_DOC_COUNT = 2 # make this 2 to cause single-documents to be processed without a document set object
 
 skipExpectedInstanceComparison = None
+validateAllFilesAsInlineXbrl = False
 
 # class representing surrogate object for multi-document inline xbrl document set, references individual ix documents
 class ModelInlineXbrlDocumentSet(ModelDocument):
@@ -733,6 +746,66 @@ def commandLineOptionExtender(parser, *args, **kwargs):
                       dest="inlineTarget",
                       help=_("Specify an inline target to load. By default, all targets are loaded. Use '{}' to select the default target.").format(DEFAULT_TARGET),
                       type="string")
+    parser.add_option("--inlineXbrl",
+                      action="store_true",
+                      dest="validateAllFilesAsInlineXbrl",
+                      help=_("Ignore detected file type and validate all files as Inline XBRL."))
+    parser.add_option("--inlinexbrl",  # for WEB SERVICE use
+                      action="store_true",
+                      dest="validateAllFilesAsInlineXbrl",
+                      help=SUPPRESS_HELP)
+
+def commandLineUtilityRun(cntlr, options, *args, **kwargs):
+    global validateAllFilesAsInlineXbrl
+    validateAllFilesAsInlineXbrl = bool(getattr(options, "validateAllFilesAsInlineXbrl", False))
+
+def validationMenuExtender(cntlr, menu, *args, **kwargs):
+    from tkinter import BooleanVar
+    validateAllFilesAsInlineXbrlVar = BooleanVar(value=cntlr.config.setdefault("validateAllFilesAsInlineXbrl", False))
+
+    def setValidateAllFilesAsInlineXbrl(*args):
+        cntlr.config["validateAllFilesAsInlineXbrl"] = validateAllFilesAsInlineXbrlVar.get()
+        cntlr.saveConfig()
+
+    validateAllFilesAsInlineXbrlVar.trace_add("write", setValidateAllFilesAsInlineXbrl)
+    menu.add_checkbutton(label=_("Validate all files as Inline XBRL"), underline=0,
+                         variable=validateAllFilesAsInlineXbrlVar, onvalue=True, offvalue=False)
+
+def isValidatingAllFilesAsInlineXbrl(cntlr):
+    if cntlr.hasGui:
+        return bool(cntlr.config.get("validateAllFilesAsInlineXbrl", False))
+    return validateAllFilesAsInlineXbrl
+
+def reportNonInlineXbrlEntry(modelXbrl):
+    """
+    Reports an error when the loaded entry is not Inline XBRL and the user has asked for all files to be
+    validated as Inline XBRL. A file without an XHTML html root is rejected per Inline XBRL 1.1 section 3.3.1,
+    and an XHTML file without Inline XBRL markup has no ix:header, which section 8.1.3 requires.
+    """
+    modelDocument = modelXbrl.modelDocument
+    if (modelDocument is None
+            or modelDocument.type in (Type.INLINEXBRL, Type.INLINEXBRLDOCUMENTSET, Type.RSSFEED)
+            or modelDocument.type in Type.TESTCASETYPES
+            or not isValidatingAllFilesAsInlineXbrl(modelXbrl.modelManager.cntlr)):
+        return
+    rootElement = getattr(modelDocument, "xmlRootElement", None)
+    if rootElement is not None and rootElement.tag == f"{{{XbrlConst.xhtml}}}html":
+        modelXbrl.error(ixMsgCode("missingHeader", name="header", sect="validation"),
+                        _("Inline XBRL ix:header element not found"),
+                        modelObject=modelXbrl)
+    else:
+        modelXbrl.error(ixMsgCode("rootElement", name="html"),
+                        _("Inline XBRL document root element must be html in the XHTML namespace %(xhtmlNamespace)s, found %(element)s"),
+                        modelObject=modelXbrl, xhtmlNamespace=XbrlConst.xhtml, element=getattr(rootElement, "tag", None))
+
+def commandLineXbrlLoaded(cntlr, options, modelXbrl, *args, **kwargs):
+    reportNonInlineXbrlEntry(modelXbrl)
+
+def guiXbrlLoaded(cntlr, modelXbrl, *args, **kwargs):
+    reportNonInlineXbrlEntry(modelXbrl)
+
+def testcaseVariationXbrlLoaded(testcaseModelXbrl, modelXbrl, *args, **kwargs):
+    reportNonInlineXbrlEntry(modelXbrl)
 
 def commandLineFilingStart(cntlr, options, filesource, entrypointFiles, *args, **kwargs):
     global skipExpectedInstanceComparison
@@ -1035,8 +1108,12 @@ __pluginInfo__ = {
     "CntlrWinMain.Filing.Start": guiFilingStart,
     "CntlrWinMain.Menu.File.Open": fileOpenMenuEntender,
     "CntlrWinMain.Menu.Tools": saveTargetDocumentMenuEntender,
+    "CntlrWinMain.Menu.Validation": validationMenuExtender,
+    "CntlrWinMain.Xbrl.Loaded": guiXbrlLoaded,
     "CntlrCmdLine.Options": commandLineOptionExtender,
+    "CntlrCmdLine.Utility.Run": commandLineUtilityRun,
     "CntlrCmdLine.Filing.Start": commandLineFilingStart,
+    "CntlrCmdLine.Xbrl.Loaded": commandLineXbrlLoaded,
     "CntlrCmdLine.Xbrl.Run": commandLineXbrlRun,
     "ModelDocument.PullLoader": inlineXbrlDocumentSetLoader,
     "ModelDocument.IdentifyType": identifyInlineXbrlDocumentSet,
@@ -1048,4 +1125,5 @@ __pluginInfo__ = {
     "ModelTestcaseVariation.ArchiveIxds": testcaseVariationArchiveIxds,
     "ModelTestcaseVariation.ReportPackageIxds": testcaseVariationReportPackageIxds,
     "ModelTestcaseVariation.ResultXbrlInstanceUri": testcaseVariationResultInstanceUri,
+    "TestcaseVariation.Xbrl.Loaded": testcaseVariationXbrlLoaded,
 }
