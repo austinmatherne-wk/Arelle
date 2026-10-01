@@ -276,13 +276,9 @@ def escapedNode(
         tagName = str(elt.qname)
     s.append(tagName)
     if start or empty:
-        if elt.localName == "object" and (value := elt.get("codebase")): # resolve codebase before other element names
-            # 2022-09-15: not sure about this one, but seems that
-            # elt.get("codebase") should be the value arg for resolveHtmlUri
-            elt.set("codebase", resolveHtmlUri(elt, "codebase", value))
         for n, v in sorted(elt.items(), key=lambda item: item[0]):
             if n in uriAttrs:
-                v = resolveHtmlUri(elt, n, v).replace(" ", "%20") # %20 replacement needed for conformance test passing
+                v = resolveHtmlUri(elt, n, v)
             attrName = qname(elt, n) if n.startswith("{") else n
             s.append(' {0}="{1}"'.format(attrName,
                 v.replace("&","&amp;").replace('"', "&quot;")))

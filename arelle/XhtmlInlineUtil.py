@@ -5,7 +5,7 @@ See COPYRIGHT.md for copyright information.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 from arelle import XbrlConst
 
@@ -101,20 +101,24 @@ def ixMsgCode(
 
 
 def resolveHtmlUri(elt: ModelObject, name: str, value: str) -> str:
+    """
+    Resolves a relative URI attribute value against the document's HTML base, as Inline XBRL
+    requires for escaped and footnote content. Absolute URIs, URIs relative to an object's
+    codebase, and URIs with no HTML base to resolve against are returned unchanged. Spaces are
+    escaped only in URIs that were resolved.
+    """
     if name == "archive":
-        # URILIST
-        return " ".join(
-            resolveHtmlUri(elt, "archiveListElement", v) for v in value.split(" ")
-        )
+        return " ".join(resolveHtmlUri(elt, "archiveListElement", v) for v in value.split())
 
     if (
         elt.localName == "object"
         and name in ("classid", "data", "archiveListElement")
-        and (base := elt.get("codebase"))
+        and elt.get("codebase")
     ):
-        base = base + "/"
-    else:
-        base = getattr(elt.modelDocument, "htmlBase", None) or ""
+        # Relative to the codebase, so they stay valid once the codebase itself is resolved.
+        return value
 
-    _uri = urljoin(base, value)
-    return _uri
+    base = getattr(elt.modelDocument, "htmlBase", None) or ""
+    if not base or urlsplit(value).scheme:
+        return value
+    return urljoin(base, value).replace(" ", "%20")
