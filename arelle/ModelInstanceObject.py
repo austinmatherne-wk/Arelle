@@ -34,6 +34,7 @@
 from __future__ import annotations
 
 import uuid
+import regex as re
 from collections import defaultdict
 from typing import Any, Callable, Iterator, TYPE_CHECKING, Sequence
 from arelle import XmlUtil, XbrlConst, XbrlUtil, Locale, ModelValue
@@ -66,6 +67,7 @@ utrSymbol: Callable[..., Any] | None = None
 POSINF = float("inf")
 NEGINF = float("-inf")
 DECIMALONE = Decimal(1)
+escapedXhtmlNamespacePattern = re.compile(r"""(<[^<>]+)\s+xmlns=["']http://www\.w3\.org/1999/xhtml["']""")
 
 
 class NewFactItemOptions:
@@ -468,11 +470,15 @@ class ModelFact(ModelObject, ModelFactBase):
             deemP0Equal: bool = False,
             deemP0inf: bool = False,
             normalizeSpace: bool = True,
-            numericIntervalConsistency: bool = False
+            numericIntervalConsistency: bool = False,
+            ignoreEscapedXhtmlNamespace: bool = False
         ) -> bool:
         """(bool) -- v-equality of two facts
 
         Note that facts may be in different instances
+
+        :param ignoreEscapedXhtmlNamespace: ignore XHTML default namespace declarations in
+            escaped markup of string values, so escaped XHTML matches with or without them
         """
         if self.isTuple or other.isTuple:
             return False
@@ -520,6 +526,9 @@ class ModelFact(ModelObject, ModelFactBase):
                     self.xValue == other.xValue)
         selfValue = self.value
         otherValue = other.value
+        if ignoreEscapedXhtmlNamespace and isinstance(selfValue, str) and isinstance(otherValue, str):
+            selfValue = escapedXhtmlNamespacePattern.sub(r"\1", selfValue)
+            otherValue = escapedXhtmlNamespacePattern.sub(r"\1", otherValue)
         if normalizeSpace and isinstance(selfValue, str) and isinstance(otherValue, str): # normalized space comparison
             return " ".join(selfValue.split()) == " ".join(otherValue.split())
         else:
