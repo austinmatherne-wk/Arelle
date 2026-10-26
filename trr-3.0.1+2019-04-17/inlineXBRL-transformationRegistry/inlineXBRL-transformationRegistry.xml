@@ -1,0 +1,769 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="common/bin/stylesheet.xsl"?>
+
+<spec xmlns='http://xbrl.org/specification/2007' 
+      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' 
+      xsi:schemaLocation='http://xbrl.org/specification/2007 common/schema.xsd' 
+      xmlns:ix='http://www.xbrl.org/2008/inlineXBRL' 
+      xmlns:ixt='http://www.xbrl.org/inlineXBRL/transformation/2015-02-26' 
+      xmlns:xbrli='http://www.xbrl.org/2003/instance'>
+  <header>
+    <wg xmlns="http://xbrl.org/specification/2007">Rendering Working Group</wg>
+    <title>XII Transformation Registry</title>
+    <subtitle>Specification of Transformation Rules Registry for Inline XBRL</subtitle>
+    <id>inlineXBRL-transformationRegistry</id>
+    <feedback  xmlns="http://xbrl.org/specification/2007" >spec-feedback@xbrl.org</feedback>
+    <!-- No decimal number because minor number revisions of registries are not 
+         allowed.  The version number changes when the namespace changes, i.e.
+         when it goes to REC... and that's it. 
+    -->
+    <version>3</version>
+    <errataoriginaldate day='26' month='02' year='2015' />
+    <date day="${DD}" month="${MM}" year="${YYYY}" />
+    <status>${STATUS}</status>
+    <authors>
+      <person id='auth-plega'>
+        <name>Philip Allen</name>
+        <affiliation>CoreFiling Limited</affiliation>
+        <email>plega@corefiling.com</email>
+      </person>
+      <person id='auth-mg'>
+        <name>Masatomo Goto</name>
+        <affiliation>Fujitsu Limited</affiliation>
+        <email>mg@jp.fujitsu.com</email>
+      </person>
+    </authors>
+    <contributors>
+      <person id="person-herm">
+        <name>Herm Fischer</name>
+        <affiliation>Mark V Systems Limited</affiliation>
+        <email>fischer@markv.com</email>
+      </person>  
+      <person id="person-muramoto">
+        <name>Takahide Muramoto</name>
+        <affiliation>Fujitsu</affiliation>
+        <email>taka.muramoto@jp.fujitsu.com</email>
+      </person>  
+      <person id="person-so">
+        <name>Shogo Ohyama</name>
+        <affiliation>Fujitsu</affiliation>
+        <email>ohyama.shogo@jp.fujitsu.com</email>
+      </person>  
+      <person id="person-pdw">
+        <name>Paul Warren</name>
+        <affiliation>XBRL International</affiliation>
+        <email>pdw@xbrl.org</email>
+      </person>  
+    </contributors>
+  </header>
+  <body>
+    <section id="sec-introduction">
+      <head>Introduction (non-normative)</head>
+      <p>
+
+This <term>Transformation Rules Registry</term> is published by XBRL
+International Inc. in support of the specifications for Inline XBRL.  The
+<term>Transformation Rules</term> defined here are used to allow text strings
+in <term>Inline XBRL Documents</term> to be converted into the data types used
+within XBRL instance documents.
+    
+      </p> 
+      <p> 
+
+New versions of this <term>Transformation Rules Registry</term> will be
+published, from time to time, by XBRL International Inc.  Each version is
+identified by its XML <term>namespace</term>, as described below.
+
+      </p> 
+    </section>
+    <section id="sec-namespace"> 
+      <head>XML namespace</head>
+      <p>
+
+The <term>namespace</term> for this version of this registry is
+<code>http://www.xbrl.org/inlineXBRL/transformation/2015-02-26</code>.
+
+      </p>
+      <p>
+
+Previous versions of this registry had the following namespaces:
+
+      </p>
+      <table>
+        <tbody>
+          <tr>
+            <th>Namespace name</th>
+            <th>Date published</th>
+          </tr>
+          <tr>
+            <td><code>http://www.xbrl.org/inlineXBRL/transformation/2010-04-20</code></td>
+            <td>20 April 2010</td>
+          </tr>
+          <tr>
+            <td><code>http://www.xbrl.org/inlineXBRL/transformation/2011-07-31</code></td>
+            <td>31 July 2011</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <head>Summary list of transformations</head>
+      <example id='ex-transformations' role='nonNormativeExample wide'>
+        <p>
+
+The following non-normative list summarises the <term>Transformation Rules</term> defined in this 
+<term>Transformation Registry</term>:
+
+        </p> 
+        <table>
+          <tbody>
+            <tr>
+              <th>Format Code</th>
+              <th>Description</th>
+              <th>Input type</th>
+              <th>Output type</th>
+              <th>Input format</th>
+              <th>Output format</th>
+            </tr>
+            <tr>
+              <td>ixt:booleanfalse</td>
+              <td>Any string</td>
+              <td>
+                <code>xs:string</code>
+              </td>
+              <td>
+                <code>ixt:booleanfalseType</code>
+              </td>
+              <td>*</td>
+              <td>false</td>
+            </tr>
+            <tr>
+              <td>ixt:booleantrue</td>
+              <td>Any string</td>
+              <td>
+                <code>xs:string</code>
+              </td>
+              <td>
+                <code>ixt:booleantrueType</code>
+              </td>
+              <td>*</td>
+              <td>true</td>
+            </tr>
+            <tr>
+              <td>ixt:calindaymonthyear</td>
+              <td>Indian date day month and year based on <term>Indian National Calendar</term></td>
+              <td>
+                <code>ixt:calindaymonthyearType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>day month year</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datedaymonth</td>
+              <td>Numeric date recurring day and month</td>
+              <td>
+                <code>ixt:datedaymonthType</code>
+              </td>
+              <td>
+                <code>xs:gMonthDay</code>
+              </td>
+              <td>(D)D*(M)M</td>
+              <td>--MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datedaymonthdk</td>
+              <td>Danish date recurring day and month</td>
+              <td>
+                <code>ixt:datedaymonthdkType</code>
+              </td>
+              <td>
+                <code>xs:gMonthDay</code>
+              </td>
+              <td>(D)D. mon(th)</td>
+              <td>--MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datedaymonthen</td>
+              <td>English date recurring day and month</td>
+              <td>
+                <code>ixt:datedaymonthenType</code>
+              </td>
+              <td>
+                <code>xs:gMonthDay</code>
+              </td>
+              <td>(D)D*Mon(th)</td>
+              <td>--MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datedaymonthyear</td>
+              <td>Numeric date day month and year</td>
+              <td>
+                <code>ixt:datedaymonthyearType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>(D)D*(M)M*(Y)Y(YY)</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datedaymonthyeardk</td>
+              <td>Danish date day month and year</td>
+              <td>
+                <code>ixt:datedaymonthyeardkType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>(D)D. mon(th) (Y)Y(YY)</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datedaymonthyearen</td>
+              <td>English date day month and year</td>
+              <td>
+                <code>ixt:datedaymonthyearenType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>(D)D*Mon(th)*(Y)Y(YY)</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datedaymonthyearin</td>
+              <td>Indian date day month and year, based on <term>Gregorian Calendar</term></td>
+              <td>
+                <code>ixt:datedaymonthyearinType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>day month year</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:dateerayearmonthdayjp</td>
+              <td>Japanese traditional date year month and day</td>
+              <td>
+                <code>ixt:dateerayearmonthdayjpType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>era year month day</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:dateerayearmonthjp</td>
+              <td>Japanese traditional date year and month</td>
+              <td>
+                <code>ixt:dateerayearmonthjpType</code>
+              </td>
+              <td>
+                <code>xs:gYearMonth</code>
+              </td>
+              <td>era year month</td>
+              <td>YYYY-MM</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthday</td>
+              <td>Numeric date recurring month and day</td>
+              <td>
+                <code>ixt:datemonthdayType</code>
+              </td>
+              <td>
+                <code>xs:gMonthDay</code>
+              </td>
+              <td>(M)M*(D)D</td>
+              <td>--MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthdayen</td>
+              <td>English date recurring month and day</td>
+              <td>
+                <code>ixt:datemonthdayenType</code>
+              </td>
+              <td>
+                <code>xs:gMonthDay</code>
+              </td>
+              <td>Mon(th)*(D)D</td>
+              <td>--MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthdayyear</td>
+              <td>Numeric date month day and year</td>
+              <td>
+                <code>ixt:datemonthdayyearType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>(M)M*(D)D*(Y)Y(YY)</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthdayyearen</td>
+              <td>English date month day and year</td>
+              <td>
+                <code>ixt:datemonthdayyearenType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>Mon(th)*(D)D*(Y)Y(YY)</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthyear</td>
+              <td>Numeric date month and year</td>
+              <td>
+                <code>ixt:datemonthyearType</code>
+              </td>
+              <td>
+                <code>xs:gYearMonth</code>
+              </td>
+              <td>(M)M*(Y)Y(YY)</td>
+              <td>YYYY-MM</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthyeardk</td>
+              <td>Danish date month and year</td>
+              <td>
+                <code>ixt:datemonthyeardkType</code>
+              </td>
+              <td>
+                <code>xs:gYearMonth</code>
+              </td>
+              <td>mon(th) (Y)Y(YY)</td>
+              <td>YYYY-MM</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthyearen</td>
+              <td>English date month and year</td>
+              <td>
+                <code>ixt:datemonthyearenType</code>
+              </td>
+              <td>
+                <code>xs:gYearMonth</code>
+              </td>
+              <td>Mon(th)*(Y)Y(YY)</td>
+              <td>YYYY-MM</td>
+            </tr>
+            <tr>
+              <td>ixt:datemonthyearin</td>
+              <td>Indian date month and year, based on <term>Gregorian Calendar</term></td>
+              <td>
+                <code>ixt:datemonthyearinType</code>
+              </td>
+              <td>
+                <code>xs:gYearMonth</code>
+              </td>
+              <td>month year</td>
+              <td>YYYY-MM</td>
+            </tr>
+            <tr>
+              <td>ixt:dateyearmonthday</td>
+              <td>Numeric date year month and day</td>
+              <td>
+                <code>ixt:dateyearmonthdayType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>(Y)Y(YY)*(M)M*(D)D</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:dateyearmonthdaycjk</td>
+              <td>Japanese/Chinese/Korean date year month and day</td>
+              <td>
+                <code>ixt:dateyearmonthdaycjkType</code>
+              </td>
+              <td>
+                <code>xs:date</code>
+              </td>
+              <td>year month day</td>
+              <td>YYYY-MM-DD</td>
+            </tr>
+            <tr>
+              <td>ixt:dateyearmonthcjk</td>
+              <td>Japanese/Chinese/Korean date year and month</td>
+              <td>
+                <code>ixt:dateyearmonthcjkType</code>
+              </td>
+              <td>
+                <code>xs:gYearMonth</code>
+              </td>
+              <td>year month</td>
+              <td>YYYY-MM</td>
+            </tr>
+            <tr>
+              <td>ixt:dateyearmonthen</td>
+              <td>English date year and month</td>
+              <td>
+                <code>ixt:dateyearmonthenType</code>
+              </td>
+              <td>
+                <code>xs:gYearMonth</code>
+              </td>
+              <td>(Y)Y(YY)*Mon(th)</td>
+              <td>YYYY-MM</td>
+            </tr>
+            <tr>
+              <td>ixt:nocontent</td>
+              <td>Any string</td>
+              <td>
+                <code>xs:string</code>
+              </td>
+              <td>
+                <code>ixt:nocontentType</code>
+              </td>
+              <td>*</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>ixt:numcommadecimal</td>
+              <td>Number with comma fraction separator</td>
+              <td>
+                <code>ixt:numcommadecimalType</code>
+              </td>
+              <td>
+                <code>ixt:nonNegativeDecimalType</code>
+              </td>
+              <td>nnn*nnn*nnn,n</td>
+              <td>nnnnnnnnn.n</td>
+            </tr>
+            <tr>
+              <td>ixt:numdotdecimal</td>
+              <td>Number with dot fraction separator</td>
+              <td>
+                <code>ixt:numdotdecimalType</code>
+              </td>
+              <td>
+                <code>ixt:nonNegativeDecimalType</code>
+              </td>
+              <td>nnn*nnn*nnn.n</td>
+              <td>nnnnnnnnn.n</td>
+            </tr>
+            <tr>
+              <td>ixt:numdotdecimalin</td>
+              <td>Indian number with dot fraction separator</td>
+              <td>
+                <code>ixt:numdotdecimalinType</code>
+              </td>
+              <td>
+                <code>ixt:nonNegativeDecimalType</code>
+              </td>
+              <td>nn*nn*nnn.n</td>
+              <td>nnnnnnn.n</td>
+            </tr>
+            <tr>
+              <td>ixt:numunitdecimal</td>
+              <td>Number with unit strings</td>
+              <td>
+                <code>ixt:numunitdecimalType</code>
+              </td>
+              <td>
+                <code>ixt:nonNegativeDecimalType</code>
+              </td>
+              <td>nnn*nnn Unit nn (Unit)</td>
+              <td>nnnnnnnnn.n</td>
+            </tr>
+            <tr>
+              <td>ixt:numunitdecimalin</td>
+              <td>Indian number with unit strings</td>
+              <td>
+                <code>ixt:numunitdecimalinType</code>
+              </td>
+              <td>
+                <code>ixt:nonNegativeDecimalType</code>
+              </td>
+              <td>nn*nn*nnn Unit nn (Unit)</td>
+              <td>nnnnnnn.nn</td>
+            </tr>
+            <tr>
+              <td>ixt:zerodash</td>
+              <td>Zero dash</td>
+              <td>
+                <code>ixt:zerodashType</code>
+              </td>
+              <td>
+                <code>ixt:zeroIntegerType</code>
+              </td>
+              <td>-</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+      </example>
+    </section>
+    <section id="sec-ixt">
+      <head>Inline XBRL Transform Function Registry (normative)</head>
+      <p>
+
+References herein to the <term>Indian National Calendar</term> are to be
+interpreted as described in <bibref ref='Indian National Calendar' />.
+
+      </p>
+      <section id="sec-ixts">
+        <head>Transform function input type definitions: inlinexbrl-3_0-transformation.xsd</head>
+        <verbatim role="xml-normative">
+					<includeChunk ref="schema/inlinexbrl-3_0-transformation.xsd" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-1">
+        <head>Transform function registry: transform-registry.xml</head>
+        <verbatim role="xml-normative">
+					<includeChunk ref="../registry/transform-registry.xml" />
+        </verbatim>
+      </section>
+
+
+      <section id="sec-ixt-2">
+        <head>Transform function: ixt-booleanfalse.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-booleanfalse.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-3">
+        <head>Transform function: ixt-booleantrue.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-booleantrue.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-33">
+        <head>Transform function: ixt-calindaymonthyear.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-calindaymonthyear.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-4">
+        <head>Transform function: ixt-datedaymonth.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datedaymonth.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-25">
+        <head>Transform function: ixt-datedaymonthdk.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datedaymonthdk.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-5">
+        <head>Transform function: ixt-datedaymonthen.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datedaymonthen.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-6">
+        <head>Transform function: ixt-datedaymonthyear.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datedaymonthyear.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-26">
+        <head>Transform function: ixt-datedaymonthyeardk.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datedaymonthyeardk.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-7">
+        <head>Transform function: ixt-datedaymonthyearen.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datedaymonthyearen.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-30">
+        <head>Transform function: ixt-datedaymonthyearin.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datedaymonthyearin.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-8">
+        <head>Transform function: ixt-dateerayearmonthdayjp.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-dateerayearmonthdayjp.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-9">
+        <head>Transform function: ixt-dateerayearmonthjp.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-dateerayearmonthjp.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-10">
+        <head>Transform function: ixt-datemonthday.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthday.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-11">
+        <head>Transform function: ixt-datemonthdayen.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthdayen.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-12">
+        <head>Transform function: ixt-datemonthdayyear.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthdayyear.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-13">
+        <head>Transform function: ixt-datemonthdayyearen.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthdayyearen.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-29">
+        <head>Transform function: ixt-datemonthyear.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthyear.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-27">
+        <head>Transform function: ixt-datemonthyeardk.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthyeardk.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-14">
+        <head>Transform function: ixt-datemonthyearen.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthyearen.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-31">
+        <head>Transform function: ixt-datemonthyearin.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-datemonthyearin.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-28">
+        <head>Transform function: ixt-dateyearmonthday.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-dateyearmonthday.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-15">
+        <head>Transform function: ixt-dateyearmonthdaycjk.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-dateyearmonthdaycjk.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-17">
+        <head>Transform function: ixt-dateyearmonthcjk.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-dateyearmonthcjk.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-16">
+        <head>Transform function: ixt-dateyearmonthen.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-dateyearmonthen.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-18">
+        <head>Transform function: ixt-nocontent.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-nocontent.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-24">
+        <head>Transform function: ixt-numcommadecimal.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-numcommadecimal.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-20">
+        <head>Transform function: ixt-numdotdecimal.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-numdotdecimal.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-35">
+        <head>Transform function: ixt-numdotdecimalin.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-numdotdecimalin.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-21">
+        <head>Transform function: ixt-numunitdecimal.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-numunitdecimal.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-36">
+        <head>Transform function: ixt-numunitdecimalin.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-numunitdecimalin.xml" />
+        </verbatim>
+      </section>
+      <section id="sec-ixt-23">
+        <head>Transform function: ixt-zerodash.xml</head>
+        <verbatim role="xml-normative">
+                    <includeChunk ref="../registry/ixt-zerodash.xml" />
+        </verbatim>
+      </section>
+    </section>
+
+  </body>
+  <back>
+    <section id='sec-references'>
+      <head>References</head>
+      <bibliography>
+        <includeChunk ref='../common/boilerplate/references/IndianNationalCalendar.xml' id="SAKA" />
+      </bibliography>
+    </section>
+    <includeChunk ref='../common/boilerplate/sec-ip-status.xml' />
+    <includeChunk ref='../common/boilerplate/sec-acknowledgements.xml' />
+    <section id='sec-history'>
+      <head>Document history (non-normative)</head>
+      <revisions>
+        <revision ref='auth-plega' day='26' month='02' year='2015'>
+          <p>Published as Recommendation.</p>
+        </revision>
+        <revision ref='person-pdw' day='21' month='11' year='2018'>
+          <p>Published as Proposed Edited Recommendation.</p>
+        </revision>
+        <revision ref='person-pdw' day='17' month='04' year='2019'>
+          <p>Published as Edited Recommendation</p>
+        </revision>
+      </revisions>
+    </section>
+    <section id="sec-corrections">
+      <head>Errata corrections in this document</head>
+      <p>
+        This appendix contains a list of the errata corrections that have been
+        incorporated into this document. This represents all those errata
+        corrections that have been approved by the XBRL International <wgref/>
+        up to and including <dateref style="DD Month YYYY"/>.
+      </p>
+      <errata>
+        <erratum id="post-rec-ch1" ref="p-so" day="20" month="11" year="2018">
+          <p>
+Addition of placeholder characters for upcoming new Japanese era in ixt:dateerayearmonthjpType transform.
+          </p>
+          <sectionref ref="sec-ixts" />
+        </erratum>
+        <erratum id="post-rec-ch2" ref="p-so" day="20" month="11" year="2018">
+          <p>
+Removed erroneous text regarding two digit years on Japanese date transforms that use era.
+          </p>
+          <sectionref ref="sec-ixt-8" />
+          <sectionref ref="sec-ixt-9" />
+        </erratum>
+        <erratum id="post-rec-ch4" ref="p-so" day="01" month="04" year="2019">
+          <p>
+Updated to newly announced name for new Japanese era 
+          </p>
+          <sectionref ref="sec-ixts" />
+        </erratum>
+      </errata>
+    </section>
+  </back>
+</spec>

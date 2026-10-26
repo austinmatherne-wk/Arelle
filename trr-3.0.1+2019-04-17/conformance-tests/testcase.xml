@@ -1,0 +1,4453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testcase xmlns="http://xbrl.org/2008/conformance"
+          xmlns:reg="http://xbrl.org/2008/registry"
+          xmlns:cfcn="http://xbrl.org/2008/conformance/function"
+          xmlns:ixt="http://www.xbrl.org/inlineXBRL/transformation/2015-02-26"
+          xmlns:ixts="http://www.xbrl.org/inlineXBRL/transformation/2010-04-20/types"
+          xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:xhtml="http://www.w3.org/1999/xhtml"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:xqt-err="http://www.w3.org/2005/xqt-errors"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:case="http://xbrl.org/2011/conformance-rendering/transforms"
+          xmlns:func="http://xbrl.org/2008/function">
+   <owners>
+      <reg:owner id="herm">
+         <reg:name>Herm Fischer</reg:name>
+         <reg:affiliation>Mark V Systems Limited</reg:affiliation>
+         <reg:email>fischer@markv.com</reg:email>
+         <reg:assumedOwnership moment="2014-09-18T12:00:00"/>
+      </reg:owner>
+   </owners>
+   <number>1</number>
+   <name>Function tests for Transformation Registry 3</name>
+   <documentation>
+      <xhtml:p>XII formula-formatted test case for ixt transforms in version 3 registry</xhtml:p>
+   </documentation>
+   <variation id="V-1-1">
+      <name>ixt:booleanfalse("Anydata")</name>
+      <inputs>
+         <cfcn:call>ixt:booleanfalse("Anydata")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "false"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-1-2">
+      <name>ixt:booleanfalse("偽")</name>
+      <inputs>
+         <cfcn:call>ixt:booleanfalse("偽")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "false"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-1-3">
+      <name>Empty input</name>
+      <inputs>
+         <cfcn:call>ixt:booleanfalse("")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "false"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-2-1">
+      <name>ixt:booleantrue("Anydata")</name>
+      <inputs>
+         <cfcn:call>ixt:booleantrue("Anydata")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "true"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-2-2">
+      <name>ixt:booleantrue("真")</name>
+      <inputs>
+         <cfcn:call>ixt:booleantrue("真")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "true"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-2-3">
+      <name>Empty input</name>
+      <inputs>
+         <cfcn:call>ixt:booleantrue("")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "true"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-1">
+      <name>ixt:datedaymonth("13/08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13/08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-2">
+      <name>Single digit day and month</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("3/8")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-3">
+      <name>Alternative separator</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13.08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-4">
+      <name>ixt:datedaymonth("13-08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13-08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-5">
+      <name>ixt:datedaymonth("13 08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13 08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-6">
+      <name>ixt:datedaymonth("13\08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13\08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-7">
+      <name>ixt:datedaymonth("13!08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13!08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-8">
+      <name>ixt:datedaymonth("13,08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13,08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-9">
+      <name>More than one character separator</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13 / 08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-10">
+      <name>ixt:datedaymonth("13asdf08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13asdf08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-11">
+      <name>ixt:datedaymonth("13 monkeys landed on the moon in '08")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("13 monkeys landed on the moon in '08")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-3-12">
+      <name>Invalid xs:gMonthDay</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonth("30/02")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-4-1">
+      <name>ixt:datedaymonthdk("25. Sep.")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("25. Sep.")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-2">
+      <name>ixt:datedaymonthdk("25. sep.")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("25. sep.")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-3">
+      <name>ixt:datedaymonthdk("25. september")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("25. september")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-4">
+      <name>The month is spelled incorrectly but the date will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("25. sepxxxxxx")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-5">
+      <name>ixt:datedaymonthdk("13. august")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-6">
+      <name>ixt:datedaymonthdk("13. SEP")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. SEP")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--09-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-7">
+      <name>ixt:datedaymonthdk("13. AUGUST")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. AUGUST")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-8">
+      <name>ixt:datedaymonthdk("1. august")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("1. august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-9">
+      <name>ixt:datedaymonthdk("01. august")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("01. august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-10">
+      <name>The missing ordinalisation is unusual in Danish practice but will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13 AUGUST")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-11">
+      <name>The missing ordinalisation is unusual in Danish practice but will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13 august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-12">
+      <name>ixt:datedaymonthdk("13. August")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-13">
+      <name>ixt:datedaymonthdk("13. Aug")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. Aug")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-14">
+      <name>ixt:datedaymonthdk("13. AUG.")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. AUG.")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-15">
+      <name>ixt:datedaymonthdk("13. SEPT")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. SEPT")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--09-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-16">
+      <name>The month is spelled incorrectly but the date will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. augustsss")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-17">
+      <name>Trailing numeric characters are not accepted.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("13. august 12")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-4-18">
+      <name>There are too many characters and the string will not be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("25. september.")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-4-19">
+      <name>Invalid xs:gMonthDay</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("30. februar")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-4-20">
+      <name>There are extra characters but the date will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("22. of august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-22"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-21">
+      <name>There is a missing delimiter but the date will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("1.august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-4-22">
+      <name>There is a missing delimiter and the date will not be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthdk("1august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-5-1">
+      <name>ixt:datedaymonthen("13 August")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("13 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-2">
+      <name>ixt:datedaymonthen("13 Aug")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("13 Aug")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-3">
+      <name>ixt:datedaymonthen("22nd of August")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("22nd of August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-22"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-4">
+      <name>unicode superscript</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("1ˢᵗ of August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-5">
+      <name>Capitalised long form</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("13 AUGUST")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-6">
+      <name>Capitalised short form</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("13 AUG")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-7">
+      <name>Single digit day</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("1 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-8">
+      <name>Day beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("01 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-9">
+      <name>Month as separator</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("30th day of January, March and April")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--04-30"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-5-10">
+      <name>ixt:datedaymonthen("13 SEPT")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("13 SEPT")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-5-11">
+      <name>ixt:datedaymonthen("13 Augusts")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("13 Augusts")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-5-12">
+      <name>ixt:datedaymonthen("22nd day of August, which is the sixth month")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("22nd day of August, which is the sixth month")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-5-13">
+      <name>Lower case not permitted</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("13 august")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-5-14">
+      <name>Invalid xs:gMonthDay</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthen("30th February")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-6-1">
+      <name>ixt:datedaymonthyear("13/08/32")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13/08/32")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-2">
+      <name>ixt:datedaymonthyear("13.08.32")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13.08.32")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-3">
+      <name>Single digit day and month</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("8.8.32")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-4">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13.08.3")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2003-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-5">
+      <name>Four digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13.08.1998")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1998-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-6">
+      <name>Day beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("01.08.32")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-7">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13.08.0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-8">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13.08.03")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2003-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-9">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13.08.00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-6-10">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("13.08.203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-6-11">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyear("30.02.09")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-7-1">
+      <name>ixt:datedaymonthyeardk("25. Sep. 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("25. Sep. 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-2">
+      <name>ixt:datedaymonthyeardk("25. sep. 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("25. sep. 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-3">
+      <name>ixt:datedaymonthyeardk("25. september 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("25. september 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-4">
+      <name>ixt:datedaymonthyeardk("25. september 12")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("25. september 12")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-5">
+      <name>ixt:datedaymonthyeardk("25. september 2")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("25. september 2")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2002-09-25"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-6">
+      <name>ixt:datedaymonthyeardk("1. august 0203")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("1. august 0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-7">
+      <name>ixt:datedaymonthyeardk("13. august 00")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. august 00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-8">
+      <name>ixt:datedaymonthyeardk("13. august 0")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. august 0")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-9">
+      <name>ixt:datedaymonthyeardk("13. august 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. august 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-10">
+      <name>ixt:datedaymonthyeardk("13. SEP 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. SEP 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-11">
+      <name>ixt:datedaymonthyeardk("13. AUGUST 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. AUGUST 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-12">
+      <name>ixt:datedaymonthyeardk("1. august 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("1. august 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-13">
+      <name>ixt:datedaymonthyeardk("01. august 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("01. august 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-14">
+      <name>The missing ordinalisation is unusual in Danish practice but will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13 AUGUST 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-15">
+      <name>The missing ordinalisation is unusual in Danish practice but will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("1 august 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-16">
+      <name>ixt:datedaymonthyeardk("13. August 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. August 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-17">
+      <name>ixt:datedaymonthyeardk("13. Aug 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. Aug 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-18">
+      <name>ixt:datedaymonthyeardk("13. AUG. 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. AUG. 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-19">
+      <name>The month abbreviation is unusual in Danish practice but will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. SEPT 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-20">
+      <name>The month is spelled incorrectly but the date will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("13. augusts 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-21">
+      <name>The extra characters are not appropriate to a Danish date but the string will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("22. of august 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-22"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-22">
+      <name>The date is missing a delimiter character but the string will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("1.august 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-23">
+      <name>The date is missing any second delimiter but the string will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("1 august2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-7-24">
+      <name>The date is missing any first delimiter and will not be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("1august 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-7-25">
+      <name>Three digit years are not accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("1. august 203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-7-26">
+      <name>This parses as an invalid xs:date and will not be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("30. februar 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-7-27">
+      <name>Japanese characters are not accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyeardk("14. okt. １０６６")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-8-1">
+      <name>ixt:datedaymonthyearen("01 August 2009")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("01 August 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-2">
+      <name>ixt:datedaymonthyearen("1 August 2009")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1 August 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-3">
+      <name>ixt:datedaymonthyearen("1 August 09")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1 August 09")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-4">
+      <name>ixt:datedaymonthyearen("1 August 9")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1 August 9")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-5">
+      <name>ixt:datedaymonthyearen("1 Aug 2009")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1 Aug 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-6">
+      <name>ixt:datedaymonthyearen("1st Aug 2009")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1st Aug 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-7">
+      <name>ixt:datedaymonthyearen("30th day of January, in the year of our Lord 1649")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("30th day of January, in the year of our Lord 1649")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1649-01-30"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-8">
+      <name>Multiple months (last is matched)</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("30th day of January, March and April, 1969")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1969-04-30"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-9">
+      <name>Misleading use of Japanese characters in English date</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("14 October １０６６ was an inauspicious day, or should I say '66")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2066-10-14"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-10">
+      <name>Capitalised long form</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1 AUGUST 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-11">
+      <name>Capitalised short form</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1 AUG 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-12">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("01 August 0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-13">
+      <name>Lower case not permitted</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("1 aug 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-8-14">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("01 August 203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-8-15">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("30 February 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-8-16">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("13 August 00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-8-17">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearen("13 August 0")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-1">
+      <name>ixt:dateerayearmonthdayjp("平成元年5月31日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平成元年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1989-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-2">
+      <name>ixt:dateerayearmonthdayjp("平成 元 年 5 月 31 日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平成 元 年 5 月 31 日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1989-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-3">
+      <name>ixt:dateerayearmonthdayjp("平成22年5月31日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平成22年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-4">
+      <name>ixt:dateerayearmonthdayjp("平22年5月31日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平22年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-5">
+      <name>ixt:dateerayearmonthdayjp("平 22 年 5 月 31 日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平 22 年 5 月 31 日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-6">
+      <name>ixt:dateerayearmonthdayjp("平２２年５月３１日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平２２年５月３１日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-7">
+      <name>Still a valid date even though the era only lasted 63 years</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("昭和86年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2011-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-8">
+      <name>With non-breaking spaces</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平 22 年 5 月 31 日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-9">
+      <name>ixt:dateerayearmonthdayjp("創業年22年5月31日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("創業年22年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-9-10">
+      <name>More than 2 digits for year</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平成100年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-9-11">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平成元年2月30日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-9-12">
+      <name>Day beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平22年5月03日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-13">
+      <name>Month beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平22年02月13日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-02-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-14">
+      <name>Still a valid date even though the era only lasted 31 years</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平成32年5月1日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-15">
+      <name>Still a valid date even though the era only lasted 31 years</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("平32年5月1日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-16">
+      <name>ixt:dateerayearmonthdayjp("令和元年5月1日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("令和元年5月1日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2019-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-17">
+      <name>ixt:dateerayearmonthdayjp("令元年5月1日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("令元年5月1日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2019-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-18">
+      <name>ixt:dateerayearmonthdayjp("令和2年5月31日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("令和2年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-9-19">
+      <name>ixt:dateerayearmonthdayjp("令2年5月31日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthdayjp("令2年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-1">
+      <name>ixt:dateerayearmonthjp("平成元年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平成元年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1989-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-2">
+      <name>ixt:dateerayearmonthjp("平成22年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平成22年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-3">
+      <name>ixt:dateerayearmonthjp("平成 22 年 5 月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平成 22 年 5 月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-4">
+      <name>ixt:dateerayearmonthjp("平22年5月  ")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平22年5月  ")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-5">
+      <name>ixt:dateerayearmonthjp("平 22 年 5 月  ")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平 22 年 5 月  ")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-6">
+      <name>ixt:dateerayearmonthjp("平２２年５月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平２２年５月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-7">
+      <name>With non-breaking spaces</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平 22 年 5 月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-8">
+      <name>ixt:dateerayearmonthjp("創業22年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("創業22年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-10-9">
+      <name>Invalid xs:gYearMonth</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平成元年13月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-10-10">
+      <name>Month beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平22年02月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-11">
+      <name>Still a valid date even though the era only lasted 31 years</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平成32年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-12">
+      <name>Still a valid date even though the era only lasted 31 years</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("平32年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-13">
+      <name>ixt:dateerayearmonthjp("令和元年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("令和元年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2019-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-14">
+      <name>ixt:dateerayearmonthjp("令元年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("令元年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2019-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-15">
+      <name>ixt:dateerayearmonthjp("令和2年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("令和2年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-10-16">
+      <name>ixt:dateerayearmonthjp("令2年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateerayearmonthjp("令2年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2020-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-11-1">
+      <name>ixt:datemonthday("08/13")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthday("08/13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-11-2">
+      <name>ixt:datemonthday("8/1")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthday("8/1")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-11-3">
+      <name>Alternative separator</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthday("08.13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-11-4">
+      <name>More than one character separator</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthday("08 / 13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-11-5">
+      <name>Invalid xs:gMonthDay</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthday("02/30")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-12-1">
+      <name>ixt:datemonthdayen("August 13")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("August 13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-2">
+      <name>ixt:datemonthdayen("Aug 13")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("Aug 13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-3">
+      <name>Capitalised long form</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("AUGUST 13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-4">
+      <name>Capitalised short form</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("AUG 13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-5">
+      <name>Single digit for day</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("Aug 3")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-6">
+      <name>Day starting with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("Aug 03")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-7">
+      <name>Month as separator</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("January, March and April 30")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--01-30"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-8">
+      <name>Invalid month</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("SEPT 13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--09-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-9">
+      <name>Ordinal after the day</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("August 13th")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-10">
+      <name>Characters after the day</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("August 13xX")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "--08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-12-11">
+      <name>unicode superscript</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("August 1ˢᵗ")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-12-12">
+      <name>Invalid xs:gMonthDay</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayen("February 30")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-13-1">
+      <name>ixt:datemonthdayyear("08.13.32")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08.13.32")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-13-2">
+      <name>ixt:datemonthdayyear("08/13/32")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08/13/32")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-13-3">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08.13.3")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2003-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-13-4">
+      <name>Single digit for day and month</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("8.3.32")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-13-5">
+      <name>Four digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08.13.1998")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1998-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-13-6">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08.13.0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-13-7">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08.13.203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-13-8">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("02.30.09")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-13-9">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08.13.00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-13-10">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyear("08.13.0")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-1">
+      <name>ixt:datemonthdayyearen("August 13, 2032")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("August 13, 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-2">
+      <name>ordinal suffix allowed</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("August 13th, 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-3">
+      <name>comma not required</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("August 13 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-4">
+      <name>ixt:datemonthdayyearen("Aug 13, 2032")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("Aug 13, 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-5">
+      <name>Single digit for day</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("Aug 3, 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-6">
+      <name>Day beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("Aug 03, 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-7">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("August 13, 9")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-8">
+      <name>Two digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("August 13, 11")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2011-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-9">
+      <name>Unhelpful separators allowed</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("Martians13x2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-03-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-10">
+      <name>Month as separator</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("January, March and April the 30th, 1969")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1969-01-30"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-11">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("Aug 13 0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-12">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("Aug 13 203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-14-13">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("February 30th, 2009")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-14-14">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("August 13 00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-14-15">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthdayyearen("August 13 0")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-1">
+      <name>ixt:datemonthyeardk("Sep. 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("Sep. 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-2">
+      <name>ixt:datemonthyeardk("sep. 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("sep. 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-3">
+      <name>ixt:datemonthyeardk("september 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("september 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-4">
+      <name>ixt:datemonthyeardk("september 12")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("september 12")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-5">
+      <name>ixt:datemonthyeardk("september 2")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("september 2")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2002-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-6">
+      <name>ixt:datemonthyeardk("august 0203")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("august 0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-7">
+      <name>ixt:datemonthyeardk("august 00")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("august 00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-8">
+      <name>ixt:datemonthyeardk("august 0")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("august 0")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-9">
+      <name>ixt:datemonthyeardk("SEP 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("SEP 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-10">
+      <name>ixt:datemonthyeardk("AUGUST 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("AUGUST 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-11">
+      <name>ixt:datemonthyeardk("August 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("August 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-12">
+      <name>ixt:datemonthyeardk("Aug 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("Aug 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-13">
+      <name>ixt:datemonthyeardk("AUG. 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("AUG. 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-14">
+      <name>ixt:datemonthyeardk("SEPT 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("SEPT 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-15">
+      <name>The month is spelled incorrectly but the date will still be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("augusts 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-16">
+      <name>The comma is not appropriate to a Danish date but the string will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("august, 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-17">
+      <name>The slash is not appropriate to a Danish date but the string will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("august/2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-18">
+      <name>The multiple months may cause confusion but the string will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("Januar - April, 1969")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1969-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-19">
+      <name>The date is missing a delimiter but the string will be accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("august2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-15-20">
+      <name>Three digit years are not accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("august 203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-15-21">
+      <name>Japanese characters are not accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyeardk("okt. １０６６")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-16-1">
+      <name>ixt:datemonthyearen("August 2032")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("August 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-2">
+      <name>ixt:datemonthyearen("Aug 2032")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("Aug 2032")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-3">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("August 9")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-4">
+      <name>Two digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("August 11")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2011-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-5">
+      <name>Month as separator</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("January, March and April, 1969")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1969-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-6">
+      <name>Unhelpful separators allowed</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("Marvin the paranoid android detests the number 42")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2042-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-7">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("Aug 0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-8">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("Aug 203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-16-9">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("August 00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-16-10">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearen("August 0")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-1">
+      <name>ixt:dateyearmonthdaycjk("2010年5月31日")</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-2">
+      <name>Full width digits</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("２０１０年５月３１日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-3">
+      <name>With whitespace</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010 年 5 月 31 日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-4">
+      <name>With non-breaking spaces</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010 年 5 月 31 日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-5">
+      <name>Single digit day</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010年12月3日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-12-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-6">
+      <name>Two digit month</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010年12月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-12-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-7">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("0203年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-8">
+      <name>Day beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010年5月03日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-9">
+      <name>Month beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010年02月13日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-02-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-10">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("1年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2001-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-11">
+      <name>Two digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("10年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-17-12">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("203年5月31日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-17-13">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthdaycjk("2010年2月30日")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-18-1">
+      <name>ixt:dateyearmonthen("2032 August")</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("2032 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-2">
+      <name>ixt:dateyearmonthen("2032 Aug")</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("2032 Aug")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-3">
+      <name>ixt:dateyearmonthen("2032 AUG")</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("2032 AUG")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-4">
+      <name>ixt:dateyearmonthen("2032 AUGUST")</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("2032 AUGUST")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2032-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-5">
+      <name>Month as separator</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("1969, January, March and April")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1969-04"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-6">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("9 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2009-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-7">
+      <name>Two digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("11 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2011-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-8">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("0203 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-9">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("203 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-18-10">
+      <name>ixt:dateyearmonthen("2032 Augusts")</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("2032 Augusts")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-18-11">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("00 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-18-12">
+      <name>Millenium roll test</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthen("0 August")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-1">
+      <name>ixt:dateyearmonthcjk("2010年5月")</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("2010年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-2">
+      <name>Full width digits</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("２０１０年５月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-3">
+      <name>With whitespace</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("2010 年 5 月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-4">
+      <name>With non-breaking spaces</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("2010 年 5 月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-5">
+      <name>Two digit month</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("2010年12月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-6">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("0203年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-7">
+      <name>Month beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("2010年02月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-8">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("1年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2001-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-9">
+      <name>Two digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("10年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-19-10">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("203年5月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-19-11">
+      <name>Invalid xs:gYearMonth</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthcjk("2010年13月")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-20-1">
+      <name>ixt:nocontent("any string test data")</name>
+      <inputs>
+         <cfcn:call>ixt:nocontent("any string test data")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq ""</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-20-2">
+      <name>Empty input</name>
+      <inputs>
+         <cfcn:call>ixt:nocontent("")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq ""</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-1">
+      <name>ixt:numcommadecimal("123456,78")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123456,78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-2">
+      <name>ixt:numcommadecimal("123.456,78")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123.456,78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-3">
+      <name>ixt:numcommadecimal("123 456,78")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123 456,78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-4">
+      <name>ixt:numcommadecimal("123 456,78")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123 456,78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-5">
+      <name>ixt:numcommadecimal("123456")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123456")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-6">
+      <name>ixt:numcommadecimal("123.456 789,012")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123.456 789,012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789.012"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-7">
+      <name>ixt:numcommadecimal("123 456.789")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123 456.789")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-8">
+      <name>ixt:numcommadecimal("123 456 789")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123 456 789")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-21-9">
+      <name>ixt:numcommadecimal("-123,45")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("-123,45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-21-10">
+      <name>ixt:numcommadecimal(",45")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal(",45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-21-11">
+      <name>ixt:numcommadecimal("123 456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123 456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-21-12">
+      <name>ixt:numcommadecimal("123,456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123,456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-21-13">
+      <name>Forbidden separator</name>
+      <inputs>
+         <cfcn:call>ixt:numcommadecimal("123E456,78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-1">
+      <name>HYPHEN-MINUS</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("-")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-2">
+      <name>ARMENIAN HYPHEN</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("֊")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-3">
+      <name>HEBREW PUNCTUATION MAQAF</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("־")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-4">
+      <name>HYPHEN</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("‐")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-5">
+      <name>NON-BREAKING HYPHEN</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("‑")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-6">
+      <name>FIGURE DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("‒")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-7">
+      <name>EN DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("–")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-8">
+      <name>EM DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("—")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-9">
+      <name>HORIZONTAL BAR</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("―")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-10">
+      <name>SMALL EM DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("﹘")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-11">
+      <name>SMALL HYPHEN-MINUS</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("﹣")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-12">
+      <name>FULLWIDTH HYPHEN-MINUS</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("－")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-22-13">
+      <name>underscore</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("_")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-14">
+      <name>CANADIAN SYLLABICS HYPHEN</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("᐀")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-15">
+      <name>MONGOLIAN TODO SOFT HYPHEN</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("᠆")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-16">
+      <name>DOUBLE OBLIQUE HYPHEN</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("⸗")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-17">
+      <name>HYPHEN WITH DIAERESIS</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("⸚")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-18">
+      <name>WAVE DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("〜")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-19">
+      <name>WAVY DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("〰")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-20">
+      <name>KATAKANA-HIRAGANA DOUBLE HYPHEN</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("゠")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-21">
+      <name>PRESENTATION FORM FOR VERTICAL EM DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("︱")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-22-22">
+      <name>PRESENTATION FORM FOR VERTICAL EN DASH</name>
+      <inputs>
+         <cfcn:call>ixt:zerodash("︲")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-23-1">
+      <name>ixt:numdotdecimal("123,456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123,456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-2">
+      <name>ixt:numdotdecimal("123456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-3">
+      <name>ixt:numdotdecimal("123 456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123 456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-4">
+      <name>ixt:numdotdecimal("123 456,789")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123 456,789")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-5">
+      <name>ixt:numdotdecimal("123 456 789")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123 456 789")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-6">
+      <name>ixt:numdotdecimal("123 456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123 456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-7">
+      <name>ixt:numdotdecimal("123456")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123456")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-8">
+      <name>ixt:numdotdecimal("123,456 789.012")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123,456 789.012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789.012"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-23-9">
+      <name>ixt:numdotdecimal("123 456,78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123 456,78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-23-10">
+      <name>ixt:numdotdecimal("123,45")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123,45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-23-11">
+      <name>ixt:numdotdecimal("-123.45")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("-123.45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-23-12">
+      <name>ixt:numdotdecimal(".45")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal(".45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-23-13">
+      <name>ixt:numdotdecimal("123.456 789,012")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123.456 789,012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-23-14">
+      <name>Forbidden separator</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimal("123,456E78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-1">
+      <name>ixt:numunitdecimal("72円30銭")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("72円30銭")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "72.30"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-2">
+      <name>ixt:numunitdecimal("3,000円5銭")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("3,000円5銭")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "3000.05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-3">
+      <name>ixt:numunitdecimal("3,000円50銭")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("3,000円50銭")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "3000.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-4">
+      <name>ixt:numunitdecimal("3 dollar 5 cent")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("3 dollar 5 cent")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "3.05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-5">
+      <name>ixt:numunitdecimal("３，０００円５銭")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("３，０００円５銭")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "3000.05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-6">
+      <name>ixt:numunitdecimal("１，０００円１５銭")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("１，０００円１５銭")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1000.15"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-7">
+      <name>ixt:numunitdecimal("１，０００，０００円１５銭")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("１，０００，０００円１５銭")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1000000.15"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-8">
+      <name>ixt:numunitdecimal("30.000 euro 5 cent")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("30.000 euro 5 cent")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "30000.05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-9">
+      <name>ixt:numunitdecimal("30.000 euro 40 cent")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("30.000 euro 40 cent")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "30000.40"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-10">
+      <name>ixt:numunitdecimal("30.000 euro 40")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("30.000 euro 40")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "30000.40"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-11">
+      <name>ixt:numunitdecimal("３，０００円 5銭")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("３，０００円 5銭")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "3000.05"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-12">
+      <name>ixt:numunitdecimal("3,000x50")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("3,000x50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "3000.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-13">
+      <name>ixt:numunitdecimal("10-50")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10-50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "10.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-14">
+      <name>ixt:numunitdecimal("10/50")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10/50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "10.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-15">
+      <name>ixt:numunitdecimal("10+50")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10+50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "10.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-16">
+      <name>ixt:numunitdecimal("10*50")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10*50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "10.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-17">
+      <name>ixt:numunitdecimal("10^50")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10^50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "10.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-18">
+      <name>ixt:numunitdecimal("10 50")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10 50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "10.50"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-24-19">
+      <name>Full stop prohibited as major unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10.50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-20">
+      <name>Comma prohibited as major unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10,50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-21">
+      <name>Full-width full stop prohibited as major unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10．50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-22">
+      <name>Full-width comma prohibited as major unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10，50")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-23">
+      <name>Full stop prohibited as minor unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10 50.")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-24">
+      <name>Comma prohibited as minor unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10 50,")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-25">
+      <name>Full-width full stop prohibited as minor unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10 50．")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-26">
+      <name>Full-width comma prohibited as minor unit</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("10 50，")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-27">
+      <name>Forbidden separator</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("30E000 euro 40 cent")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-28">
+      <name>Fraction part not in hundredths</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("30.000 euro 500 cent")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-29">
+      <name>Missing minor value</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("30 Euro")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-30">
+      <name>Missing major value</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("euro 40 cent")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-24-31">
+      <name>Negative major value</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimal("-30.000 euro 40 cent")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-25-1">
+      <name>With slash</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010/5/31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-2">
+      <name>Full width digits</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("２０１０/５/３１")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-3">
+      <name>With hyphen</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010-5-31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-4">
+      <name>With dot</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010.5.31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-5">
+      <name>With whitespace</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010 5 31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-6">
+      <name>With non-breaking spaces</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010 5 31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-7">
+      <name>Single digit day</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010/12/3")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-12-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-8">
+      <name>Two digit month</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010/12/31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-12-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-9">
+      <name>Year beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("0203/5/31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-10">
+      <name>Day beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010/5/03")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-11">
+      <name>Month beginning with 0</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010/02/13")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-02-13"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-12">
+      <name>Single digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("1/5/31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2001-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-13">
+      <name>Two digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("10/5/31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2010-05-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-25-14">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("203/5/31")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-25-15">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:dateyearmonthday("2010/2/30")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-26-1">
+      <name>ixt:datemonthyear("12 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-2">
+      <name>ixt:datemonthyear("06 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("06 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-06"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-3">
+      <name>ixt:datemonthyear("1 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("1 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-4">
+      <name>ixt:datemonthyear("12 12")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12 12")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-5">
+      <name>ixt:datemonthyear("12 2")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12 2")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2002-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-6">
+      <name>ixt:datemonthyear("12 0203")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12 0203")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0203-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-7">
+      <name>ixt:datemonthyear("12 00")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12 00")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-8">
+      <name>ixt:datemonthyear("12 0")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12 0")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-9">
+      <name>ixt:datemonthyear("12/2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12/2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-10">
+      <name>ixt:datemonthyear("12.2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12.2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-26-11">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("12 201")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-26-12">
+      <name>Invalid xs:gYearMonth</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyear("13 12")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-27-1">
+      <name>ixt:datedaymonthyearin("12 सितंबर 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("12 सितंबर 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-12"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-27-2">
+      <name>ixt:datedaymonthyearin("6 सितंबर 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("6 सितंबर 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-06"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-27-3">
+      <name>ixt:datedaymonthyearin("6 सितंबर 12")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("6 सितंबर 12")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-06"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-27-4">
+      <name>ixt:datedaymonthyearin("१९ सितंबर २०१२")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("१९ सितंबर २०१२")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-19"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-27-5">
+      <name>ixt:datedaymonthyearin("६ सितंबर २०१२")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("६ सितंबर २०१२")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-06"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-27-6">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("12 सितंबर 201")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-27-7">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("६ सितंबर २०१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-27-8">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("31 सितंबर 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-27-9">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("३१ सितंबर २०१२")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-27-10">
+      <name>Invalid xs:date</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("३१ ०९ २०१२")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-27-11">
+      <name>ixt:datedaymonthyearin("१९ ०९ २०१२")</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("१९ ०९ २०१२")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09-19"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-27-12">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("१९ ०९ २०१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-27-13">
+      <name>Numeric months are not accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datedaymonthyearin("12 09 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-28-1">
+      <name>ixt:datemonthyearin("सितंबर २०१२")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearin("सितंबर २०१२")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-28-2">
+      <name>ixt:datemonthyearin("सितंबर 2012")</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearin("सितंबर 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2012-09"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-28-3">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearin("सितंबर २०१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-28-4">
+      <name>English months are not accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:datemonthyearin("September 2012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-29-1">
+      <name>ixt:calindaymonthyear("११ चैत्र १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ चैत्र १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-04-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-2">
+      <name>ixt:calindaymonthyear("११ Chaitra १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Chaitra १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-04-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-3">
+      <name>ixt:calindaymonthyear("११ Caitra १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Caitra १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-04-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-4">
+      <name>ixt:calindaymonthyear("११ वैशाख १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ वैशाख १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-5">
+      <name>ixt:calindaymonthyear("११ Vaisãkha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Vaisãkha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-6">
+      <name>ixt:calindaymonthyear("११ Vaisakha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Vaisakha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-7">
+      <name>ixt:calindaymonthyear("११ Vaishakh १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Vaishakh १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-8">
+      <name>ixt:calindaymonthyear("११ Vaiśākha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Vaiśākha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-05-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-9">
+      <name>ixt:calindaymonthyear("११ Jyaishta १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Jyaishta १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-06-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-10">
+      <name>ixt:calindaymonthyear("११ Jyaishtha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Jyaishtha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-06-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-11">
+      <name>ixt:calindaymonthyear("११ Jyaistha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Jyaistha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-06-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-12">
+      <name>ixt:calindaymonthyear("११ Jyeṣṭha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Jyeṣṭha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-06-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-13">
+      <name>ixt:calindaymonthyear("११ ज्येष्ठ १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ ज्येष्ठ १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-06-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-14">
+      <name>ixt:calindaymonthyear("११ Asadha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Asadha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-07-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-15">
+      <name>ixt:calindaymonthyear("११ Asãdha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Asãdha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-07-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-16">
+      <name>ixt:calindaymonthyear("११ Ashadha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Ashadha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-07-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-17">
+      <name>ixt:calindaymonthyear("११ Āṣāḍha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Āṣāḍha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-07-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-18">
+      <name>ixt:calindaymonthyear("११ Sravana १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Sravana १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-08-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-19">
+      <name>ixt:calindaymonthyear("११ Srãvana १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Srãvana १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-08-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-20">
+      <name>ixt:calindaymonthyear("११ Shravana १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Shravana १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-08-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-21">
+      <name>ixt:calindaymonthyear("११ Śrāvaṇa १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Śrāvaṇa १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-08-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-22">
+      <name>ixt:calindaymonthyear("११ श्रावण १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ श्रावण १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-08-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-23">
+      <name>ixt:calindaymonthyear("११ Bhadra १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Bhadra १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-09-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-24">
+      <name>ixt:calindaymonthyear("११ Bhadrapad १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Bhadrapad १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-09-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-25">
+      <name>ixt:calindaymonthyear("११ Bhādrapada १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Bhādrapada १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-09-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-26">
+      <name>ixt:calindaymonthyear("११ Bhādra १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Bhādra १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-09-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-27">
+      <name>ixt:calindaymonthyear("११ Bhãdra १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Bhãdra १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-09-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-28">
+      <name>ixt:calindaymonthyear("११ Proṣṭhapada १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Proṣṭhapada १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-09-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-29">
+      <name>ixt:calindaymonthyear("११ भाद्रपद १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ भाद्रपद १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-09-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-30">
+      <name>ixt:calindaymonthyear("११ Ashwin १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Ashwin १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-10-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-31">
+      <name>ixt:calindaymonthyear("११ Aswina १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Aswina १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-10-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-32">
+      <name>ixt:calindaymonthyear("११ Āśvina १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Āśvina १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-10-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-33">
+      <name>ixt:calindaymonthyear("११ Asvina १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Asvina १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-10-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-34">
+      <name>ixt:calindaymonthyear("११ आश्विन १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ आश्विन १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-10-03"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-35">
+      <name>ixt:calindaymonthyear("११ Kartik १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Kartik १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-11-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-36">
+      <name>ixt:calindaymonthyear("११ Kārtika १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Kārtika १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-11-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-37">
+      <name>ixt:calindaymonthyear("११ Kãrtika १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Kãrtika १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-11-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-38">
+      <name>ixt:calindaymonthyear("११ Kartika १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Kartika १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-11-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-39">
+      <name>ixt:calindaymonthyear("११ Kartiak १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Kartiak १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-11-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-40">
+      <name>ixt:calindaymonthyear("११ कार्तिक १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ कार्तिक १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-11-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-41">
+      <name>ixt:calindaymonthyear("११ Margashirsha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Margashirsha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-12-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-42">
+      <name>ixt:calindaymonthyear("११ Mārgaśīrṣa १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Mārgaśīrṣa १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-12-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-43">
+      <name>ixt:calindaymonthyear("११ Agrahayana १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Agrahayana १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-12-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-44">
+      <name>ixt:calindaymonthyear("११ Agrahāyaṇa १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Agrahāyaṇa १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-12-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-45">
+      <name>ixt:calindaymonthyear("११ मार्गशीर्ष १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ मार्गशीर्ष १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1999-12-02"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-46">
+      <name>ixt:calindaymonthyear("11 Pausha 1921")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("11 Pausha 1921")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-47">
+      <name>ixt:calindaymonthyear("11 पौष 1921")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("11 पौष 1921")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-48">
+      <name>ixt:calindaymonthyear("११ Pausha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Pausha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-49">
+      <name>ixt:calindaymonthyear("११ Pauṣa १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Pauṣa १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-50">
+      <name>ixt:calindaymonthyear("११ Pausa १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Pausa १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-51">
+      <name>ixt:calindaymonthyear("११ पौष १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ पौष १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-52">
+      <name>Start of Gregorian century 2000</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("11 Pausa 21")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-53">
+      <name>End of Gregorian century 2099</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("10 Pausa 21")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2099-12-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-54">
+      <name>ixt:calindaymonthyear("११ Māgha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Māgha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-55">
+      <name>ixt:calindaymonthyear("११ Mãgha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Mãgha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-56">
+      <name>ixt:calindaymonthyear("११ Magh १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Magh १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-57">
+      <name>ixt:calindaymonthyear("११ Magha १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Magha १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-58">
+      <name>ixt:calindaymonthyear("११ माघ १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ माघ १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-01-31"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-59">
+      <name>ixt:calindaymonthyear("११ Phalgun १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Phalgun १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-03-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-60">
+      <name>ixt:calindaymonthyear("११ Phālguna १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Phālguna १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-03-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-61">
+      <name>ixt:calindaymonthyear("११ Phãlguna १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Phãlguna १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-03-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-62">
+      <name>ixt:calindaymonthyear("११ Phalguna १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ Phalguna १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-03-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-63">
+      <name>ixt:calindaymonthyear("११ फाल्गुन १९२१")</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("११ फाल्गुन १९२१")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2000-03-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-64">
+      <name>Three digit year</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("11 Pausha 192")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-29-65">
+      <name>English months are not accepted as a valid transformation input.</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("01 January 2000")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-29-66">
+      <name>The number of days in the specified month is wrong</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("31 Pausha 1921")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-29-67">
+      <name>Leap year test 1</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("11 Phalguna 1925")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2004-03-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-68">
+      <name>Leap year test 2</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("10 Phalguna 1926")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2005-03-01"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-29-69">
+      <name>Two digit year and one digit day</name>
+      <inputs>
+         <cfcn:call>ixt:calindaymonthyear("1 Phalguna 26")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "2005-02-20"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-1">
+      <name>ixt:numdotdecimalin("1,23,456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("1,23,456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-2">
+      <name>ixt:numdotdecimalin("123456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("123456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-3">
+      <name>ixt:numdotdecimalin("1 23 456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("1 23 456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-4">
+      <name>ixt:numdotdecimalin("12 34 56,789")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("12 34 56,789")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-5">
+      <name>ixt:numdotdecimalin("1 23 456 789")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("1 23 456 789")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-30-6">
+      <name>ixt:numdotdecimalin("1 23 456.78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("1 23 456.78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456.78"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-7">
+      <name>ixt:numdotdecimalin("123456")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("123456")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-8">
+      <name>ixt:numdotdecimalin("12,34,56 789.012")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("12,34,56 789.012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123456789.012"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-30-9">
+      <name>ixt:numdotdecimalin("123 456,78")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("123 456,78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-30-10">
+      <name>ixt:numdotdecimalin("123,45")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("123,45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-30-11">
+      <name>ixt:numdotdecimalin("-123.45")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("-123.45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-30-12">
+      <name>ixt:numdotdecimalin(".45")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin(".45")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-30-13">
+      <name>ixt:numdotdecimalin("12.34 56 789,012")</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("12.34 56 789,012")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-30-14">
+      <name>Forbidden separator</name>
+      <inputs>
+         <cfcn:call>ixt:numdotdecimalin("123,456E78")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-1">
+      <name>ixt:numunitdecimalin("12,34,567 rupees 8 paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("12,34,567 rupees 8 paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1234567.08"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-2">
+      <name>ixt:numunitdecimalin("123 rupees 40 paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("123 rupees 40 paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "123.40"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-3">
+      <name>Forbidden separator</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("30E000 rupees 40 paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-4">
+      <name>Missing fraction value</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("30 Rupees")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-5">
+      <name>Missing major value</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("rupees 40 paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-6">
+      <name>Negative major value</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("-30 rupees 40 paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-7">
+      <name>ixt:numunitdecimalin("22,22,22,333 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22,22,333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "222222333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-8">
+      <name>ixt:numunitdecimalin("1,22,22,333 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("1,22,22,333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "12222333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-9">
+      <name>ixt:numunitdecimalin("1,22,333 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("1,22,333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "122333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-10">
+      <name>ixt:numunitdecimalin("22,333 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "22333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-11">
+      <name>ixt:numunitdecimalin("1,333 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("1,333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "1333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-12">
+      <name>ixt:numunitdecimalin("333 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-13">
+      <name>ixt:numunitdecimalin("22 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "22.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-14">
+      <name>ixt:numunitdecimalin("0 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("0 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "0.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-15">
+      <name>ixt:numunitdecimalin("88888888 Rupees 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("88888888 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "88888888.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-16">
+      <name>ixt:numunitdecimalin("22,22,22,333 Moo-lah 99 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22,22,333 Moo-lah 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "222222333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-17">
+      <name>ixt:numunitdecimalin("22,22,22,333 R. 99 P.")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22,22,333 R. 99 P.")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "222222333.99"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-18">
+      <name>ixt:numunitdecimalin("22,22,22,333 Rupees 0 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22,22,333 Rupees 0 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "222222333.00"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-19">
+      <name>ixt:numunitdecimalin("22,22,22,333 Rupees 22 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22,22,333 Rupees 22 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <cfcn:test>$result eq "222222333.22"</cfcn:test>
+      </outputs>
+   </variation>
+   <variation id="V-31-20">
+      <name>ixt:numunitdecimalin("22,22,22,333 Rupees 4444 Paise")</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22,22,333 Rupees 4444 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-21">
+      <name>Grouping separator in fractional value</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22,22,333 Rupees 22,22 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-22">
+      <name>Missing grouping separator</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("55555,333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-23">
+      <name>Grouping separator in wrong place</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("0,4444 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-24">
+      <name>Missing grouping separator</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("333,333 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-25">
+      <name>Grouping separator in wrong place</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("333,22 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-26">
+      <name>Grouping separator in wrong place</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("333,1 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-27">
+      <name>Grouping separator in wrong place</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,22 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-28">
+      <name>Grouping separator in wrong place</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("1,22 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <variation id="V-31-29">
+      <name>Grouping separator in wrong place</name>
+      <inputs>
+         <cfcn:call>ixt:numunitdecimalin("22,1 Rupees 99 Paise")</cfcn:call>
+      </inputs>
+      <outputs>
+         <error>xqt-err:XPTY0004</error>
+      </outputs>
+   </variation>
+   <revisions>
+      <revision by="Makefile" on="2026-10-24T18:58:41.874017-05:00">
+         <xhtml:p>
+	        Created the test case by xslt extraction from tests.xml.
+	      </xhtml:p>
+      </revision>
+   </revisions>
+</testcase>

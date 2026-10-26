@@ -1,0 +1,19 @@
+image: registry.gitlab.xbrl.org/infrastructure/s4s:master
+
+build_specs:
+ stage: build
+ script:
+   - mkdir build
+   - export S4S_OUTPUT_ROOT=`pwd`/build
+   - echo $S4S_OUTPUT_ROOT
+   - ln -s  /srv/common common 
+   - s4s-builder.sh inlineXBRL-transformationRegistry
+ artifacts:
+  name: "${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}"
+  paths:
+   - build
+
+include:
+ - project: 'infrastructure/s4s'
+   file: '/ci-templates/publish-ci.yml'
+

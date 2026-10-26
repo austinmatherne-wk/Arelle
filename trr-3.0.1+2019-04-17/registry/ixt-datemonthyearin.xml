@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet type="text/xsl" href="stylesheets/functionDefinition.xsl"?>
+
+<function
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://xbrl.org/2008/function"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:ix="http://www.xbrl.org/2008/inlineXBRL"
+  xmlns:ixt="http://www.xbrl.org/inlineXBRL/transformation/2015-02-26"
+  xmlns:xbrli="http://www.xbrl.org/2003/instance"
+  xmlns:reg="http://xbrl.org/2008/registry"
+  xsi:schemaLocation="http://xbrl.org/2008/registry schemas/registry.xsd http://xbrl.org/2008/function schemas/function.xsd">
+  <lastUpdated moment="2012-12-13T12:00:00"/>
+  <owners>
+    <reg:owner id="anish">
+      <reg:name>Anish Agrawal</reg:name>
+      <reg:affiliation>FUJITSU CONSULTING INDIA</reg:affiliation>
+      <reg:email>anish.agrawal@in.fujitsu.com</reg:email>
+      <reg:assumedOwnership moment="2012-12-13T12:00:00"/>
+    </reg:owner>
+    <reg:owner id="goto">
+      <reg:name>Masatomo Goto</reg:name>
+      <reg:affiliation>Fujitsu Laboratories of Europe Limited</reg:affiliation>
+      <reg:email>Masatomo.Goto@uk.fujitsu.com</reg:email>
+      <reg:assumedOwnership moment="2012-12-13T12:00:00"/>
+    </reg:owner>
+    <reg:owner id="muramoto">
+      <reg:name>Takahide Muramoto</reg:name>
+      <reg:affiliation>Fujitsu Limited</reg:affiliation>
+      <reg:email>taka.muramoto@jp.fujitsu.com</reg:email>
+      <reg:assumedOwnership moment="2012-12-13T12:00:00"/>
+    </reg:owner>
+    <reg:owner id="plega">
+      <reg:name>Philip Allen</reg:name>
+      <reg:affiliation>CoreFiling Limited</reg:affiliation>
+      <reg:email>plega@corefiling.com</reg:email>
+      <reg:assumedOwnership moment="2014-10-05T12:00:00"/>
+    </reg:owner>
+  </owners>
+  <summary>
+
+Transforms Indian date based on the Gregorian Calendar into W3C/ISO format.
+
+  </summary>
+  <documentation>
+    <xhtml:p>
+    
+Transforms Indian date based on the Gregorian Calendar in the order "month year"
+
+(using Hindi names for Gregorian months; e.g.
+&#2360;&#2367;&#2340;&#2306;&#2348;&#2352; 2012) and either Arabic or
+Devanagari numerals; e.g. &#2360;&#2367;&#2340;&#2306;&#2348;&#2352;
+&#2408;&#2406;&#2407;&#2408;) 
+
+into W3C/ISO date standard "YYYY-MM" format. 
+Accepts double digits for year.
+
+    </xhtml:p>
+  </documentation>
+  <reference xlink:type="simple" 
+             xlink:href="inlineXBRL-part1/REC-2010-04-20/inlineXBRL-part1-REC-2010-04-20.html#sec-transformationrules"
+             >Inline XBRL Part 1: Specification 1.0 Section 14</reference>
+  <signature name="ixt:datemonthyearin">
+    <input name="input" type="ixt:datemonthyearinType">
+      <xhtml:p>
+
+Indian date based on the Gregorian Calendar in the order "month year".
+
+      </xhtml:p>
+    </input>
+      <output type="xs:gYearMonth">
+      <xhtml:p>
+
+The date in the format xs:gYearMonth.
+
+      </xhtml:p>
+    </output>
+  </signature>
+  <revisions>
+  </revisions>
+</function>

@@ -1,0 +1,7 @@
+# Use this script to simplify the updating of the spec from one status to another.
+
+# edit boilerplate/date.xml
+
+perl -pi -e "s/DREC/REC/" inlineXBRL-transformationRegistry.xml registry/transform-registry.xml
+# (?!T avoids updating timestamps which are used in revisions/comments which we don't really want to update).
+perl -pi -e "s/2014-12-10(?!T)/2015-02-26/g" schema/inlinexbrl-3_0-transformation.xsd registry/*xml reference-transforms/*xsl conformance-tests/* inlineXBRL-transformationRegistry.xml

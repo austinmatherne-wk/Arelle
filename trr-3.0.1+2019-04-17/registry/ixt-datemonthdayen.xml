@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet type="text/xsl" href="stylesheets/functionDefinition.xsl"?>
+
+<function
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://xbrl.org/2008/function"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:ix="http://www.xbrl.org/2008/inlineXBRL"
+  xmlns:ixt="http://www.xbrl.org/inlineXBRL/transformation/2015-02-26"
+  xmlns:xbrli="http://www.xbrl.org/2003/instance"
+  xmlns:reg="http://xbrl.org/2008/registry"
+  xsi:schemaLocation="http://xbrl.org/2008/registry schemas/registry.xsd http://xbrl.org/2008/function schemas/function.xsd">
+  <lastUpdated moment="2014-10-15T12:00:00" />
+  <owners>
+    <reg:owner id="plega">
+      <reg:name>Philip Allen</reg:name>
+      <reg:affiliation>CoreFiling Limited</reg:affiliation>
+      <reg:email>plega@corefiling.com</reg:email>
+      <reg:assumedOwnership moment="2010-12-20T17:00:01"/>
+    </reg:owner>
+  </owners>
+  <summary>
+
+Transforms English date into W3C/ISO format.
+
+  </summary>
+  <documentation>
+    <xhtml:p>
+    
+Transforms English date in the order "month day" into W3C/ISO recurring date standard "--MM-DD" format.  
+Accepts single digits for D.  
+Accepts months in full or abbreviated form, with non-numeric separator.  
+Any ordinal of one or two letters is accepted.  
+The result must be a valid xs:gMonthDay so, for example, "February 30" is not permitted.  
+When a date contains several month names (e.g. "January, March and April 30"), the transform must match the first occurrence.
+
+    </xhtml:p>
+  </documentation>
+  <reference xlink:type="simple" 
+             xlink:href="inlineXBRL-part1/REC-2010-04-20/inlineXBRL-part1-REC-2010-04-20.html#sec-transformationrules"
+             >Inline XBRL Part 1: Specification 1.0 Section 14</reference>
+  <signature name="ixt:datemonthdayen">
+    <input name="input" type="ixt:datemonthdayenType">
+      <xhtml:p>
+
+English date in the order "month day".
+
+      </xhtml:p>
+    </input>
+      <output type="xs:gMonthDay">
+      <xhtml:p>
+
+The date in the format xs:gMonthDay.
+
+      </xhtml:p>
+    </output>
+  </signature>
+  <revisions>
+    <reg:revision on="2014-10-15T12:00:00" by="plega">
+      <xhtml:p>Revised the documentation.</xhtml:p>
+    </reg:revision>
+  </revisions>
+</function>

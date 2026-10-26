@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet type="text/xsl" href="stylesheets/functionDefinition.xsl"?>
+
+<function
+  xmlns="http://xbrl.org/2008/function"
+  xmlns:reg="http://xbrl.org/2008/registry"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  
+  xmlns:ixt="http://www.xbrl.org/inlineXBRL/transformation/2015-02-26" 
+  
+  xsi:schemaLocation="
+  http://xbrl.org/2008/registry schemas/registry.xsd
+  http://xbrl.org/2008/function schemas/function.xsd
+  ">
+
+  <lastUpdated moment="2009-04-03T18:00:00" />
+
+  <owners>
+    <reg:owner id="plega">
+       <reg:name>Philip Allen</reg:name>
+       <reg:affiliation>CoreFiling Limited</reg:affiliation>
+       <reg:email>plega@decisionsoft.com</reg:email>
+       <reg:assumedOwnership moment="2009-04-03T18:00:00" />
+    </reg:owner>    <reg:owner id="plega"> <reg:name>Philip Allen</reg:name> <reg:affiliation>CoreFiling Limited</reg:affiliation> <reg:email>plega@corefiling.com</reg:email> <reg:assumedOwnership moment="2010-10-07T20:00:00" /> </reg:owner>
+  </owners>
+  <summary>
+
+Transforms dash into zero.
+
+  </summary>
+  <documentation>
+    <xhtml:p>
+    
+Reformats various unicode dashes as a zero.
+
+    </xhtml:p>
+  </documentation>
+
+  <reference xlink:type="simple" xlink:href="inlineXBRL-part1/REC-2010-04-20/inlineXBRL-part1-REC-2010-04-20.html#sec-transformationrules">
+    Inline XBRL Part 1: Specification 1.0 Section 14
+  </reference>
+  
+  <signature name="ixt:zerodash">
+    <input name="input" type="ixt:zerodashType">
+      <xhtml:p>
+        The dash used to denote nothing.
+      </xhtml:p>
+    </input>
+    <output type="ixt:zeroIntegerType">
+      <xhtml:p>
+        The value zero as schema-defined ixt:zeroIntegerType.
+      </xhtml:p>
+    </output>
+  </signature>
+
+  <revisions>
+  </revisions>
+
+</function>

@@ -1,0 +1,26 @@
+Non-normative notes on why Danish dates work the way they do.  For a possible
+transformation primer.
+
+Danish dates
+
+The addition of Danish dates to the registry follows the policy that
+transformation input types will be sufficiently constrained to ensure a unique
+input value, but no further.  
+
+Thus, the ordinalisation which is standard on Danish dates is treated as part
+of the delimiter, and only enforced to the extent that a delimiter is required.
+So "13. august" is the expectation, but "13 august" and "13.august" are also
+accepted.  "13august", however, is not.
+
+We have allowed months to be abbreviated in unexpected ways, so long as the
+meaning of the input value is unique.  So "sep. 2012" is expected, but "sept.
+2012" is also accepted.  Only the first three characters of the month are
+tested, so nonsense like "AUGXXX 2012" is also allowed.
+
+Chinese, Japanese and Korean dates
+
+A number of date types were defined in version 2 of the Transformation
+Registry, for generic Chinese, Japanese and Korean dates, and for Japanese era
+dates.  These follow a stricter regime than we have adopted for
+Western-language dates, and we feel that this is justified by general usage in
+these countries.
